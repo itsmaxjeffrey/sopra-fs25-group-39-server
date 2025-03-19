@@ -1,0 +1,199 @@
+@startuml Moving Service Activity Diagram
+
+|User|
+start
+:Visit Website;
+
+|#AntiqueWhite|User|
+if (Registered?) then (no)
+  :Go to Main Page;
+  :Choose Account Type 
+  (Requester/Driver);
+  
+  if (Selected Requester?) then (yes)
+    :Go to Requester Registration Form;
+  else (no)
+    :Go to Driver Registration Form;
+  endif
+  
+  note right: S1: User Registration
+  
+  repeat
+    :Fill Registration Form
+    (username, password, etc.);
+    :Submit Form;
+    :Validate Form;
+  repeat while (Validation OK?) is (no) 
+  -> yes;
+  
+  :Create Account;
+  :Auto Login;
+  
+  if (Requester?) then (yes)
+    :Redirect to Requester Profile Setup;
+  else (no)
+    :Redirect to Driver Profile Setup;
+  endif
+  
+else (yes)
+  :Go to Login Page;
+  note right: S2: User Login
+  repeat
+    :Enter Username & Password;
+    :Validate Credentials;
+    backward :Show Error Message;
+  repeat while (Credentials Valid?) is (no)
+  -> yes;
+  
+  if (Requester?) then (yes)
+    #LightBlue:**Requester Overview**;
+  else (no)
+    #LightGreen:**Driver Overview**;
+  endif
+endif
+
+partition "Requester Activities" {
+  |#LightBlue|Requester|
+  
+  #LightBlue:**Requester Overview**;
+  note left: S4: Requester Proposal Overview
+  
+  split
+    :View My Proposals;
+    :View Completed/Open Proposals;
+  split again
+    :Create New Proposal;
+    note left: S5: Create a New Proposal
+    repeat
+      :Fill Proposal Form
+      (photos, description, addresses,
+      date, mass/volume, fragility, etc.);
+      :Submit Form;
+      :Validate Form;
+    repeat while (Form Valid?) is (no)
+    -> yes;
+    :Save Proposal;
+    :Proposal Available to Drivers;
+  split again
+    :View/Edit Existing Proposal;
+    note left: S6: Edit/Delete Proposal
+    if (Proposal Assigned?) then (no)
+      repeat
+        :Edit Proposal Details;
+        :Submit Changes;
+        :Validate Changes;
+      repeat while (Changes Valid?) is (no)
+      -> yes;
+      :Save Changes;
+    else (yes)
+      :Limited Editing Options;
+      :Follow Cancellation Rules;
+    endif
+  split again
+    :View Driver Offers;
+    note left: S7: Choose a Driver
+    :Review Driver Profiles;
+    :Select Driver;
+    :Finalize Contract;
+    note right: Interaction with Driver
+  split again
+    :Manage Contract;
+    if (Need to Cancel?) then (yes)
+      note left: S8: Cancel Contract
+      if (≥72h before move?) then (yes)
+        :Cancel with No/Minimal Fee;
+      else (no)
+        :Cancel with Fee/Restrictions;
+      endif
+      :Update Contract Status;
+    else (no)
+      if (Move Completed?) then (yes)
+        :Rate Driver;
+        note left: S9: Rate Driver
+        repeat
+          :Provide Star Rating (1-5);
+          :Add Optional Comments;
+          :Submit Rating;
+          :Validate Rating;
+        repeat while (Rating Valid?) is (no)
+        -> yes;
+        :Mark Contract as Completed;
+      endif
+    endif
+  split again
+    :Manage Profile;
+    note left: S3: Requester Profile
+    repeat
+      :View/Edit Personal Information;
+      :Submit Changes;
+      :Validate Changes;
+    repeat while (Changes Valid?) is (no)
+    -> yes;
+    :Save Profile Changes;
+    if (Delete Account?) then (yes)
+      :Confirmation Prompt;
+      :Delete Account and Data;
+      :Logout;
+    endif
+  end split
+}
+
+partition "Driver Activities" {
+  |#LightGreen|Driver|
+  
+  #LightGreen:**Driver Overview**;
+  
+  split
+    :View/Edit Profile;
+    note left: S10: Driver Profile
+    repeat
+      :Edit Personal Information;
+      :Update Vehicle Details;
+      :Upload Documents
+      (insurance, license);
+      :Submit Changes;
+      :Validate Changes;
+    repeat while (Changes Valid?) is (no)
+    -> yes;
+    :Save Changes;
+  split again
+    :View Map with Proposals;
+    note left: S11: View/Filter Proposals
+    :Apply Filters
+    (location, weight, price, etc.);
+    :View Proposal Details on Map;
+    -[#green]->
+    :Browse Available Proposals;
+    note right: Proposals created by requesters
+  split again
+    :Accept Proposal;
+    note left: S12: Accept Proposal
+    :Review Proposal Details;
+    repeat
+      :Fill Acceptance Form;
+      :Submit Acceptance;
+      :Validate Form;
+    repeat while (Form Valid?) is (no)
+    -> yes;
+    :View Pending Offers;
+    :Wait for Requester Approval;
+    -[#green]->
+    if (Requester Approved?) then (yes)
+      :Contract Created;
+      :View Contract Details;
+      note right: Interaction with Requester
+    else (no)
+      :Continue Searching for Proposals;
+    endif
+  end split
+}
+
+|User|
+:Logout;
+note right: S2: User Logout
+:End Session;
+:Return to Website Homepage;
+
+stop
+
+@enduml
