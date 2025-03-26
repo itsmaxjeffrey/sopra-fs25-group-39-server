@@ -42,10 +42,15 @@ public class UserController {
     return userGetDTOs;
   }
 
-  @PostMapping("/users")
+  @PostMapping("/api/v1/auth/register")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
-  public UserGetDTO createUser(@RequestBody UserPostDTO userPostDTO) {
+  public UserGetDTO registerUser(@RequestBody UserPostDTO userPostDTO) {
+    // throw 400 if username, password or account type is null
+    if (userPostDTO.getUsername() == null || userPostDTO.getPassword() == null || userPostDTO.getAccountType() == null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username, password or account type is null");
+    }
+    
     // convert API user to internal representation
     User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
 
