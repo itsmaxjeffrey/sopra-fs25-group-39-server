@@ -7,6 +7,7 @@ import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,10 +47,10 @@ public class UserController {
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
   public UserGetDTO registerUser(@RequestBody UserPostDTO userPostDTO) {
-    // throw 400 if username, password or account type is null
-    if (userPostDTO.getUsername() == null || userPostDTO.getPassword() == null || userPostDTO.getAccountType() == null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username, password or account type is null");
-    }
+    // throw 400 if username, password or account type is null, to be implemented (once objects are set up)
+    //if (userPostDTO.getUsername() == null || userPostDTO.getPassword() == null || userPostDTO.getAccountType() == null) {
+    //  throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username, password or account type is null");
+    //}
     
     // convert API user to internal representation
     User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
