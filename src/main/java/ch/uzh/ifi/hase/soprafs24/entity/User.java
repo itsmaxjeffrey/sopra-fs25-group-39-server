@@ -59,8 +59,12 @@ public class User implements Serializable {
   @Column(nullable = false)
   private Double walletBalance = 0.0;
 
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-  private List<Rating> ratings =  new ArrayList<>();
+  @OneToMany(mappedBy = "fromUser")
+  private List<Rating> ratingsGiven =  new ArrayList<>();
+
+  @OneToMany(mappedBy = "toUser")
+  private List<Rating> ratingsReceived =  new ArrayList<>();
+
 
 
   @Column(nullable = false)
@@ -183,12 +187,28 @@ public class User implements Serializable {
   }
 
 
-  //ratings
-  public void setRatings(List<Rating> ratings){
-    this.ratings = ratings;
+  //ratings given
+  public List<Rating> getRatingsGiven(){
+    return this.ratingsGiven;
   }
-  public void addRating(Rating rating){
-    this.ratings.add(rating);
+  public void setRatingsGiven(List<Rating> ratingsGiven){
+    this.ratingsGiven = ratingsGiven;
+  }
+  public void addRatingGiven(Rating rating){
+    this.ratingsGiven.add(rating);
+    rating.setFromUser(this);
+  }
+
+  //ratings given
+  public List<Rating> getRatingsReceived(){
+    return this.ratingsReceived;
+  }
+  public void setRatingsReceived(List<Rating> ratingsReceived){
+    this.ratingsReceived = ratingsReceived;
+  }
+  public void addRatingReceived(Rating rating){
+    this.ratingsReceived.add(rating);
+    rating.setFromUser(this);
   }
 
   //phone number
