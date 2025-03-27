@@ -23,6 +23,7 @@ import java.time.LocalDate;
  * the primary key
  */
 @Entity
+@Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "USER")
 public class User implements Serializable {
 
