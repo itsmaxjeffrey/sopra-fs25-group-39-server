@@ -189,9 +189,9 @@ public class User implements Serializable {
   }
   public void addRating(Rating rating){
     this.ratings.add(rating);
-    rating.setUser(this);
   }
 
+  //phone number
   public void setPhoneNumber(String phoneNumber){
     this.phoneNumber = phoneNumber;
   }
@@ -199,6 +199,12 @@ public class User implements Serializable {
     return this.phoneNumber;
   }
  
-
-
+  //user bio
+  //phone number
+  public void setUserBio(String userBio){
+    this.userBio = userBio;
+  }
+  public String getUserBio(){
+    return this.userBio;
+  }
 }
