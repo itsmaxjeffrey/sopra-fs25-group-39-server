@@ -1,9 +1,16 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
 
-import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
+import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
 
 import javax.persistence.*;
+
+import org.hibernate.annotations.CreationTimestamp;
+
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.time.LocalDate;
 
 /**
  * Internal User Representation
@@ -23,57 +30,175 @@ public class User implements Serializable {
 
   @Id
   @GeneratedValue
-  private Long id;
+  private Long userId;
+  
+  @Column(nullable = false, unique = true)
+  private String userName;
 
   @Column(nullable = false)
-  private String name;
+  private String password;
 
-  @Column(nullable = false, unique = true)
-  private String username;
-
-  @Column(nullable = false, unique = true)
-  private String token;
+  
+  @Column(nullable=false, unique = true)
+  private String email;
 
   @Column(nullable = false)
-  private UserStatus status;
+  @Enumerated(EnumType.STRING)
+  private UserAccountType userAccountType;
 
+  @CreationTimestamp
+  @Column(updatable = false)
+  private LocalDateTime creationDate;
+
+  @Column(nullable = true)
+  private LocalDate birthDate;
+
+  @Column(nullable=true)
+  private String profilePicturePath;
+
+  @Column(nullable = false)
+  private Double walletBalance = 0.0;
+
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private List<Rating> ratings =  new ArrayList<>();
+
+
+  @Column(nullable = false)
+  private String firstName;
+
+  @Column(nullable=false)
+  private String lastName;
+
+  
+  @Column(nullable=false, unique = true)
+  private String phoneNumber;
+
+  @Column(nullable=true)
+  private String userBio;
+
+
+  
+
+
+
+  //id
   public Long getId() {
-    return id;
+    return userId;
   }
 
-  public void setId(Long id) {
-    this.id = id;
+  public void setId(Long userId) {
+    this.userId = userId;
   }
 
-  public String getName() {
-    return name;
+
+  //username
+  public String getUserName() {
+    return userName;
   }
 
-  public void setName(String name) {
-    this.name = name;
+  public void setUserName(String userName) {
+    this.userName = userName;
   }
 
-  public String getUsername() {
-    return username;
+   //password
+   public void setPassword(String password){
+    this.password = password;
+  }
+  public String getPassword(){
+    return this.password;
   }
 
-  public void setUsername(String username) {
-    this.username = username;
+
+   //email
+   public void setEmail(String email){
+    this.email = email;
+  }
+  public String getEmail(){
+    return this.email;
   }
 
-  public String getToken() {
-    return token;
+
+  //account type
+  public void setUserAccountType(UserAccountType userAccountType){
+    this.userAccountType = userAccountType;
+  }
+  public UserAccountType getUserAccountType(){
+    return this.userAccountType;
   }
 
-  public void setToken(String token) {
-    this.token = token;
+
+  //user creation LocalDateTime
+
+  public LocalDateTime getCreationDate(){
+    return this.creationDate;
   }
 
-  public UserStatus getStatus() {
-    return status;
+
+  //birthDate
+
+  public LocalDate getBirthDate(){
+    return this.birthDate;
   }
 
-  public void setStatus(UserStatus status) {
-    this.status = status;
+  public void setBirthDate(LocalDate birthDate){
+    this.birthDate = birthDate;
   }
+
+  //profile picture path 
+
+  public String getProfilePicturePath(){
+    return this.profilePicturePath;
+  }
+
+  public void setProfilePicturePath(String profilePicturePath){
+    this.profilePicturePath= profilePicturePath;
+  }
+
+  //wallet balance
+
+  public Double getWalletBalance(){
+    return this.walletBalance;
+  }
+  public void setWalletBalance(Double walletBalance){
+    this.walletBalance = walletBalance;
+  }
+
+
+  //first name
+  public String getFirstName() {
+    return firstName;
+  }
+
+  public void setFirstName(String firstName) {
+    this.firstName = firstName;
+  }
+
+  //last name
+  public String getLastName() {
+    return lastName;
+  }
+
+  public void setLastName(String lastName) {
+    this.lastName = lastName;
+  }
+
+
+  //ratings
+  public void setRatings(List<Rating> ratings){
+    this.ratings = ratings;
+  }
+  public void addRating(Rating rating){
+    this.ratings.add(rating);
+    rating.setUser(this);
+  }
+
+  public void setPhoneNumber(String phoneNumber){
+    this.phoneNumber = phoneNumber;
+  }
+  public String getPhoneNumber(){
+    return this.phoneNumber;
+  }
+ 
+
+
 }
