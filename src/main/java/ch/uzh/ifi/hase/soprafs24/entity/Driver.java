@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -16,8 +17,8 @@ public class Driver extends User {
     @Column
     private String driverInsurancePath;
 
-    @OneToOne(cascade= CascadeType.ALL)
-    @JoinColumn(name="car_id", referencedColumnName = "id")
+    @OneToOne(nullcascade= CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name="car_id", referencedColumnName = "id", nullable = false)
     private Car car;
 
     @OneToOne(cascade= CascadeType.ALL)
@@ -26,5 +27,5 @@ public class Driver extends User {
 
     @Column
     private float preferredRange;
-    
+
 }
