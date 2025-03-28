@@ -16,6 +16,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.ElementCollection;
+import javax.persistence.CollectionTable;
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -84,7 +86,9 @@ public class Contract implements Serializable{
     @Column
     private String contractDescription;
 
-    @Column
+    @ElementCollection
+    @CollectionTable(name = "contract_photos", joinColumns = @JoinColumn(name = "contract_id"))
+    @Column(name = "photo")
     private List<String> contractPhotos = new ArrayList<>();
 
     @Column

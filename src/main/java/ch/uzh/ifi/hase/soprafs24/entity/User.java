@@ -34,7 +34,7 @@ public class User implements Serializable {
   private Long userId;
   
   @Column(nullable = false, unique = true)
-  private String userName;
+  private String username;
 
   @Column(nullable = false)
   private String password;
@@ -82,27 +82,24 @@ public class User implements Serializable {
   private String userBio;
 
 
-  
-
-
 
   //id
-  public Long getId() {
+  public Long getUserId() {
     return userId;
   }
 
-  public void setId(Long userId) {
+  public void setUserId(Long userId) {
     this.userId = userId;
   }
 
 
   //username
-  public String getUserName() {
-    return userName;
+  public String getUsername() {
+    return username;
   }
 
-  public void setUserName(String userName) {
-    this.userName = userName;
+  public void setUsername(String username) {
+    this.username = username;
   }
 
    //password

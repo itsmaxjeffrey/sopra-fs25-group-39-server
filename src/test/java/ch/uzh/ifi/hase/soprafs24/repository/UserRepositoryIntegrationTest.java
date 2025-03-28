@@ -1,6 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.repository;
 
-import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
+import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,25 +20,34 @@ public class UserRepositoryIntegrationTest {
   private UserRepository userRepository;
 
   @Test
-  public void findByName_success() {
+  public void findByUsername_success() {
     // given
     User user = new User();
-    user.setName("Firstname Lastname");
+    user.setEmail("Firstname Lastname");
     user.setUsername("firstname@lastname");
-    user.setStatus(UserStatus.OFFLINE);
-    user.setToken("1");
+    user.setPassword("password");
+    user.setFirstName("Firstname");
+    user.setLastName("Lastname");
+    user.setPhoneNumber("123456789");
+    user.setUserAccountType(UserAccountType.REQUESTER);
 
     entityManager.persist(user);
     entityManager.flush();
 
     // when
-    User found = userRepository.findByName(user.getName());
+    User found = userRepository.findByUsername(user.getUsername());
 
     // then
-    assertNotNull(found.getId());
-    assertEquals(found.getName(), user.getName());
+    assertNotNull(found.getUserId());
+    assertEquals(found.getEmail(), user.getEmail());
     assertEquals(found.getUsername(), user.getUsername());
-    assertEquals(found.getToken(), user.getToken());
-    assertEquals(found.getStatus(), user.getStatus());
+    assertEquals(found.getPassword(), user.getPassword());
+    assertEquals(found.getFirstName(), user.getFirstName());
+    assertEquals(found.getLastName(), user.getLastName());
+    assertEquals(found.getPhoneNumber(), user.getPhoneNumber());
+    assertEquals(found.getUserBio(), user.getUserBio());
+    assertEquals(found.getProfilePicturePath(), user.getProfilePicturePath());
+    assertEquals(found.getBirthDate(), user.getBirthDate());
+    assertEquals(found.getUserAccountType(), user.getUserAccountType());
   }
 }
