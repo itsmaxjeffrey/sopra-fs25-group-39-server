@@ -99,8 +99,8 @@ public class Contract implements Serializable{
     @OneToMany(mappedBy = "contract")
     private List<Offer> offers = new ArrayList<>();
 
-    @Column
-    private Offer acceptedOffer;
+    @ManyToOne
+    @JoinColumn(name = "accepted_offer_id")
     
     public Requester getRequester() {
         return this.requester;
