@@ -6,7 +6,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -39,8 +38,7 @@ public class Car implements Serializable {
     @Column
     private String carPicturePath;
 
-    @OneToOne
-    @JoinColumn(name = "driver_id", nullable = false)
+    @OneToOne(mappedBy = "car")
     private Driver driver;
 
     public String getCarModel() {
