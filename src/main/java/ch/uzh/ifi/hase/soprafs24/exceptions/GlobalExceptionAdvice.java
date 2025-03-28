@@ -1,4 +1,3 @@
-
 package ch.uzh.ifi.hase.soprafs24.exceptions;
 
 import org.slf4j.Logger;
