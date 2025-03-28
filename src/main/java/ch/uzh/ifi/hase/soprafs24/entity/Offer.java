@@ -39,5 +39,32 @@ public class Offer implements Serializable {
     private LocalDateTime creationDateTime;
 
 
+    public Contract getContract() {
+    return this.contract;
+    }
+
+    public void setContract(Contract contract){
+        this.contract = contract;
+    }
+
+    public Driver getDriver(){
+        return this.driver;
+    }
+    
+    public void setDriver(Driver driver){
+        this.driver = driver;
+    }
+
+    public OfferStatus getOfferStatus(){
+        return this.offerStatus;
+    }
+
+    public void setOfferStatus(OfferStatus offerStatus){
+        this.offerStatus = offerStatus;
+    }
+
+    public LocalDateTime getCreationDateTime(){
+        return this.creationDateTime;
+    }
     
 }

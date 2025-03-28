@@ -22,8 +22,8 @@ public class Rating implements Serializable{
     private User toUser;
 
     @ManyToOne
-    @JoinColumn(name="contract_id", nullable= false)
-    private User Contract contract;
+    @JoinColumn(name="contractId", nullable= false)
+    private Contract contract;
 
     @Column(nullable = true)
     private int ratingValue;

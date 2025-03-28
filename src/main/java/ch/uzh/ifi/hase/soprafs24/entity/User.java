@@ -200,7 +200,7 @@ public class User implements Serializable {
     rating.setFromUser(this);
   }
 
-  //ratings given
+  //ratings received
   public List<Rating> getRatingsReceived(){
     return this.ratingsReceived;
   }
@@ -209,7 +209,7 @@ public class User implements Serializable {
   }
   public void addRatingReceived(Rating rating){
     this.ratingsReceived.add(rating);
-    rating.setFromUser(this);
+    rating.setToUser(this);
   }
 
   //phone number
@@ -221,7 +221,6 @@ public class User implements Serializable {
   }
  
   //user bio
-  //phone number
   public void setUserBio(String userBio){
     this.userBio = userBio;
   }
