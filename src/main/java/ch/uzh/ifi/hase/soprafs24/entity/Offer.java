@@ -24,11 +24,11 @@ public class Offer implements Serializable {
 
 
     @ManyToOne
-    @JoinColumn(name = "contractId")
+    @JoinColumn(name = "contract_id")
     private Contract contract;
 
     @ManyToOne
-    @JoinColumn(name = "driverId")
+    @JoinColumn(name = "driver_id")
     private Driver driver;
 
     @Column
