@@ -99,7 +99,7 @@ public class Contract implements Serializable{
     @OneToMany(mappedBy = "contract")
     private List<Offer> offers = new ArrayList<>();
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "accepted_offer_id")
     
     public Requester getRequester() {
