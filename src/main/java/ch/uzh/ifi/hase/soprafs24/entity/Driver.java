@@ -64,7 +64,7 @@ public class Driver extends User {
         return this.preferredRange;
     }
 
-    public void getPreferredRange(float preferredRange){
+    public void setPreferredRange(float preferredRange){
         this.preferredRange= preferredRange;
     }
 }
