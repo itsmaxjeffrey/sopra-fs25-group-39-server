@@ -65,10 +65,10 @@ public class Rating implements Serializable{
     public void setContract(Contract contract) {
         this.contract = contract;
     }
-    public int getRatingValue() {
+    public Integer getRatingValue() {
         return ratingValue;
     }
-    public void setRatingValue(int ratingValue) {
+    public void setRatingValue(Integer ratingValue) {
         this.ratingValue = ratingValue;
     }
     public boolean isFlagIssues() {
