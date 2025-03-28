@@ -5,6 +5,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -17,7 +18,7 @@ public class Driver extends User {
     @Column
     private String driverInsurancePath;
 
-    @OneToOne(nullcascade= CascadeType.ALL, orphanRemoval = true)
+    @OneToOne( orphanRemoval = true)
     @JoinColumn(name="car_id", referencedColumnName = "id", nullable = false)
     private Car car;
 
