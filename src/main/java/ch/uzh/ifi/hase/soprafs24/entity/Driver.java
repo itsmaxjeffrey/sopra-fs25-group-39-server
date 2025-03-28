@@ -18,7 +18,7 @@ public class Driver extends User {
     private String driverInsurancePath;
 
     @OneToOne( orphanRemoval = true)
-    @JoinColumn(name="car_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name="car_id", referencedColumnName = "carId", nullable = false)
     private Car car;
 
     @OneToOne(cascade= CascadeType.ALL)
