@@ -25,6 +25,33 @@ public class Location implements Serializable {
     private Double latitude;
     
     @Column
-    private String longtitude;
+    private Double longtitude;
+    
+
+    public String getFormattedAddress(){
+        return this.formattedAddress;
+    }
+
+    public void setFormattedAddress(String formattedAddress){
+        this.formattedAddress = formattedAddress;
+    }
+
+    public Double getLatitude(){
+        return this.latitude;
+    }
+
+    public void setLatitude(Double latitude){
+        this.latitude = latitude;
+    }
+
+    public Double getLongtitude(){
+        return this.longtitude;
+    }
+
+    public void setLongtitude(Double longtitude){
+        this.longtitude = longtitude;
+    }    
+
+
     
 }
