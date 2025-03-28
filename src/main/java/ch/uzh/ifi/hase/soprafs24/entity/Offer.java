@@ -1,4 +1,5 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import javax.persistence.Column;
@@ -8,7 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import java.io.Serializable;
+
 import org.hibernate.annotations.CreationTimestamp;
 
 import ch.uzh.ifi.hase.soprafs24.constant.OfferStatus;
@@ -16,11 +17,11 @@ import ch.uzh.ifi.hase.soprafs24.constant.OfferStatus;
 @Entity
 @Table(name = "OFFERS")
 public class Offer implements Serializable {
-    private static final long SerialVersionUID = 1L;
-
+    private static final long serialVersionUID = 1L;
+    
     @Id
     @GeneratedValue
-    private long offerId;
+    private Long offerId;
 
 
     @ManyToOne

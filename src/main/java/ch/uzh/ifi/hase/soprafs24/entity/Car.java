@@ -18,7 +18,7 @@ public class Car implements Serializable {
 
     @Id
     @GeneratedValue
-    private Long id;
+    private Long carId;
 
 
     @Column
