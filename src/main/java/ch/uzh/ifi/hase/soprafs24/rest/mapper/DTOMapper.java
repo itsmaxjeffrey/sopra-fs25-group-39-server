@@ -22,13 +22,26 @@ public interface DTOMapper {
 
   DTOMapper INSTANCE = Mappers.getMapper(DTOMapper.class);
 
-  @Mapping(source = "name", target = "name")
-  @Mapping(source = "username", target = "username")
+  @Mapping(source = "username", target = "userName")
+  @Mapping(source = "firstName", target = "firstName")
+  @Mapping(source = "lastName", target = "lastName")
+  @Mapping(source = "password", target = "password")
+  @Mapping(source = "email", target = "email")
+  @Mapping(target = "userId", ignore = true)
+  @Mapping(target = "userAccountType", ignore = true)
+  @Mapping(target = "birthDate", ignore = true)
+  @Mapping(target = "profilePicturePath", ignore = true)
+  @Mapping(target = "walletBalance", ignore = true)
+  @Mapping(target = "ratingsGiven", ignore = true)
+  @Mapping(target = "ratingsReceived", ignore = true)
+  @Mapping(target = "phoneNumber", ignore = true)
+  @Mapping(target = "userBio", ignore = true)
   User convertUserPostDTOtoEntity(UserPostDTO userPostDTO);
 
-  @Mapping(source = "id", target = "id")
-  @Mapping(source = "name", target = "name")
-  @Mapping(source = "username", target = "username")
-  @Mapping(source = "status", target = "status")
+  @Mapping(source = "userId", target = "userId")
+  @Mapping(source = "firstName", target = "firstName")
+  @Mapping(source = "lastName", target = "lastName")
+  @Mapping(source = "userName", target = "username")
+  @Mapping(source = "userAccountType", target = "userAccountType")
   UserGetDTO convertEntityToUserGetDTO(User user);
 }

@@ -1,43 +1,47 @@
 package ch.uzh.ifi.hase.soprafs24.rest.dto;
 
-import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
+import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
 
 public class UserGetDTO {
 
-  private Long id;
-  private String name;
+  private Long userId;
+  private String firstName;
+  private String lastName;
   private String username;
-  private UserStatus status;
+  private UserAccountType userAccountType;
 
-  public Long getId() {
-    return id;
+  public Long getUserId() {
+    return userId;
+  }
+  public void setUserId(Long userId) {
+    this.userId = userId;
   }
 
-  public void setId(Long id) {
-    this.id = id;
+  public String getFirstName() {
+    return firstName;
+  }
+  public void setFirstName(String firstName) {
+    this.firstName = firstName;
   }
 
-  public String getName() {
-    return name;
+  public String getLastName() {
+    return lastName;
   }
-
-  public void setName(String name) {
-    this.name = name;
+  public void setLastName(String lastName) {
+    this.lastName = lastName;
   }
 
   public String getUsername() {
     return username;
   }
-
   public void setUsername(String username) {
     this.username = username;
   }
 
-  public UserStatus getStatus() {
-    return status;
+  public UserAccountType getUserAccountType() {
+    return userAccountType;
   }
-
-  public void setStatus(UserStatus status) {
-    this.status = status;
+  public void setUserAccountType(UserAccountType userAccountType) {
+    this.userAccountType = userAccountType;
   }
 }

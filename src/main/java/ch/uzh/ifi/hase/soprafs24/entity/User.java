@@ -82,16 +82,13 @@ public class User implements Serializable {
   private String userBio;
 
 
-  
-
-
 
   //id
-  public Long getId() {
+  public Long getUserId() {
     return userId;
   }
 
-  public void setId(Long userId) {
+  public void setUserId(Long userId) {
     this.userId = userId;
   }
 
