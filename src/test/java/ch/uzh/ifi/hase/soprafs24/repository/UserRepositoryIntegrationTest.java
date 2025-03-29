@@ -1,14 +1,14 @@
 package ch.uzh.ifi.hase.soprafs24.repository;
 
-import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
-import ch.uzh.ifi.hase.soprafs24.entity.User;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.util.UserBuilder;
 
 @DataJpaTest
 public class UserRepositoryIntegrationTest {
@@ -22,14 +22,7 @@ public class UserRepositoryIntegrationTest {
   @Test
   public void findByUsername_success() {
     // given
-    User user = new User();
-    user.setEmail("Firstname Lastname");
-    user.setUsername("firstname@lastname");
-    user.setPassword("password");
-    user.setFirstName("Firstname");
-    user.setLastName("Lastname");
-    user.setPhoneNumber("123456789");
-    user.setUserAccountType(UserAccountType.REQUESTER);
+    User user = new UserBuilder().build();
 
     entityManager.persist(user);
     entityManager.flush();

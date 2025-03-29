@@ -3,6 +3,8 @@ package ch.uzh.ifi.hase.soprafs24.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,8 +43,8 @@ public class UserService {
 
   public User createRequester(User newUser) {
     checkUserCredentialUniquenes(newUser);
-    // saves the given entity but data is only persisted in the database once
-    // flush() is called
+    newUser.setUserToken(UUID.randomUUID().toString());
+    // saves the given entity but data is only persisted in the database once flush() is called
     newUser = userRepository.save(newUser);
     userRepository.flush();
 
@@ -52,8 +54,8 @@ public class UserService {
 
   public User createDriver(User newUser) {
     checkUserCredentialUniquenes(newUser);
-    // saves the given entity but data is only persisted in the database once
-    // flush() is called
+    newUser.setUserToken(UUID.randomUUID().toString());
+    // saves the given entity but data is only persisted in the database once flush() is called
     newUser = userRepository.save(newUser);
     userRepository.flush();
 
