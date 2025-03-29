@@ -41,6 +41,14 @@ public class Car implements Serializable {
     @OneToOne(mappedBy = "car")
     private Driver driver;
 
+    public Long getCarId() {
+        return this.carId;
+    }
+    
+    public void setCarId(Long carId) {
+        this.carId = carId;
+    }
+
     public String getCarModel() {
         return this.carModel;
     }
@@ -63,10 +71,10 @@ public class Car implements Serializable {
     public void setSupportedWeight(float supportedWeight) {
         this.supportedWeight = supportedWeight;
     }
-    public boolean isElectric() {
+    public boolean getIsElectric() {
         return this.isElectric;
     }
-    public void setElectric(boolean isElectric) {
+    public void setIsElectric(boolean isElectric) {
         this.isElectric = isElectric;
     }
     public String getLicensePlate() {

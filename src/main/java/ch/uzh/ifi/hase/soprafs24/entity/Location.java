@@ -52,6 +52,11 @@ public class Location implements Serializable {
         this.longitude = longitude;
     }    
 
-
+    public Long getId() {
+        return this.id;
+    }
     
+    public void setId(Long id) {
+        this.id = id;
+    }
 }
