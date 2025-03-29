@@ -170,12 +170,16 @@ public class UserController {
    * Validate the required fields in user post DTO
    */
   private void validateUserPostDTO(UserPostDTO userPostDTO) {
-    if (userPostDTO.getUsername() == null || userPostDTO.getPassword() == null || 
-        userPostDTO.getUserAccountType() == null || userPostDTO.getEmail() == null ||
-        userPostDTO.getFirstName() == null || userPostDTO.getLastName() == null ||
-        userPostDTO.getPhoneNumber() == null) {
+    if (userPostDTO.getUsername() == null || userPostDTO.getUsername().trim().isBlank() ||
+        userPostDTO.getPassword() == null || userPostDTO.getPassword().trim().isBlank() ||
+        userPostDTO.getUserAccountType() == null ||
+        userPostDTO.getEmail() == null || userPostDTO.getEmail().trim().isBlank() ||
+        userPostDTO.getFirstName() == null || userPostDTO.getFirstName().trim().isBlank() ||
+        userPostDTO.getLastName() == null || userPostDTO.getLastName().trim().isBlank() ||
+        userPostDTO.getPhoneNumber() == null || userPostDTO.getPhoneNumber().trim().isBlank()) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
-          "Required fields are missing. Please provide username, password, email, first name, last name, phone number, and account type.");
+          "Required fields are missing or blank. Please provide non-blank username, password, email, first name, last name, phone number, and account type.");
+
     }
   }
 }
