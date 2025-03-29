@@ -16,7 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/v1/auth")
 public class AuthController {
 
     @Autowired
@@ -63,5 +63,38 @@ public class AuthController {
                         createdUser.getUsername(),
                         createdUser.getUserAccountType().toString()
                 ));
+    }
+    
+    @PostMapping("/logout")
+    public ResponseEntity<?> logoutUser() {
+        // In a stateless JWT approach, client-side is responsible for token removal
+        // Server could implement token blacklisting for additional security
+        return ResponseEntity.ok()
+                .body(new java.util.HashMap<String, String>() {{
+                    put("message", "Successfully logged out");
+                }});
+    }
+    
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshToken(@RequestBody java.util.Map<String, String> refreshRequest) {
+        String refreshToken = refreshRequest.get("token");
+        
+        // Validate the refresh token
+        if (jwtTokenUtil.validateToken(refreshToken)) {
+            String username = jwtTokenUtil.getUsernameFromToken(refreshToken);
+            User user = userService.getUserByUsername(username);
+            
+            // Generate a new access token
+            String newToken = jwtTokenUtil.generateToken(user);
+            
+            return ResponseEntity.ok(new AuthResponseDTO(
+                newToken,
+                user.getUserId(),
+                user.getUsername(),
+                user.getUserAccountType().toString()
+            ));
+        }
+        
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 }

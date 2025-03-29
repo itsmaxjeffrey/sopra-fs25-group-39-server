@@ -39,7 +39,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authorizeRequests()
-            .antMatchers("/api/auth/**").permitAll()
+            .antMatchers("/api/v1/auth/**").permitAll()
             .antMatchers("/h2-console/**").permitAll() // Allow access to H2 console
             .anyRequest().authenticated();
 
