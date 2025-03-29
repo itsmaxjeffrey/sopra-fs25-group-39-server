@@ -1,6 +1,8 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
+import java.util.ArrayList;
 import java.util.List;
+
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -52,8 +54,8 @@ public class UserService {
 
   public User createDriver(User newUser) {
     checkIfUserExists(newUser);
-    newUser.setUserToken(UUID.randomUUID().toString());
-    // saves the given entity but data is only persisted in the database once flush() is called
+    // saves the given entity but data is only persisted in the database once
+    // flush() is called
     newUser = userRepository.save(newUser);
     userRepository.flush();
 
@@ -62,27 +64,26 @@ public class UserService {
   }
 
   /**
-   * This is a helper method that will check the uniqueness criteria of the
-   * username and the name
-   * defined in the User entity. The method will do nothing if the input is unique
-   * and throw an error otherwise.
-   *
+   * Check if given username, email, phone number are unique. Throw personalized error message otherwise. 
+   * 
    * @param userToBeCreated
    * @throws org.springframework.web.server.ResponseStatusException
    * @see User
    */
-  private void checkIfUserExists(User userToBeCreated) {
-    User userByUsername = userRepository.findByUsername(userToBeCreated.getUsername());
-    User userByEmail = userRepository.findByEmail(userToBeCreated.getEmail());
+  private void checkUserCredentialUniquenes(User userToBeCreated) {
+    List<String> notUniqueAttributes = new ArrayList<>();
 
-    String baseErrorMessage = "The %s provided %s not unique. Therefore, the user could not be created!";
-    if (userByUsername != null && userByEmail != null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-          String.format(baseErrorMessage, "username and the email", "are"));
-    } else if (userByUsername != null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(baseErrorMessage, "username", "is"));
-    } else if (userByEmail != null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(baseErrorMessage, "email", "is"));
+    if (userRepository.findByUsername(userToBeCreated.getUsername()) != null) { notUniqueAttributes.add("Username"); }
+    if (userRepository.findByEmail(userToBeCreated.getEmail()) != null) { notUniqueAttributes.add("Mail Adress"); }
+    if (userRepository.findByPhoneNumber(userToBeCreated.getPhoneNumber()) != null) { notUniqueAttributes.add("Phone Number"); }
+
+    if (!notUniqueAttributes.isEmpty()) {
+      String errorMessage = String.format(
+          "The %s provided %s not unique. Therefore, the account could not be created!",
+          String.join(", ", notUniqueAttributes),
+          notUniqueAttributes.size() > 1 ? "are" : "is"
+        );
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
     }
   }
 }
