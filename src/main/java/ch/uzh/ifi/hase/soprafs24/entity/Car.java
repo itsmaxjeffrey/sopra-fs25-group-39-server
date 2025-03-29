@@ -38,7 +38,7 @@ public class Car implements Serializable {
     private float supportedWeight;
 
     @Column
-    private boolean electric;
+    private boolean isElectric;
 
     @Column
     private String licensePlate;
@@ -71,11 +71,11 @@ public class Car implements Serializable {
     public void setSupportedWeight(float supportedWeight) {
         this.supportedWeight = supportedWeight;
     }
-    public boolean isElectric() {
-        return this.electric;
+    public boolean getIsElectric() {
+        return this.isElectric;
     }
-    public void setElectric(boolean electric) {
-        this.electric = electric;
+    public void setIsElectric(boolean isElectric) {
+        this.isElectric = isElectric;
     }
     public String getLicensePlate() {
         return this.licensePlate;

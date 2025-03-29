@@ -32,11 +32,11 @@ public class CarDTO {
         this.supportedWeight = supportedWeight;
     }
 
-    public boolean isElectric() {
+    public boolean getIsElectric() {
         return isElectric;
     }
 
-    public void setElectric(boolean isElectric) {
+    public void setIsElectric(boolean isElectric) {
         this.isElectric = isElectric;
     }
 

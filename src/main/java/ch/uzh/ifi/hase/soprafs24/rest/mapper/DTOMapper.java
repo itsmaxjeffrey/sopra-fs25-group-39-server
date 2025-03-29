@@ -1,16 +1,18 @@
 package ch.uzh.ifi.hase.soprafs24.rest.mapper;
 
-import ch.uzh.ifi.hase.soprafs24.entity.User;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
+
 import ch.uzh.ifi.hase.soprafs24.entity.Car;
 import ch.uzh.ifi.hase.soprafs24.entity.Driver;
 import ch.uzh.ifi.hase.soprafs24.entity.Location;
 import ch.uzh.ifi.hase.soprafs24.entity.Requester;
+import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.CarDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
-import org.mapstruct.*;
-import org.mapstruct.factory.Mappers;
 
 /**
  * DTOMapper
@@ -32,7 +34,7 @@ public interface DTOMapper {
   @Mapping(source = "carModel", target = "carModel")
   @Mapping(source = "space", target = "space")
   @Mapping(source = "supportedWeight", target = "supportedWeight")
-  @Mapping(source = "isElectric", target = "electric")
+  @Mapping(source = "isElectric", target = "isElectric")
   @Mapping(source = "licensePlate", target = "licensePlate")
   @Mapping(target = "carId", ignore = true)
   @Mapping(target = "carPicturePath", ignore = true)
