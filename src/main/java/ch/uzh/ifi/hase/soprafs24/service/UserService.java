@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,6 +22,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.Location;
 import ch.uzh.ifi.hase.soprafs24.entity.Requester;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
 
 /**
  * User Service
@@ -37,18 +39,31 @@ public class UserService {
 
   private final UserRepository userRepository;
   private final FileStorageService fileStorageService;
+  private final PasswordEncoder passwordEncoder;
 
   @Autowired
-  public UserService(@Qualifier("userRepository") UserRepository userRepository, FileStorageService fileStorageService) {
+  public UserService(@Qualifier("userRepository") UserRepository userRepository, 
+                     FileStorageService fileStorageService,
+                     PasswordEncoder passwordEncoder) {
     this.userRepository = userRepository;
     this.fileStorageService = fileStorageService;
+    this.passwordEncoder = passwordEncoder;
   }
 
   public List<User> getUsers() {
     return this.userRepository.findAll();
   }
 
-  public User createRequester(User newUser) {
+  public User createUser(UserPostDTO userPostDTO) {
+    User newUser = new User();
+    newUser.setUsername(userPostDTO.getUsername());
+    newUser.setPassword(passwordEncoder.encode(userPostDTO.getPassword())); // Encode password
+    newUser.setEmail(userPostDTO.getEmail());
+    newUser.setUserAccountType(userPostDTO.getUserAccountType());
+    newUser.setFirstName(userPostDTO.getFirstName());
+    newUser.setLastName(userPostDTO.getLastName());
+    newUser.setPhoneNumber(userPostDTO.getPhoneNumber());
+    
     checkUserCredentialUniqueness(newUser);
     // saves the given entity but data is only persisted in the database once
     // flush() is called
@@ -59,15 +74,15 @@ public class UserService {
     return newUser;
   }
 
-  public User createDriver(User newUser) {
-    checkUserCredentialUniqueness(newUser);
-    // saves the given entity but data is only persisted in the database once
-    // flush() is called
-    newUser = userRepository.save(newUser);
-    userRepository.flush();
-
-    log.debug("Created Information for User: {}", newUser);
-    return newUser;
+  /**
+   * Find a user by username for authentication purposes
+   * 
+   * @param username The username to search for
+   * @return User if found
+   * @throws ResponseStatusException if user not found
+   */
+  public User getUserByUsername(String username) {
+    return userRepository.findByUsername(username);
   }
 
   /**
