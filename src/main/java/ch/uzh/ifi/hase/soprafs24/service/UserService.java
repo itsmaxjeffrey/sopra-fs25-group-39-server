@@ -49,7 +49,7 @@ public class UserService {
   }
 
   public User createRequester(User newUser) {
-    checkUserCredentialUniquenes(newUser);
+    checkUserCredentialUniqueness(newUser);
     // saves the given entity but data is only persisted in the database once
     // flush() is called
     newUser = userRepository.save(newUser);
@@ -60,7 +60,7 @@ public class UserService {
   }
 
   public User createDriver(User newUser) {
-    checkUserCredentialUniquenes(newUser);
+    checkUserCredentialUniqueness(newUser);
     // saves the given entity but data is only persisted in the database once
     // flush() is called
     newUser = userRepository.save(newUser);
@@ -91,7 +91,7 @@ public class UserService {
     }
     
     // Save requester to database
-    checkUserCredentialUniquenes(requester);
+    checkUserCredentialUniqueness(requester);
     requester = (Requester) userRepository.save(requester);
     userRepository.flush();
     
@@ -157,7 +157,7 @@ public class UserService {
     }
     
     // Save driver to database
-    checkUserCredentialUniquenes(driver);
+    checkUserCredentialUniqueness(driver);
     driver = (Driver) userRepository.save(driver);
     userRepository.flush();
     
@@ -191,7 +191,7 @@ public class UserService {
    * @throws org.springframework.web.server.ResponseStatusException
    * @see User
    */
-  private void checkUserCredentialUniquenes(User userToBeCreated) {
+  private void checkUserCredentialUniqueness(User userToBeCreated) {
     List<String> notUniqueAttributes = new ArrayList<>();
 
     if (userRepository.findByUsername(userToBeCreated.getUsername()) != null) { notUniqueAttributes.add("Username"); }
