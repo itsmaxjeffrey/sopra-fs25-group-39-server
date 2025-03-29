@@ -1,11 +1,11 @@
 package ch.uzh.ifi.hase.soprafs24.rest.dto;
 
+import java.util.List;
+
 import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
 import ch.uzh.ifi.hase.soprafs24.entity.Car;
-import ch.uzh.ifi.hase.soprafs24.entity.Rating;
 import ch.uzh.ifi.hase.soprafs24.entity.Contract;
-import java.util.ArrayList;
-import java.util.List;
+import ch.uzh.ifi.hase.soprafs24.entity.Rating;
 
 public class UserGetDTO {
 
