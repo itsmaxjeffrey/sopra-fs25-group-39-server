@@ -1,8 +1,12 @@
 package ch.uzh.ifi.hase.soprafs24.rest.mapper;
 
 import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.entity.Car;
 import ch.uzh.ifi.hase.soprafs24.entity.Driver;
+import ch.uzh.ifi.hase.soprafs24.entity.Location;
 import ch.uzh.ifi.hase.soprafs24.entity.Requester;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.CarDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
 import org.mapstruct.*;
@@ -23,6 +27,25 @@ import org.mapstruct.factory.Mappers;
 public interface DTOMapper {
 
   DTOMapper INSTANCE = Mappers.getMapper(DTOMapper.class);
+  
+  // Car mappings
+  @Mapping(source = "carModel", target = "carModel")
+  @Mapping(source = "space", target = "space")
+  @Mapping(source = "supportedWeight", target = "supportedWeight")
+  @Mapping(source = "isElectric", target = "isElectric")
+  @Mapping(source = "licensePlate", target = "licensePlate")
+  @Mapping(target = "carId", ignore = true)
+  @Mapping(target = "carPicturePath", ignore = true)
+  @Mapping(target = "driver", ignore = true)
+  Car convertCarDTOtoEntity(CarDTO carDTO);
+
+  // Location mappings
+  @Mapping(source = "formattedAddress", target = "formattedAddress")
+  @Mapping(source = "latitude", target = "latitude")
+  @Mapping(source = "longitude", target = "longitude")
+  @Mapping(target = "id", ignore = true)
+  Location convertLocationDTOtoEntity(LocationDTO locationDTO);
+  
   // Actual mapping methods for user type "Requester"
   @Mapping(source = "username", target = "username")
   @Mapping(source = "firstName", target = "firstName")
@@ -92,6 +115,7 @@ public interface DTOMapper {
 
   // Ignore the following fields when getting a new user of type "Driver"
   @Mapping(target = "contracts", ignore = true)
+  @Mapping(target = "password", ignore = true)
 
   UserGetDTO convertDriverEntityToUserGetDTO(Driver driver);
 
