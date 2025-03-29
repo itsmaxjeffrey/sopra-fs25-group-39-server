@@ -42,7 +42,7 @@ public class UserService {
   }
 
   public User createRequester(User newUser) {
-    checkIfUserExists(newUser);
+    checkUserCredentialUniquenes(newUser);
     newUser.setUserToken(UUID.randomUUID().toString());
     // saves the given entity but data is only persisted in the database once flush() is called
     newUser = userRepository.save(newUser);
@@ -53,9 +53,9 @@ public class UserService {
   }
 
   public User createDriver(User newUser) {
-    checkIfUserExists(newUser);
-    // saves the given entity but data is only persisted in the database once
-    // flush() is called
+    checkUserCredentialUniquenes(newUser);
+    newUser.setUserToken(UUID.randomUUID().toString());
+    // saves the given entity but data is only persisted in the database once flush() is called
     newUser = userRepository.save(newUser);
     userRepository.flush();
 
