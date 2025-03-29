@@ -1,7 +1,8 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
-import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
+import java.util.List;
+import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-import java.util.UUID;
+import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 
 /**
  * User Service
@@ -40,8 +41,8 @@ public class UserService {
 
   public User createRequester(User newUser) {
     checkIfUserExists(newUser);
-    // saves the given entity but data is only persisted in the database once
-    // flush() is called
+    newUser.setUserToken(UUID.randomUUID().toString());
+    // saves the given entity but data is only persisted in the database once flush() is called
     newUser = userRepository.save(newUser);
     userRepository.flush();
 
@@ -51,8 +52,8 @@ public class UserService {
 
   public User createDriver(User newUser) {
     checkIfUserExists(newUser);
-    // saves the given entity but data is only persisted in the database once
-    // flush() is called
+    newUser.setUserToken(UUID.randomUUID().toString());
+    // saves the given entity but data is only persisted in the database once flush() is called
     newUser = userRepository.save(newUser);
     userRepository.flush();
 

@@ -1,16 +1,25 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
 
-import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
-
-import javax.persistence.*;
-
-import org.hibernate.annotations.CreationTimestamp;
-
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.time.LocalDate;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+import org.hibernate.annotations.CreationTimestamp;
+
+import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
 
 /**
  * Internal User Representation
@@ -32,6 +41,9 @@ public class User implements Serializable {
   @Id
   @GeneratedValue
   private Long userId;
+
+  @Column(nullable = false, unique = true)
+  private String userToken;
   
   @Column(nullable = false, unique = true)
   private String username;
@@ -92,6 +104,14 @@ public class User implements Serializable {
     this.userId = userId;
   }
 
+  //token
+  public String getUserToken() {
+    return userToken;
+  }
+
+  public void setUserToken(String userToken) {
+    this.userToken = userToken;
+  }
 
   //username
   public String getUsername() {
