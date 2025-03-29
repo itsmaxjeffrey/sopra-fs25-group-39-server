@@ -18,6 +18,14 @@ public class Car implements Serializable {
     @Id
     @GeneratedValue
     private Long carId;
+    
+    public Long getCarId() {
+        return this.carId;
+    }
+    
+    public void setCarId(Long carId) {
+        this.carId = carId;
+    }
 
 
     @Column
@@ -30,7 +38,7 @@ public class Car implements Serializable {
     private float supportedWeight;
 
     @Column
-    private boolean isElectric;
+    private boolean electric;
 
     @Column
     private String licensePlate;
@@ -64,10 +72,10 @@ public class Car implements Serializable {
         this.supportedWeight = supportedWeight;
     }
     public boolean isElectric() {
-        return this.isElectric;
+        return this.electric;
     }
-    public void setElectric(boolean isElectric) {
-        this.isElectric = isElectric;
+    public void setElectric(boolean electric) {
+        this.electric = electric;
     }
     public String getLicensePlate() {
         return this.licensePlate;

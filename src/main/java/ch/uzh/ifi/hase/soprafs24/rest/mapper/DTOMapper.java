@@ -32,7 +32,7 @@ public interface DTOMapper {
   @Mapping(source = "carModel", target = "carModel")
   @Mapping(source = "space", target = "space")
   @Mapping(source = "supportedWeight", target = "supportedWeight")
-  @Mapping(source = "isElectric", target = "isElectric")
+  @Mapping(source = "isElectric", target = "electric")
   @Mapping(source = "licensePlate", target = "licensePlate")
   @Mapping(target = "carId", ignore = true)
   @Mapping(target = "carPicturePath", ignore = true)
