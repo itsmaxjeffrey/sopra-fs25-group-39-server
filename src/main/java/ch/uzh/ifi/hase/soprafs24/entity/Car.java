@@ -34,7 +34,7 @@ public class Car implements Serializable {
     private float supportedWeight;
 
     @Column
-    private boolean isElectric;
+    private boolean electric;
 
     @Column
     private String licensePlate;
