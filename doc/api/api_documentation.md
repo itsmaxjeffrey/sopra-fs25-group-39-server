@@ -59,7 +59,7 @@
 
 | Mapping | Method | Parameter | Parameter Type | Status Code | Response | Description | User Story |
 |---------|--------|-----------|----------------|-------------|----------|-------------|-----------|
-| `/api/v1/contracts` | POST | `proposalId <string>`, `driverId <string>` | Body | 201, 400, 404, 409 | Created contract object | Create contract with selected driver | S7 |
+| `/api/v1/contracts` | POST | `title <string>`, `mass <number>`, `volume <number>`, `isFragile <boolean>`, `coolingRequired <boolean>`, `rideAlong <boolean>`, `manPower <integer>`, `contractDescription <string>`, `price <number>`, `collateral <number>`, `requesterId <string>`, `fromLocation <LocationDTO>`, `toLocation <LocationDTO>`, `moveDateTime <datetime>` | Body | 201, 400, 404 | Created contract object | Create a new contract | S5 |
 | `/api/v1/contracts/{id}` | GET | `id <string>` | Path | 200, 404 | Contract details object | Get contract details | S7, S12 |
 | `/api/v1/contracts/{id}/cancel` | PUT | `id <string>`, `reason <string>` | Path, Body | 200, 400, 403, 409 | Updated contract with cancel status | Cancel a contract (72h policy) | S8 |
 | `/api/v1/contracts/{id}/fulfill` | PUT | `id <string>` | Path | 200, 400, 403 | Updated contract status | Mark contract as fulfilled | S9, S18 |

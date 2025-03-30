@@ -105,6 +105,14 @@ public class Contract implements Serializable{
     @JoinColumn(name = "accepted_offer_id")
     private Offer acceptedOffer;
     
+    public Long getContractId() {
+        return this.contractId;
+    }
+
+    public void setContractId(Long contractId) {
+        this.contractId = contractId;
+    }
+
     public Requester getRequester() {
         return this.requester;
     }
@@ -136,8 +144,16 @@ public class Contract implements Serializable{
     public LocalDateTime getAcceptedDateTime() {
         return this.acceptedDateTime;
     }
+
+    public void setAcceptedDateTime(LocalDateTime acceptedDateTime) {
+        this.acceptedDateTime = acceptedDateTime;
+    }
+
     public LocalDateTime getMoveDateTime() {
         return this.moveDateTime;
+    }
+    public void setMoveDateTime(LocalDateTime moveDateTime) {
+        this.moveDateTime = moveDateTime;
     }
 
 
@@ -260,4 +276,6 @@ public class Contract implements Serializable{
     public void setAcceptedOffer(Offer acceptedOffer) {
         this.acceptedOffer = acceptedOffer;
     }
+
+    
 }
