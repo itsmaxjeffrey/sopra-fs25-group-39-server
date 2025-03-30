@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -51,7 +50,7 @@ public class UserService {
   }
 
   public User createRequester(User newUser) {
-    checkUserCredentialUniquenes(newUser);
+    checkUserCredentialUniqueness(newUser);
     newUser.setUserToken(UUID.randomUUID().toString());
     // saves the given entity but data is only persisted in the database once flush() is called
     newUser = userRepository.save(newUser);
@@ -62,7 +61,7 @@ public class UserService {
   }
 
   public User createDriver(User newUser) {
-    checkUserCredentialUniquenes(newUser);
+    checkUserCredentialUniqueness(newUser);
     newUser.setUserToken(UUID.randomUUID().toString());
     // saves the given entity but data is only persisted in the database once flush() is called
     newUser = userRepository.save(newUser);
