@@ -1,16 +1,28 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
 
-import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
-
-import javax.persistence.*;
-
-import org.hibernate.annotations.CreationTimestamp;
-
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.time.LocalDate;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+import org.hibernate.annotations.CreationTimestamp;
+
+import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Internal User Representation
@@ -24,13 +36,14 @@ import java.time.LocalDate;
  */
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-@Table(name = "USER")
+@Table(name = "USERS")
+@Getter @Setter
 public class User implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
   @Id
-  @GeneratedValue
+  @GeneratedValue(strategy=GenerationType.IDENTITY)
   private Long userId;
   
   @Column(nullable = false, unique = true)
@@ -82,146 +95,16 @@ public class User implements Serializable {
   private String userBio;
 
 
-
-  //id
-  public Long getUserId() {
-    return userId;
-  }
-
-  public void setUserId(Long userId) {
-    this.userId = userId;
-  }
-
-
-  //username
-  public String getUsername() {
-    return username;
-  }
-
-  public void setUsername(String username) {
-    this.username = username;
-  }
-
-   //password
-   public void setPassword(String password){
-    this.password = password;
-  }
-  public String getPassword(){
-    return this.password;
-  }
-
-
-   //email
-   public void setEmail(String email){
-    this.email = email;
-  }
-  public String getEmail(){
-    return this.email;
-  }
-
-
-  //account type
-  public void setUserAccountType(UserAccountType userAccountType){
-    this.userAccountType = userAccountType;
-  }
-  public UserAccountType getUserAccountType(){
-    return this.userAccountType;
-  }
-
-
-  //user creation LocalDateTime
-
-  public LocalDateTime getCreationDate(){
-    return this.creationDate;
-  }
-
-
-  //birthDate
-
-  public LocalDate getBirthDate(){
-    return this.birthDate;
-  }
-
-  public void setBirthDate(LocalDate birthDate){
-    this.birthDate = birthDate;
-  }
-
-  //profile picture path 
-
-  public String getProfilePicturePath(){
-    return this.profilePicturePath;
-  }
-
-  public void setProfilePicturePath(String profilePicturePath){
-    this.profilePicturePath= profilePicturePath;
-  }
-
-  //wallet balance
-
-  public Double getWalletBalance(){
-    return this.walletBalance;
-  }
-  public void setWalletBalance(Double walletBalance){
-    this.walletBalance = walletBalance;
-  }
-
-
-  //first name
-  public String getFirstName() {
-    return firstName;
-  }
-
-  public void setFirstName(String firstName) {
-    this.firstName = firstName;
-  }
-
-  //last name
-  public String getLastName() {
-    return lastName;
-  }
-
-  public void setLastName(String lastName) {
-    this.lastName = lastName;
-  }
-
-
   //ratings given
-  public List<Rating> getRatingsGiven(){
-    return this.ratingsGiven;
-  }
-  public void setRatingsGiven(List<Rating> ratingsGiven){
-    this.ratingsGiven = ratingsGiven;
-  }
   public void addRatingGiven(Rating rating){
     this.ratingsGiven.add(rating);
     rating.setFromUser(this);
   }
 
   //ratings received
-  public List<Rating> getRatingsReceived(){
-    return this.ratingsReceived;
-  }
-  public void setRatingsReceived(List<Rating> ratingsReceived){
-    this.ratingsReceived = ratingsReceived;
-  }
   public void addRatingReceived(Rating rating){
     this.ratingsReceived.add(rating);
     rating.setToUser(this);
   }
 
-  //phone number
-  public void setPhoneNumber(String phoneNumber){
-    this.phoneNumber = phoneNumber;
-  }
-  public String getPhoneNumber(){
-    return this.phoneNumber;
-  }
- 
-  //user bio
-  public void setUserBio(String userBio){
-    this.userBio = userBio;
-  }
-  public String getUserBio(){
-    return this.userBio;
-  }
 }
