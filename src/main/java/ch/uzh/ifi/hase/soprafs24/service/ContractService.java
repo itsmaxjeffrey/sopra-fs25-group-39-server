@@ -15,9 +15,6 @@ import ch.uzh.ifi.hase.soprafs24.entity.Location;
 import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
 import ch.uzh.ifi.hase.soprafs24.repository.ContractRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
-import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractPostDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
 
 import java.util.List;
 
@@ -29,15 +26,12 @@ public class ContractService {
     
     private final ContractRepository contractRepository;
     private final UserRepository userRepository;
-    private final DTOMapper dtoMapper;
     
     @Autowired
     public ContractService(@Qualifier("contractRepository") ContractRepository contractRepository,
-                          @Qualifier("userRepository") UserRepository userRepository,
-                          DTOMapper dtoMapper) {
+                          @Qualifier("userRepository") UserRepository userRepository) {
         this.contractRepository = contractRepository;
         this.userRepository = userRepository;
-        this.dtoMapper = dtoMapper;
     }
     
     /**

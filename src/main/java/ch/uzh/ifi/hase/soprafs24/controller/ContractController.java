@@ -7,6 +7,7 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
+import ch.uzh.ifi.hase.soprafs24.rest.mapper.ContractDTOMapper;
 import ch.uzh.ifi.hase.soprafs24.service.ContractService;
 import ch.uzh.ifi.hase.soprafs24.service.LocationService;
 
@@ -48,14 +49,14 @@ public class ContractController {
         toLocation = locationService.createLocation(toLocation);
 
         // Convert DTO to entity
-        Contract contractInput = DTOMapper.INSTANCE.convertContractPostDTOtoEntity(contractPostDTO);
+        Contract contractInput = ContractDTOMapper.INSTANCE.convertContractPostDTOtoEntity(contractPostDTO);
         contractInput.setFromAddress(fromLocation);
         contractInput.setToAddress(toLocation);
 
         // Create contract
         Contract createdContract = contractService.createContract(contractInput);
 
-        return DTOMapper.INSTANCE.convertContractEntityToContractGetDTO(createdContract);
+        return ContractDTOMapper.INSTANCE.convertContractEntityToContractGetDTO(createdContract);
     }
 
     /**
