@@ -10,9 +10,13 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import lombok.Getter;
+import lombok.Setter;
+
 
 @Entity
 @Table(name = "RATING")
+@Getter @Setter
 public class Rating implements Serializable{
     private static final long serialVersionUID = 1L;
 
@@ -41,48 +45,6 @@ public class Rating implements Serializable{
     @Column(nullable = true)
     private String comment;
 
-    public Long getRatingId() {
-        return ratingId;
-    }
-    public void setRatingId(Long ratingId) {
-        this.ratingId = ratingId;
-    }
-    public User getFromUser() {
-        return fromUser;
-    }
-    public void setFromUser(User fromUser) {
-        this.fromUser = fromUser;
-    }
-    public User getToUser() {
-        return toUser;
-    }
-    public void setToUser(User toUser) {
-        this.toUser = toUser;
-    }
-    public Contract getContract() {
-        return contract;
-    }
-    public void setContract(Contract contract) {
-        this.contract = contract;
-    }
-    public Integer getRatingValue() {
-        return ratingValue;
-    }
-    public void setRatingValue(Integer ratingValue) {
-        this.ratingValue = ratingValue;
-    }
-    public boolean isFlagIssues() {
-        return flagIssues;
-    }
-    public void setFlagIssues(boolean flagIssues) {
-        this.flagIssues = flagIssues;
-    }
-    public String getComment() {
-        return comment;
-    }
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
 
 
 }

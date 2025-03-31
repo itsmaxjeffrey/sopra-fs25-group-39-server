@@ -13,9 +13,12 @@ import javax.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
 
 import ch.uzh.ifi.hase.soprafs24.constant.OfferStatus;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "OFFERS")
+@Getter @Setter
 public class Offer implements Serializable {
     private static final long serialVersionUID = 1L;
     
@@ -39,33 +42,4 @@ public class Offer implements Serializable {
     @Column
     private LocalDateTime creationDateTime;
 
-
-    public Contract getContract() {
-    return this.contract;
-    }
-
-    public void setContract(Contract contract){
-        this.contract = contract;
-    }
-
-    public Driver getDriver(){
-        return this.driver;
-    }
-    
-    public void setDriver(Driver driver){
-        this.driver = driver;
-    }
-
-    public OfferStatus getOfferStatus(){
-        return this.offerStatus;
-    }
-
-    public void setOfferStatus(OfferStatus offerStatus){
-        this.offerStatus = offerStatus;
-    }
-
-    public LocalDateTime getCreationDateTime(){
-        return this.creationDateTime;
-    }
-    
 }

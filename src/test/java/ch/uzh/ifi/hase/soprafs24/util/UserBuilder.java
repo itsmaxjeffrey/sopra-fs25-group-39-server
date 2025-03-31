@@ -25,7 +25,7 @@ public class UserBuilder {
         user.setWalletBalance(100.0);
         user.setPhoneNumber("+41774882183");
         user.setUserBio("Default bio");
-        user.setUserToken("96a69961-9db6-42e7-b31b-33fd9ddf2a9a");
+        user.setToken("96a69961-9db6-42e7-b31b-33fd9ddf2a9a");
     }
 
     public UserBuilder withAccountType(UserAccountType accountType) {

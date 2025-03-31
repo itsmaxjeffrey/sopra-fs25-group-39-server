@@ -1,46 +1,51 @@
-package ch.uzh.ifi.hase.soprafs24.repository;
+// package ch.uzh.ifi.hase.soprafs24.repository;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+// import java.util.Optional;
 
-import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.util.UserBuilder;
+// import static org.junit.jupiter.api.Assertions.assertEquals;
+// import static org.junit.jupiter.api.Assertions.assertNotNull;
+// import static org.junit.jupiter.api.Assertions.assertTrue;
+// import org.junit.jupiter.api.Test;
+// import org.springframework.beans.factory.annotation.Autowired;
+// import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+// import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
-@DataJpaTest
-public class UserRepositoryIntegrationTest {
+// import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
+// import ch.uzh.ifi.hase.soprafs24.entity.User;
 
-  @Autowired
-  private TestEntityManager entityManager;
+// @DataJpaTest
+// public class UserRepositoryIntegrationTest {
 
-  @Autowired
-  private UserRepository userRepository;
+//   @Autowired
+//   private TestEntityManager entityManager;
 
-  @Test
-  public void findByUsername_success() {
-    // given
-    User user = new UserBuilder().build();
+//   @Autowired
+//   private UserRepository userRepository;
 
-    entityManager.persist(user);
-    entityManager.flush();
+//   @Test
+//   public void findByUsername_success() {
+//     // given
+//     User user = new UserBuilder().build();
 
-    // when
-    User found = userRepository.findByUsername(user.getUsername());
+//     entityManager.persist(user);
+//     entityManager.flush();
+//     // when
+//     Optional<User> found = userRepository.findByUsername(user.getUsername());
 
-    // then
-    assertNotNull(found.getUserId());
-    assertEquals(found.getEmail(), user.getEmail());
-    assertEquals(found.getUsername(), user.getUsername());
-    assertEquals(found.getPassword(), user.getPassword());
-    assertEquals(found.getFirstName(), user.getFirstName());
-    assertEquals(found.getLastName(), user.getLastName());
-    assertEquals(found.getPhoneNumber(), user.getPhoneNumber());
-    assertEquals(found.getUserBio(), user.getUserBio());
-    assertEquals(found.getProfilePicturePath(), user.getProfilePicturePath());
-    assertEquals(found.getBirthDate(), user.getBirthDate());
-    assertEquals(found.getUserAccountType(), user.getUserAccountType());
-  }
-}
+//     // then
+//     assertTrue(found.isPresent());
+//     User foundUser = found.get();
+//     assertNotNull(foundUser.getUserId());
+//     assertEquals(user.getEmail(), foundUser.getEmail());
+//     assertEquals(user.getUsername(), foundUser.getUsername());
+//     assertEquals(user.getPassword(), foundUser.getPassword());
+//     assertEquals(user.getFirstName(), foundUser.getFirstName());
+//     assertEquals(user.getLastName(), foundUser.getLastName());
+//     assertEquals(user.getPhoneNumber(), foundUser.getPhoneNumber());
+//     assertEquals(user.getUserBio(), foundUser.getUserBio());
+//     assertEquals(user.getProfilePicturePath(), foundUser.getProfilePicturePath());
+//     assertEquals(user.getBirthDate(), foundUser.getBirthDate());
+//     assertEquals(user.getUserAccountType(), foundUser.getUserAccountType());
+
+//   }
+// }

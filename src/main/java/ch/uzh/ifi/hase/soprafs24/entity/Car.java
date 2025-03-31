@@ -9,8 +9,12 @@ import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import lombok.Getter;
+import lombok.Setter;
+
 @Entity
 @Table(name = "CARS")
+@Getter @Setter
 public class Car implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -30,7 +34,7 @@ public class Car implements Serializable {
     private float supportedWeight;
 
     @Column
-    private boolean isElectric;
+    private boolean electric;
 
     @Column
     private String licensePlate;
@@ -40,61 +44,6 @@ public class Car implements Serializable {
 
     @OneToOne(mappedBy = "car")
     private Driver driver;
-
-    public Long getCarId() {
-        return this.carId;
-    }
-    
-    public void setCarId(Long carId) {
-        this.carId = carId;
-    }
-
-    public String getCarModel() {
-        return this.carModel;
-    }
-
-    public void setCarModel(String carModel) {
-        this.carModel = carModel;
-    }
-
-    public float getSpace() {
-        return this.space;
-    }
-
-    public void setSpace(float space) {
-        this.space = space;
-    }
-
-    public float getSupportedWeight() {
-        return this.supportedWeight;
-    }
-    public void setSupportedWeight(float supportedWeight) {
-        this.supportedWeight = supportedWeight;
-    }
-    public boolean getIsElectric() {
-        return this.isElectric;
-    }
-    public void setIsElectric(boolean isElectric) {
-        this.isElectric = isElectric;
-    }
-    public String getLicensePlate() {
-        return this.licensePlate;
-    }
-    public void setLicensePlate(String licensePlate) {
-        this.licensePlate = licensePlate;
-    }
-    public String getCarPicturePath() {
-        return this.carPicturePath;
-    }
-    public void setCarPicturePath(String carPicturePath) {
-        this.carPicturePath = carPicturePath;
-    }
-    public Driver getDriver() {
-        return this.driver;
-    }
-    public void setDriver(Driver driver) {
-        this.driver = driver;
-    }
 
 
 }
