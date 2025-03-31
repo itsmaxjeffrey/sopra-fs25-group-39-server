@@ -94,6 +94,13 @@ public class User implements Serializable {
   @Column(nullable=true)
   private String userBio;
 
+  @Column(nullable=true)
+  private String token;
+
+
+  
+
+
 
   //ratings given
   public void addRatingGiven(Rating rating){

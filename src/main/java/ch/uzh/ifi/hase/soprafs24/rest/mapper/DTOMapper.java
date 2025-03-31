@@ -67,6 +67,7 @@ public interface DTOMapper {
   @Mapping(target = "ratingsGiven", ignore = true)
   @Mapping(target = "ratingsReceived", ignore = true)
   @Mapping(target = "contracts", ignore = true)
+  @Mapping(target = "token", ignore = true)
   Requester convertUserPostDTOtoRequesterEntity(UserPostDTO userPostDTO);
 
   // Actual mapping methods for user type "Driver"
@@ -90,11 +91,11 @@ public interface DTOMapper {
   
 
   // Specific to Driver (Car Details)
-  @Mapping(source = "car", target = "car")
   @Mapping(target = "driverLicensePath", ignore = true)
   @Mapping(target = "driverInsurancePath", ignore = true)
   @Mapping(target = "location", ignore = true)
   @Mapping(target = "preferredRange", ignore = true)
+  @Mapping(target = "token", ignore = true)
 
   Driver convertUserPostDTOtoDriverEntity(UserPostDTO userPostDTO);
 

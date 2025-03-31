@@ -207,5 +207,35 @@ public class UserService {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
     }
   }
+
+  public User getUserById(Long userId) {
+    return userRepository.findById(userId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
+            "User not found with id: " + userId));
+  }
+  
+  /**
+   * Get requester by ID
+   */
+  public Requester getRequesterById(Long userId) {
+    User user = getUserById(userId);
+    if (!(user instanceof Requester)) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+          "User with id " + userId + " is not a requester");
+    }
+    return (Requester) user;
+  }
+  
+  /**
+   * Get driver by ID
+   */
+  public Driver getDriverById(Long userId) {
+    User user = getUserById(userId);
+    if (!(user instanceof Driver)) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+          "User with id " + userId + " is not a driver");
+    }
+    return (Driver) user;
+  }
 }
 
