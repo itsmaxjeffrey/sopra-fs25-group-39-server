@@ -74,7 +74,7 @@ public class Contract implements Serializable{
     private float volume;
 
     @Column
-    private boolean isFragile;
+    private boolean fragile;
     
     @Column
     private boolean coolingRequired;
