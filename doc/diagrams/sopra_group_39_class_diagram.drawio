@@ -364,7 +364,7 @@
         <mxCell id="WWke9V1UBgyfjbNEmQkF-106" value="-supportedWeight : float" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="WWke9V1UBgyfjbNEmQkF-96" vertex="1">
           <mxGeometry y="78" width="160" height="26" as="geometry" />
         </mxCell>
-        <mxCell id="WWke9V1UBgyfjbNEmQkF-98" value="-isElectric : boolean" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="WWke9V1UBgyfjbNEmQkF-96" vertex="1">
+        <mxCell id="WWke9V1UBgyfjbNEmQkF-98" value="-electric : boolean" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="WWke9V1UBgyfjbNEmQkF-96" vertex="1">
           <mxGeometry y="104" width="160" height="26" as="geometry" />
         </mxCell>
         <mxCell id="WWke9V1UBgyfjbNEmQkF-103" value="-licensePlate : String" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="WWke9V1UBgyfjbNEmQkF-96" vertex="1">

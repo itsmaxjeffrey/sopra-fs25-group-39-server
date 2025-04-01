@@ -2,23 +2,24 @@ package ch.uzh.ifi.hase.soprafs24.entity;
 
 
 
-import javax.persistence.*;
 import java.util.List;
+
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name ="REQUESTERS")
+@Getter @Setter
 public class Requester extends User {
 
     @OneToMany(mappedBy="requester",fetch = FetchType.LAZY)
     private List<Contract> contracts;
 
-    public List<Contract> getContracts(){
-        return this.contracts;
-    }
-
-    public void setContracts(List<Contract> contracts) {
-        this.contracts = contracts;
-    }
     
     public void addContract(Contract contract){
         this.contracts.add(contract);

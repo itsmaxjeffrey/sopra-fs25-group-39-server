@@ -7,8 +7,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import lombok.Getter;
+import lombok.Setter;
+
 @Entity
 @Table(name ="DRIVERS")
+@Getter @Setter
 public class Driver extends User {
 
     @Column(nullable = false)
@@ -28,43 +32,5 @@ public class Driver extends User {
     @Column
     private float preferredRange;
 
-    public String getDriverLicensePath(){
-        return this.driverLicensePath;
-    }
 
-    public void setDriverLicensePath(String driverLicensePath){
-        this.driverLicensePath = driverLicensePath;
-    }
-
-    public String getDriverInsurancePath(){
-        return this.driverInsurancePath;
-    }
-
-    public void setDriverInsurancePath(String driverInsurancePath){
-        this.driverInsurancePath = driverInsurancePath;
-    }
-    
-    public Car getCar(){
-        return this.car;
-    }
-
-    public void setCar(Car car){
-        this.car = car;
-    }
-
-    public Location getLocation(){
-        return this.location;
-    }
-
-    public void setLocation(Location location){
-        this.location = location;
-    }
-
-    public float getPreferredRange(){
-        return this.preferredRange;
-    }
-
-    public void setPreferredRange(float preferredRange){
-        this.preferredRange= preferredRange;
-    }
 }

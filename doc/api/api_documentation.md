@@ -1,13 +1,20 @@
 # REST API Documentation
 
 ## Table of Contents
-- [Authentication](#authentication)
-- [User Management](#user-management)
-- [Proposal Management](#proposal-management)
-- [Contract Management](#contract-management)
-- [Ratings & Feedback](#ratings-and-feedback)
-- [Payment Management](#payment-management)
-- [Notifications & Map Features](#notifications-and-map-features)
+- [REST API Documentation](#rest-api-documentation)
+  - [Table of Contents](#table-of-contents)
+  - [API Conventions](#api-conventions)
+  - [Authentication](#authentication)
+  - [User Management](#user-management)
+  - [Contract Management](#contract-management)
+  - [Offer Management](#offer-management)
+  - [Ratings and Feedback](#ratings-and-feedback)
+  - [Payment Management](#payment-management)
+  - [Notifications and Map Features](#notifications-and-map-features)
+  - [Response Formats](#response-formats)
+    - [Success Response Format](#success-response-format)
+    - [Error Response Format](#error-response-format)
+  - [Error Codes](#error-codes)
 
 ## API Conventions
 - All endpoints require HTTPS
