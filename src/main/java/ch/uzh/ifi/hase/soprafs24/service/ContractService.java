@@ -129,6 +129,26 @@ public class ContractService {
     }
 
     /**
+     * Get all contracts for a specific user with optional status filtering
+     * 
+     * @param userId The ID of the user
+     * @param status Optional status to filter by
+     * @return List of contracts for the user
+     */
+    public List<Contract> getContractsByUser(Long userId, ContractStatus status) {
+        List<Contract> contracts = contractRepository.findByRequester_UserId(userId);
+        
+        // If status is provided, filter by status
+        if (status != null) {
+            return contracts.stream()
+                .filter(contract -> contract.getContractStatus() == status)
+                .collect(Collectors.toList());
+        }
+        
+        return contracts;
+    }
+
+    /**
      * Updates an existing contract
      * 
      * @param contractId The ID of the contract to update

@@ -304,4 +304,30 @@ public class ContractController {
         // Convert to DTO and return
         return ContractDTOMapper.INSTANCE.convertContractEntityToContractGetDTO(fulfilledContract);
     }
+
+    /**
+     * Get all contracts for a specific user with optional status filtering
+     * 
+     * Example request:
+     * GET /api/v1/users/123/contracts?status=REQUESTED
+     * 
+     * @param userId The ID of the user
+     * @param status Optional status to filter by
+     * @return List of contracts for the user
+     */
+    @GetMapping("/api/v1/users/{userId}/contracts")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public List<ContractGetDTO> getContractsByUser(
+            @PathVariable("userId") Long userId,
+            @RequestParam(required = false) ContractStatus status) {
+        
+        // Get contracts from service
+        List<Contract> contracts = contractService.getContractsByUser(userId, status);
+        
+        // Convert to DTOs
+        return contracts.stream()
+            .map(ContractDTOMapper.INSTANCE::convertContractEntityToContractGetDTO)
+            .collect(Collectors.toList());
+    }
 }
