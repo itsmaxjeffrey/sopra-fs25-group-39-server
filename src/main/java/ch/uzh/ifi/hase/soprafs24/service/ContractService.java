@@ -17,6 +17,8 @@ import ch.uzh.ifi.hase.soprafs24.repository.ContractRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 
 import java.util.List;
+import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -62,7 +64,30 @@ public class ContractService {
     }
 
     /**
-     * Gets all contracts
+     * Gets all contracts with optional filtering
+     * 
+     * @param status Filter by contract status
+     * @param minPrice Minimum price
+     * @param maxPrice Maximum price
+     * @param minDate Minimum move date
+     * @param maxDate Maximum move date
+     * @return List of filtered contracts
+     */
+    public List<Contract> getContracts(ContractStatus status, Double minPrice, Double maxPrice, 
+                                     LocalDateTime minDate, LocalDateTime maxDate) {
+        List<Contract> contracts = contractRepository.findAll();
+        
+        return contracts.stream()
+            .filter(contract -> status == null || contract.getContractStatus() == status)
+            .filter(contract -> minPrice == null || contract.getPrice() >= minPrice)
+            .filter(contract -> maxPrice == null || contract.getPrice() <= maxPrice)
+            .filter(contract -> minDate == null || !contract.getMoveDateTime().isBefore(minDate))
+            .filter(contract -> maxDate == null || !contract.getMoveDateTime().isAfter(maxDate))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Gets all contracts without filtering
      * 
      * @return List of all contracts
      */

@@ -20,14 +20,12 @@
 - All endpoints require HTTPS
 - API version is included in the URL path: `/api/v1/...`
 - Authentication uses JWT tokens in the `Authorization` header
-- Pagination is supported via `page` and `pageSize` query parameters
-- Sorting is supported via `sort` parameter (e.g., `sort=createdAt:desc`)
 - Date format: ISO 8601 (YYYY-MM-DDTHH:MM:SSZ)
 - All times are in UTC
 
 ## Authentication
 
-| FE | BE | Mapping | Method | Parameter | Parameter Type | Status Code | Response | Description | User Story |
+| FE | BE | Mapping | Method | Parameter | Parameter Type | Status Code | Response | Description | User Story |
 |---------|--------|-----------|----------------|-------------|----------|-------------|-----------|-----------|-----------|
 | No ❌ | Yes ✅ | `/api/v1/auth/register/driver` | POST | `driverToRegister <User>` | Body | 201, 400, 409 | `createdDriver <User>` | Register a new driver account | S1 | 
 | No ❌ | Yes ✅ | `/api/v1/auth/register/requester` | POST | `requesterToRegister <User>` | Body | 201, 400, 409 | `createdRequester <User>` | Register a new requester account | S1 | 
@@ -54,14 +52,14 @@
 | FE | BE | Mapping | Method | Parameter | Parameter Type | Status Code | Response | Description | User Story |
 |---------|--------|-----------|----------------|-------------|----------|-------------|-----------|-----------|-----------|
 | No ❌ | Yes ✅ | `/api/v1/contracts` | POST | `newContract <Contract>` | Body | 201, 400, 404 | Created contract object | Create a new contract | S5 | 
-| No ❌ | No ❌ | `/api/v1/contracts` | GET | `status <string>`, `fromLocation <string>`, `toLocation <string>`, `radius <number>`, `minPrice <number>`, `maxPrice <number>`, `minDate <date>`, `maxDate <date>`, `page <int>`, `pageSize <int>`, `sort <string>` | Query | 200 | List of Contracts | Get available contracts with filtering | S11 |
+| No ❌ | No ❌ | `/api/v1/contracts` | GET | `status <string>`, `fromLocation <string>`, `toLocation <string>`, `radius <number>`, `minPrice <number>`, `maxPrice <number>`, `minDate <date>`, `maxDate <date>` | Query | 200 | List of Contracts | Get available contracts with filtering | S11 |
 | No ❌ | No ❌ | `/api/v1/contracts/{id}` | GET | `id <string>` | Path | 200, 404 | Contract details object | Get contract details | S7, S12 |
 | No ❌ | No ❌ | `/api/v1/contracts/{id}` | PUT | `id <string>, contractToUpdate <Contract>` | Path, Body | 200, 400, 403 | Updated contract object | Update a contract | S6 |
 | No ❌ | No ❌ | `/api/v1/contracts/{id}/cancel` | PUT | `id <string>`, `reason <string>` | Path, Body | 200, 400, 403, 409 | Updated contract with cancel status | Cancel a contract (72h policy) | S8 | 
 | No ❌ | No ❌ | `/api/v1/contracts/{id}/fulfill` | PUT | `id <string>` | Path | 200, 400, 403 | Updated contract status | Mark contract as fulfilled | S9, S18 | 
 | No ❌ | No ❌ | `/api/v1/contracts/{id}/photos` | POST | `id <string>`, `photos <file[]>`, `type <string>` (before/after) | Path, Body | 201, 400, 403 | Photo upload confirmation with URLs | Upload before/after photos | S19 | 
 | No ❌ | No ❌ | `/api/v1/contracts/{id}/collateral` | POST | `id <string>`, `collateralAmount <number>` | Path, Body | 200, 400, 403, 409 | Updated contract with collateral | Provide contract collateral | S21 | 
-| No ❌ | No ❌ | `/api/v1/users/{userId}/contracts` | GET | `userId <string>`, `status <string>`, `sort <string>` | Path, Query | 200 | Paginated list of contracts for a specific user| Get user's contracts | S12 | 
+| No ❌ | No ❌ | `/api/v1/users/{userId}/contracts` | GET | `userId <string>`, `status <string>` | Path, Query | 200 | List of contracts for a specific user| Get user's contracts | S12 | 
 
 ## Offer Management
 
@@ -79,7 +77,7 @@
 |---------|--------|-----------|----------------|-------------|----------|-------------|-----------|-----------|-----------|
 | No ❌ | No ❌ | `/api/v1/contracts/{id}/driver-rating` | POST | `id <string>`, `rating <integer>`, `comment <string>`, `issues <boolean>`, `issueDetails <string>` | Path, Body | 200, 400, 403, 409 | Updated contract with rating | Requester rates driver | S9 |
 | No ❌ | No ❌ | `/api/v1/contracts/{id}/requester-rating` | POST | `id <string>`, `rating <integer>`, `comment <string>` | Path, Body | 200, 400, 403, 409 | Updated contract with requester rating | Driver rates requester | S18 | 
-| No ❌ | No ❌ | `/api/v1/users/{id}/ratings` | GET | `id <string>`, `role <string>` (driver/requester), `page <int>`, `pageSize <int>` | Path, Query | 200, 404 | Paginated list of ratings | Get user's ratings | S9, S18 |
+| No ❌ | No ❌ | `/api/v1/users/{id}/ratings` | GET | `id <string>`, `role <string>` (driver/requester) | Path, Query | 200, 404 | List of ratings | Get user's ratings | S9, S18 |
 
 ## Payment Management
 
@@ -95,7 +93,7 @@
 
 | FE | BE | Mapping | Method | Parameter | Parameter Type | Status Code | Response | Description | User Story |
 |---------|--------|-----------|----------------|-------------|----------|-------------|-----------|-----------|-----------|
-| No ❌ | No ❌ | `/api/v1/notifications` | GET | Auth token, `page <int>`, `pageSize <int>` | Header, Query | 200 | `{ "total": 10, "unread": 3, "notifications": [...] }` | Get user notifications | S17 |
+| No ❌ | No ❌ | `/api/v1/notifications` | GET | Auth token | Header | 200 | `{ "total": 10, "unread": 3, "notifications": [...] }` | Get user notifications | S17 |
 | No ❌ | No ❌ | `/api/v1/notifications/{id}` | PUT | `id <string>`, `read <boolean>` | Path, Body | 200, 404 | Updated notification object | Mark notification as read | S17 |
 | Yes ✅ | No ❌ | `/api/v1/map/contracts` | GET | `lat <number>`, `lng <number>`, `filters <object>`{ radius (number), price (number), weight (number), height (number), length (number), width (number), requiredPeople (number), fragile (boolean), coolingRequired (boolean), rideAlong (boolean), fromAdress (string of Location Obeject), toAdress (string of Location Object), moveDateTime (string of LocalDateTime Object) }| Query | 200 | GeoJSON of proposals | Get proposals for map display | S11, S17 |
 
@@ -107,12 +105,6 @@
   "status": "success",
   "data": {
     // Response data depending on the endpoint
-  },
-  "meta": {
-    "page": 1,
-    "pageSize": 10,
-    "totalPages": 5,
-    "totalCount": 42
   }
 }
 ```

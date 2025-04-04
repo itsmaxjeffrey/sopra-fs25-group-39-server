@@ -10,7 +10,7 @@ import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.ContractDTOMapper;
 import ch.uzh.ifi.hase.soprafs24.service.ContractService;
 import ch.uzh.ifi.hase.soprafs24.service.LocationService;
-
+import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 @RestController
 public class ContractController {
@@ -28,6 +29,44 @@ public class ContractController {
     public ContractController(ContractService contractService, LocationService locationService) {
         this.contractService = contractService;
         this.locationService = locationService;
+    }
+
+    /**
+     * Get all contracts with optional filtering
+     * 
+     * Example request with filters:
+     * GET /api/v1/contracts?status=REQUESTED&minPrice=50&maxPrice=200&minDate=2024-04-01T00:00:00&maxDate=2024-04-30T23:59:59
+     * 
+     * @param status Filter by contract status (e.g., REQUESTED, ACCEPTED, COMPLETED)
+     * @param fromLocation Filter by from location (not implemented yet)
+     * @param toLocation Filter by to location (not implemented yet)
+     * @param radius Search radius in kilometers (not implemented yet)
+     * @param minPrice Minimum price (e.g., 50.0)
+     * @param maxPrice Maximum price (e.g., 200.0)
+     * @param minDate Minimum move date (e.g., 2024-04-01T00:00:00)
+     * @param maxDate Maximum move date (e.g., 2024-04-30T23:59:59)
+     * @return List of contracts matching the criteria
+     */
+    @GetMapping("/api/v1/contracts")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public List<ContractGetDTO> getAllContracts(
+            @RequestParam(required = false) ContractStatus status,
+            @RequestParam(required = false) String fromLocation,
+            @RequestParam(required = false) String toLocation,
+            @RequestParam(required = false) Double radius,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) LocalDateTime minDate,
+            @RequestParam(required = false) LocalDateTime maxDate) {
+
+        // Get filtered contracts from service
+        List<Contract> contracts = contractService.getContracts(status, minPrice, maxPrice, minDate, maxDate);
+        
+        // Convert to DTOs
+        return contracts.stream()
+            .map(ContractDTOMapper.INSTANCE::convertContractEntityToContractGetDTO)
+            .collect(Collectors.toList());
     }
 
     /**
@@ -127,6 +166,4 @@ public class ContractController {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Collateral must be positive");
             }
         }
-        
-    
 }
