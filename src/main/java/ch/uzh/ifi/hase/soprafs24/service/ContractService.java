@@ -19,6 +19,7 @@ import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import java.util.List;
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
+import java.time.temporal.ChronoUnit;
 
 @Service
 @Transactional
@@ -216,5 +217,45 @@ public class ContractService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
                 "Cannot set move date to the past");
         }
+    }
+
+    /**
+     * Cancel a contract
+     * 
+     * @param contractId The ID of the contract to cancel
+     * @param reason The reason for cancellation
+     * @return The cancelled contract
+     * @throws ResponseStatusException if the contract cannot be cancelled
+     */
+    public Contract cancelContract(Long contractId, String reason) {
+        Contract contract = getContractById(contractId);
+        
+        // Check if contract can be cancelled
+        if (contract.getContractStatus() == ContractStatus.COMPLETED) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, 
+                "Cannot cancel a completed contract");
+        }
+        
+        if (contract.getContractStatus() == ContractStatus.CANCELED) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, 
+                "Contract is already canceled");
+        }
+        
+        // Check if the move date is within 72 hours
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime moveDateTime = contract.getMoveDateTime();
+        long hoursUntilMove = ChronoUnit.HOURS.between(now, moveDateTime);
+        
+        if (hoursUntilMove < 72) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, 
+                "Cannot cancel contract less than 72 hours before move date");
+        }
+        
+        // Update contract status and reason
+        contract.setContractStatus(ContractStatus.CANCELED);
+        contract.setCancelReason(reason);
+        
+        // Save the updated contract
+        return contractRepository.save(contract);
     }
 }

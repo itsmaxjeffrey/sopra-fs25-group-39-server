@@ -40,6 +40,7 @@ public interface ContractDTOMapper {
     @Mapping(target = "requester", ignore = true)
     @Mapping(target = "fromAddress", ignore = true)
     @Mapping(target = "toAddress", ignore = true)
+    @Mapping(target = "cancelReason", ignore = true)
     Contract convertContractPostDTOtoEntity(ContractPostDTO contractPostDTO);
 
     @Mapping(source = "contractId", target = "contractId")
@@ -60,6 +61,7 @@ public interface ContractDTOMapper {
     @Mapping(source = "requester.userId", target = "requesterId")
     @Mapping(source = "fromAddress", target = "fromLocation")
     @Mapping(source = "toAddress", target = "toLocation")
+    @Mapping(source = "cancelReason", target = "cancelReason")
     ContractGetDTO convertContractEntityToContractGetDTO(Contract contract);
 
     @Mapping(source = "title", target = "title")
@@ -83,5 +85,6 @@ public interface ContractDTOMapper {
     @Mapping(target = "requester", ignore = true)
     @Mapping(target = "fromAddress", ignore = true)
     @Mapping(target = "toAddress", ignore = true)
+    @Mapping(target = "cancelReason", ignore = true)
     Contract convertContractPutDTOtoEntity(ContractPutDTO contractPutDTO);
 } 

@@ -109,6 +109,9 @@ public class Contract implements Serializable{
     private Offer acceptedOffer;
     
 
+    @Column(nullable = true)
+    private String cancelReason;
+
     public void addContractPhoto(String photo) {
         this.contractPhotos.add(photo);
     }

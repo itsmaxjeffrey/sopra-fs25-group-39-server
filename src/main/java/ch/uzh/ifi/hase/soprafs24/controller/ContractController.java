@@ -7,6 +7,7 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractPutDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractCancelDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.ContractDTOMapper;
 import ch.uzh.ifi.hase.soprafs24.service.ContractService;
@@ -258,5 +259,32 @@ public class ContractController {
         if (contractPutDTO.getCollateral() < 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Collateral cannot be negative");
         }
+    }
+
+    /**
+     * Cancel a contract
+     * 
+     * @param contractId The ID of the contract to cancel
+     * @param contractCancelDTO The cancellation request containing the reason
+     * @return The cancelled contract
+     */
+    @PutMapping("/api/v1/contracts/{id}/cancel")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public ContractGetDTO cancelContract(
+            @PathVariable("id") Long contractId,
+            @RequestBody ContractCancelDTO contractCancelDTO) {
+        
+        // Validate cancellation reason
+        if (contractCancelDTO.getReason() == null || contractCancelDTO.getReason().trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                "Cancellation reason is required");
+        }
+        
+        // Cancel the contract
+        Contract cancelledContract = contractService.cancelContract(contractId, contractCancelDTO.getReason());
+        
+        // Convert to DTO and return
+        return ContractDTOMapper.INSTANCE.convertContractEntityToContractGetDTO(cancelledContract);
     }
 }

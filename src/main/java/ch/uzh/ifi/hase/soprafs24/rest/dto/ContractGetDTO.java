@@ -23,6 +23,7 @@ public class ContractGetDTO {
     private ContractStatus contractStatus;
     private LocalDateTime creationDateTime;
     private List<String> contractPhotos;
+    private String cancelReason;
 
     // Getters and Setters
     public Long getContractId() {
@@ -167,5 +168,13 @@ public class ContractGetDTO {
 
     public void setContractPhotos(List<String> contractPhotos) {
         this.contractPhotos = contractPhotos;
+    }
+
+    public String getCancelReason() {
+        return cancelReason;
+    }
+
+    public void setCancelReason(String cancelReason) {
+        this.cancelReason = cancelReason;
     }
 }
