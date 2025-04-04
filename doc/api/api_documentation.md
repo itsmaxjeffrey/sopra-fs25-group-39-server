@@ -52,14 +52,15 @@
 | FE | BE | Mapping | Method | Parameter | Parameter Type | Status Code | Response | Description | User Story |
 |---------|--------|-----------|----------------|-------------|----------|-------------|-----------|-----------|-----------|
 | No ❌ | Yes ✅ | `/api/v1/contracts` | POST | `newContract <Contract>` | Body | 201, 400, 404 | Created contract object | Create a new contract | S5 | 
-| No ❌ | No ❌ | `/api/v1/contracts` | GET | `status <string>`, `fromLocation <string>`, `toLocation <string>`, `radius <number>`, `minPrice <number>`, `maxPrice <number>`, `minDate <date>`, `maxDate <date>` | Query | 200 | List of Contracts | Get available contracts with filtering | S11 |
-| No ❌ | No ❌ | `/api/v1/contracts/{id}` | GET | `id <string>` | Path | 200, 404 | Contract details object | Get contract details | S7, S12 |
-| No ❌ | No ❌ | `/api/v1/contracts/{id}` | PUT | `id <string>, contractToUpdate <Contract>` | Path, Body | 200, 400, 403 | Updated contract object | Update a contract | S6 |
+| No ❌ | Yes ✅ | `/api/v1/contracts` | GET | `status <string>`, `fromLocation <string>`, `toLocation <string>`, `radius <number>`, `minPrice <number>`, `maxPrice <number>`, `minDate <date>`, `maxDate <date>` | Query | 200 | List of Contracts | Get available contracts with filtering | S11 |
+| No ❌ | Yes ✅ | `/api/v1/contracts/{id}` | GET | `id <string>` | Path | 200, 404 | Contract details object | Get contract details | S7, S12 |
+| No ❌ | Yes ✅ | `/api/v1/contracts/{id}` | PUT | `id <string>`, `contractToUpdate <Contract>` | Path, Body | 200, 400, 403 | Updated contract object | Update a contract | S6 |
 | No ❌ | No ❌ | `/api/v1/contracts/{id}/cancel` | PUT | `id <string>`, `reason <string>` | Path, Body | 200, 400, 403, 409 | Updated contract with cancel status | Cancel a contract (72h policy) | S8 | 
 | No ❌ | No ❌ | `/api/v1/contracts/{id}/fulfill` | PUT | `id <string>` | Path | 200, 400, 403 | Updated contract status | Mark contract as fulfilled | S9, S18 | 
 | No ❌ | No ❌ | `/api/v1/contracts/{id}/photos` | POST | `id <string>`, `photos <file[]>`, `type <string>` (before/after) | Path, Body | 201, 400, 403 | Photo upload confirmation with URLs | Upload before/after photos | S19 | 
 | No ❌ | No ❌ | `/api/v1/contracts/{id}/collateral` | POST | `id <string>`, `collateralAmount <number>` | Path, Body | 200, 400, 403, 409 | Updated contract with collateral | Provide contract collateral | S21 | 
 | No ❌ | No ❌ | `/api/v1/users/{userId}/contracts` | GET | `userId <string>`, `status <string>` | Path, Query | 200 | List of contracts for a specific user| Get user's contracts | S12 | 
+
 
 ## Offer Management
 

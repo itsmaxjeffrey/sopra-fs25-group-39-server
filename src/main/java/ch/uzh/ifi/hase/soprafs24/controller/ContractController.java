@@ -6,6 +6,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.Location;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractPutDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.ContractDTOMapper;
 import ch.uzh.ifi.hase.soprafs24.service.ContractService;
@@ -166,4 +167,96 @@ public class ContractController {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Collateral must be positive");
             }
         }
+
+    /**
+     * Get a specific contract by ID
+     * 
+     * Example request:
+     * GET /api/v1/contracts/123
+     * 
+     * @param contractId The ID of the contract to retrieve
+     * @return The contract details
+     */
+    @GetMapping("/api/v1/contracts/{contractId}")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public ContractGetDTO getContractById(@PathVariable Long contractId) {
+        // Get contract from service
+        Contract contract = contractService.getContractById(contractId);
+        
+        // Convert to DTO and return
+        return ContractDTOMapper.INSTANCE.convertContractEntityToContractGetDTO(contract);
+    }
+
+    /**
+     * Update a specific contract
+     * 
+     * Example request:
+     * PUT /api/v1/contracts/123
+     * {
+     *   "title": "Updated Title",
+     *   "price": 150.0,
+     *   "moveDateTime": "2024-05-01T10:00:00"
+     * }
+     * 
+     * @param contractId The ID of the contract to update
+     * @param contractPutDTO The updated contract data
+     * @return The updated contract details
+     */
+    @PutMapping("/api/v1/contracts/{contractId}")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public ContractGetDTO updateContract(@PathVariable Long contractId, @RequestBody ContractPutDTO contractPutDTO) {
+        // Validate required fields
+        validateContractPutDTO(contractPutDTO);
+
+        // Convert DTO to entity
+        Contract contractUpdates = ContractDTOMapper.INSTANCE.convertContractPutDTOtoEntity(contractPutDTO);
+
+        // Update contract
+        Contract updatedContract = contractService.updateContract(contractId, contractUpdates);
+
+        // Convert to DTO and return
+        return ContractDTOMapper.INSTANCE.convertContractEntityToContractGetDTO(updatedContract);
+    }
+
+    /**
+     * Validate the required fields in contract put DTO
+     */
+    private void validateContractPutDTO(ContractPutDTO contractPutDTO) {
+        // Check if title is provided and not empty
+        if (contractPutDTO.getTitle() != null && contractPutDTO.getTitle().trim().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Title cannot be empty");
+        }
+
+        // Check if move date time is in the future
+        if (contractPutDTO.getMoveDateTime() != null && contractPutDTO.getMoveDateTime().isBefore(LocalDateTime.now())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Move date time must be in the future");
+        }
+
+        // Check if mass is positive
+        if (contractPutDTO.getMass() < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mass cannot be negative");
+        }
+
+        // Check if volume is positive
+        if (contractPutDTO.getVolume() < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Volume cannot be negative");
+        }
+
+        // Check if man power is positive
+        if (contractPutDTO.getManPower() < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Man power cannot be negative");
+        }
+
+        // Check if price is positive
+        if (contractPutDTO.getPrice() < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price cannot be negative");
+        }
+
+        // Check if collateral is positive
+        if (contractPutDTO.getCollateral() < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Collateral cannot be negative");
+        }
+    }
 }

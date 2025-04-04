@@ -126,4 +126,95 @@ public class ContractService {
     public List<Contract> getContractsByStatus(ContractStatus status) {
         return contractRepository.findByContractStatus(status);
     }
+
+    /**
+     * Updates an existing contract
+     * 
+     * @param contractId The ID of the contract to update
+     * @param contractUpdates The updated contract data
+     * @return The updated contract
+     * @throws ResponseStatusException if contract is not found or update is invalid
+     */
+    public Contract updateContract(Long contractId, Contract contractUpdates) {
+        // Get existing contract
+        Contract existingContract = getContractById(contractId);
+        
+        // Validate update
+        validateContractUpdate(existingContract, contractUpdates);
+        
+        // Update fields if provided
+        if (contractUpdates.getTitle() != null) {
+            existingContract.setTitle(contractUpdates.getTitle());
+        }
+        if (contractUpdates.getMass() > 0) {
+            existingContract.setMass(contractUpdates.getMass());
+        }
+        if (contractUpdates.getVolume() > 0) {
+            existingContract.setVolume(contractUpdates.getVolume());
+        }
+        existingContract.setFragile(contractUpdates.isFragile());
+        existingContract.setCoolingRequired(contractUpdates.isCoolingRequired());
+        existingContract.setRideAlong(contractUpdates.isRideAlong());
+        if (contractUpdates.getManPower() > 0) {
+            existingContract.setManPower(contractUpdates.getManPower());
+        }
+        if (contractUpdates.getContractDescription() != null) {
+            existingContract.setContractDescription(contractUpdates.getContractDescription());
+        }
+        if (contractUpdates.getPrice() > 0) {
+            existingContract.setPrice(contractUpdates.getPrice());
+        }
+        if (contractUpdates.getCollateral() >= 0) {
+            existingContract.setCollateral(contractUpdates.getCollateral());
+        }
+        if (contractUpdates.getFromAddress() != null) {
+            existingContract.setFromAddress(contractUpdates.getFromAddress());
+        }
+        if (contractUpdates.getToAddress() != null) {
+            existingContract.setToAddress(contractUpdates.getToAddress());
+        }
+        if (contractUpdates.getMoveDateTime() != null) {
+            existingContract.setMoveDateTime(contractUpdates.getMoveDateTime());
+        }
+        if (contractUpdates.getContractStatus() != null) {
+            existingContract.setContractStatus(contractUpdates.getContractStatus());
+        }
+        
+        // Save updated contract
+        Contract updatedContract = contractRepository.save(existingContract);
+        contractRepository.flush();
+        
+        log.debug("Updated Contract: {}", updatedContract);
+        return updatedContract;
+    }
+
+    /**
+     * Validates that a contract update is allowed
+     * 
+     * @param existingContract The existing contract
+     * @param contractUpdates The proposed updates
+     * @throws ResponseStatusException if the update is not allowed
+     */
+    private void validateContractUpdate(Contract existingContract, Contract contractUpdates) {
+        // Cannot update a completed or cancelled contract
+        if (existingContract.getContractStatus() == ContractStatus.COMPLETED || 
+            existingContract.getContractStatus() == ContractStatus.CANCELED) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, 
+                "Cannot update a completed or canceled contract");
+        }
+
+        // Cannot change status to a previous status
+        if (contractUpdates.getContractStatus() != null && 
+            contractUpdates.getContractStatus().ordinal() < existingContract.getContractStatus().ordinal()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, 
+                "Cannot change contract status to a previous status");
+        }
+
+        // Cannot change move date to the past
+        if (contractUpdates.getMoveDateTime() != null && 
+            contractUpdates.getMoveDateTime().isBefore(LocalDateTime.now())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                "Cannot set move date to the past");
+        }
+    }
 }
