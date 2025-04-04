@@ -287,4 +287,21 @@ public class ContractController {
         // Convert to DTO and return
         return ContractDTOMapper.INSTANCE.convertContractEntityToContractGetDTO(cancelledContract);
     }
+
+    /**
+     * Mark a contract as fulfilled
+     * 
+     * @param contractId The ID of the contract to fulfill
+     * @return The fulfilled contract
+     */
+    @PutMapping("/api/v1/contracts/{id}/fulfill")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public ContractGetDTO fulfillContract(@PathVariable("id") Long contractId) {
+        // Fulfill the contract
+        Contract fulfilledContract = contractService.fulfillContract(contractId);
+        
+        // Convert to DTO and return
+        return ContractDTOMapper.INSTANCE.convertContractEntityToContractGetDTO(fulfilledContract);
+    }
 }

@@ -258,4 +258,37 @@ public class ContractService {
         // Save the updated contract
         return contractRepository.save(contract);
     }
+
+    /**
+     * Mark a contract as fulfilled
+     * 
+     * @param contractId The ID of the contract to fulfill
+     * @return The fulfilled contract
+     * @throws ResponseStatusException if the contract cannot be fulfilled
+     */
+    public Contract fulfillContract(Long contractId) {
+        Contract contract = getContractById(contractId);
+        
+        // Check if contract can be fulfilled
+        if (contract.getContractStatus() != ContractStatus.ACCEPTED) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, 
+                "Only accepted contracts can be fulfilled");
+        }
+        
+        if (contract.getContractStatus() == ContractStatus.COMPLETED) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, 
+                "Contract is already completed");
+        }
+        
+        if (contract.getContractStatus() == ContractStatus.CANCELED) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, 
+                "Cannot fulfill a canceled contract");
+        }
+        
+        // Update contract status
+        contract.setContractStatus(ContractStatus.COMPLETED);
+        
+        // Save the updated contract
+        return contractRepository.save(contract);
+    }
 }
