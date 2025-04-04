@@ -97,7 +97,7 @@
 |---------|--------|-----------|----------------|-------------|----------|-------------|-----------|-----------|-----------|
 | No ❌ | No ❌ | `/api/v1/notifications` | GET | Auth token, `page <int>`, `pageSize <int>` | Header, Query | 200 | `{ "total": 10, "unread": 3, "notifications": [...] }` | Get user notifications | S17 |
 | No ❌ | No ❌ | `/api/v1/notifications/{id}` | PUT | `id <string>`, `read <boolean>` | Path, Body | 200, 404 | Updated notification object | Mark notification as read | S17 |
-| Yes ✅ | No ❌ | `/api/v1/map/contracts` | GET | `lat <number>`, `lng <number>`, `radius <number>`, `filters <object>`{ price (number), weight (number), height (number), length (number), width (number), requiredPeople (number), fragile (boolean), coolingRequired (boolean), rideAlong (boolean), fromAdress (string of Location Obeject), toAdress (string of Location Object), moveDateTime (string of LocalDateTime Object) }| Query | 200 | GeoJSON of proposals | Get proposals for map display | S11, S17 |
+| Yes ✅ | No ❌ | `/api/v1/map/contracts` | GET | `lat <number>`, `lng <number>`, `filters <object>`{ radius (number), price (number), weight (number), height (number), length (number), width (number), requiredPeople (number), fragile (boolean), coolingRequired (boolean), rideAlong (boolean), fromAdress (string of Location Obeject), toAdress (string of Location Object), moveDateTime (string of LocalDateTime Object) }| Query | 200 | GeoJSON of proposals | Get proposals for map display | S11, S17 |
 
 ## Response Formats
 
