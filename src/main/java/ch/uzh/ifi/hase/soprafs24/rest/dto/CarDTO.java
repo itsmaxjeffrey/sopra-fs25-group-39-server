@@ -14,6 +14,5 @@ public class CarDTO {
     private boolean electric;
     private String licensePlate;
     private String carPicturePath;
-    private Driver driver;
-
+    private DriverDTO driver;
 }
