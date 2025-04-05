@@ -16,6 +16,12 @@ RUN ./gradlew clean build --no-daemon
 FROM openjdk:17-slim
 # Set the env to "production"
 ENV SPRING_PROFILES_ACTIVE=production
+# Accept build argument for Google Maps API key
+ARG GOOGLE_MAPS_API_KEY
+# Set environment variable for runtime
+ENV GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
+# Also set it as a system property for Spring
+ENV JAVA_TOOL_OPTIONS="-DGOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}"
 # get non-root user
 USER 3301
 # Set container working directory to /app
@@ -24,5 +30,5 @@ WORKDIR /app
 COPY --from=build /app/build/libs/*.jar /app/soprafs24.jar
 # Expose the port on which the server will be running (based on application.properties)
 EXPOSE 8080
-# start server
-CMD ["java", "-jar", "/app/soprafs25.jar"]
+# start server with environment variable
+CMD ["java", "-jar", "/app/soprafs24.jar"]
