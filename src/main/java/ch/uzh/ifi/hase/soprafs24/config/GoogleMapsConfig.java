@@ -20,7 +20,14 @@ public class GoogleMapsConfig {
 
     @Bean
     public String googleMapsApiKey() {
-        String apiKey = environment.getProperty("GOOGLE_MAPS_API_KEY");
+        // First try to get from environment variable
+        String apiKey = System.getenv("GOOGLE_MAPS_API_KEY");
+        
+        // If not found in environment, try from properties
+        if (apiKey == null) {
+            apiKey = environment.getProperty("GOOGLE_MAPS_API_KEY");
+        }
+        
         if (apiKey == null) {
             throw new IllegalStateException("GOOGLE_MAPS_API_KEY environment variable is not set");
         }
