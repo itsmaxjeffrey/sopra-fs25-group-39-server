@@ -69,7 +69,7 @@ public class AuthService {
     
 
     //handle logout
-    public void logoutUser(String token, Long userId) {
+    public void logoutUser(Long userId, String token) {
         if (token == null || token.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token is required");
         }
