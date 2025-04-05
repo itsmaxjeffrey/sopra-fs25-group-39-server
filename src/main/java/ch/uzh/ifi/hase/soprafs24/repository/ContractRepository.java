@@ -10,5 +10,8 @@ import java.util.List;
 @Repository("contractRepository")
 public interface ContractRepository extends JpaRepository<Contract, Long> {
     List<Contract> findByRequester_UserId(Long userId);
+    List<Contract> findByDriver_UserId(Long userId);
     List<Contract> findByContractStatus(ContractStatus status);
+    List<Contract> findByRequester_UserIdAndContractStatus(Long requesterId, ContractStatus status);
+    List<Contract> findByDriver_UserIdAndContractStatus(Long driverId, ContractStatus status);
 }

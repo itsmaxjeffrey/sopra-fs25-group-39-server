@@ -158,13 +158,31 @@ public class ContractService {
     }
 
     /**
-     * Gets all contracts for a specific user
+     * Gets all contracts for a specific Requester, optionally filtered by status
      * 
-     * @param userId The ID of the user
-     * @return List of contracts for the user
+     * @param requesterId The ID of the Requester
+     * @param status Optional status to filter by
+     * @return List of contracts for the Requester
      */
-    public List<Contract> getContractsByUser(Long userId) {
-        return contractRepository.findByRequester_UserId(userId);
+    public List<Contract> getContractsByRequesterId(Long requesterId, ContractStatus status) {
+        if (status != null) {
+            return contractRepository.findByRequester_UserIdAndContractStatus(requesterId, status);
+        }
+        return contractRepository.findByRequester_UserId(requesterId);
+    }
+
+    /**
+     * Gets all contracts for a specific Driver, optionally filtered by status
+     * 
+     * @param driverId The ID of the Driver
+     * @param status Optional status to filter by
+     * @return List of contracts for the Driver
+     */
+    public List<Contract> getContractsByDriverId(Long driverId, ContractStatus status) {
+        if (status != null) {
+            return contractRepository.findByDriver_UserIdAndContractStatus(driverId, status);
+        }
+        return contractRepository.findByDriver_UserId(driverId);
     }
 
     /**

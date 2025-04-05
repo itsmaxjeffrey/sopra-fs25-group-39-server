@@ -59,51 +59,18 @@
 | No ❌ | Yes ✅ | `/api/v1/contracts/{id}/fulfill` | PUT | `id <string>` | Path | 200, 400, 403 | Updated contract status | Mark contract as fulfilled | S9, S18 | 
 | No ❌ | No ❌ | `/api/v1/contracts/{id}/photos` | POST | `id <string>`, `photos <file[]>`, `type <string>` (before/after) | Path, Body | 201, 400, 403 | Photo upload confirmation with URLs | Upload before/after photos | S19 | 
 | No ❌ | No ❌ | `/api/v1/contracts/{id}/collateral` | POST | `id <string>`, `collateralAmount <number>` | Path, Body | 200, 400, 403, 409 | Updated contract with collateral | Provide contract collateral | S21 | 
-| No ❌ | Yes ✅ | `/api/v1/users/{userId}/contracts` | GET | `userId <string>`, `status <string>` | Path, Query | 200 | List of contracts for a specific user| Get user's contracts | S12 | 
+| No ❌ | Yes ✅ | `/api/v1/users/{userId}/contracts` | GET | `userId <string>`, `status <string>` (optional) | Path, Query | 200 | List of contracts for a specific user| Get user's contracts with optional status filtering | S12 | 
 
-### Contract Filtering Details
-The GET `/api/v1/contracts` endpoint supports the following filter parameters:
+### User Contracts Details
+The GET `/api/v1/users/{userId}/contracts` endpoint supports the following parameters:
+
+#### Path Parameters
+- `userId` (required): The ID of the user whose contracts to retrieve
 
 #### Query Parameters
-- `lat` (optional): Latitude for location-based search (placeholder for future implementation)
-- `lng` (optional): Longitude for location-based search (placeholder for future implementation)
-- `filters` (optional): JSON string containing filter criteria
+- `status` (optional): Contract status to filter by. If not provided, returns all contracts for the user.
 
-#### Filter Object Structure
-```json
-{
-  "radius": 10,           // Search radius in kilometers (placeholder)
-  "price": 100,          // Maximum price
-  "weight": 50,          // Maximum weight in kg
-  "height": 2,           // Maximum height in meters
-  "length": 3,           // Maximum length in meters
-  "width": 1.5,          // Maximum width in meters
-  "requiredPeople": 2,   // Maximum required manpower
-  "fragile": true,       // Whether fragile items are required
-  "coolingRequired": false, // Whether cooling is required
-  "rideAlong": true,     // Whether ride along is required
-  "fromAddress": "Zurich", // From address
-  "toAddress": "Bern",   // To address
-  "moveDateTime": "2024-04-15T10:00:00" // Exact move date and time
-}
-```
-
-#### Filtering Logic
-- All filters are optional
-- If no filters are provided, all contracts are returned
-- Price, weight, and dimensions are filtered as maximum values
-- Boolean filters (fragile, coolingRequired, rideAlong) are exact matches
-- Move date time is an exact match
-- Location-based filtering (lat, lng, radius) is currently a placeholder and returns all contracts
-- Volume is calculated from height, length, and width if all three are provided
-
-#### Example Request
-```
-GET /api/v1/contracts?lat=47.3769&lng=8.5417&filters={"radius": 10, "price": 100, "weight": 50, "height": 2, "length": 3, "width": 1.5, "requiredPeople": 2, "fragile": true, "coolingRequired": false, "rideAlong": true, "fromAddress": "Zurich", "toAddress": "Bern", "moveDateTime": "2024-04-15T10:00:00"}
-```
-
-### Contract Status Values
-The following status values are supported:
+#### Supported Status Values
 - REQUESTED: Initial state when a contract is created
 - DELETED: Contract has been deleted
 - OFFERED: Driver has made an offer
@@ -112,12 +79,56 @@ The following status values are supported:
 - COMPLETED: Contract has been fulfilled
 - FINALIZED: Contract is fully completed with all steps
 
-### Contract Update Rules
-- Only contracts in REQUESTED or OFFERED status can be updated
-- Completed or canceled contracts cannot be updated
-- Contract cancellation requires a reason
-- Contract fulfillment can only be done on ACCEPTED contracts
-- Contract cancellation must be done at least 72 hours before the move date
+#### Example Requests
+```
+# Get all contracts for a user
+GET /api/v1/users/123/contracts
+
+# Get only requested contracts for a user
+GET /api/v1/users/123/contracts?status=REQUESTED
+
+# Get only completed contracts for a user
+GET /api/v1/users/123/contracts?status=COMPLETED
+```
+
+#### Response Format
+The endpoint returns a list of contracts in the following format:
+```json
+[
+  {
+    "contractId": 123,
+    "title": "Moving furniture",
+    "price": 100.0,
+    "mass": 50.0,
+    "volume": 2.0,
+    "fragile": true,
+    "coolingRequired": false,
+    "rideAlong": true,
+    "manPower": 2,
+    "contractDescription": "Moving a sofa and two chairs",
+    "moveDateTime": "2024-04-15T10:00:00",
+    "contractStatus": "REQUESTED",
+    "creationDateTime": "2024-04-01T15:30:00",
+    "requesterId": 123,
+    "fromLocation": {
+      "address": "Zurich",
+      "latitude": 47.3769,
+      "longitude": 8.5417
+    },
+    "toLocation": {
+      "address": "Bern",
+      "latitude": 46.9480,
+      "longitude": 7.4474
+    }
+  }
+]
+```
+
+#### Notes
+- The endpoint automatically detects whether the user is a requester or driver and returns the appropriate contracts
+- For requesters, it returns contracts they have created
+- For drivers, it returns contracts they have been assigned to
+- Status filtering works for both requester and driver accounts
 
 ## Offer Management
 

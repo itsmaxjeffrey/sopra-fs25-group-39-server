@@ -40,6 +40,10 @@ public class Contract implements Serializable{
     @JoinColumn(name = "requester_id", nullable= false)
     private Requester requester;
 
+    @ManyToOne
+    @JoinColumn(name = "driver_id", nullable= false)
+    private Driver driver;
+
     @Column
     @Enumerated(EnumType.STRING)
     private ContractStatus contractStatus;

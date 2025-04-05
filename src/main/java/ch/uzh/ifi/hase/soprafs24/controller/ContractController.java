@@ -3,6 +3,8 @@ package ch.uzh.ifi.hase.soprafs24.controller;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Contract;
 import ch.uzh.ifi.hase.soprafs24.entity.Location;
+import ch.uzh.ifi.hase.soprafs24.entity.Requester;
+import ch.uzh.ifi.hase.soprafs24.entity.Driver;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
@@ -11,6 +13,7 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractCancelDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractFilterDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.ContractDTOMapper;
+import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import ch.uzh.ifi.hase.soprafs24.service.ContractService;
 import ch.uzh.ifi.hase.soprafs24.service.LocationService;
 import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
@@ -29,10 +32,11 @@ public class ContractController {
 
     private final ContractService contractService;
     private final LocationService locationService;
-
-    public ContractController(ContractService contractService, LocationService locationService) {
+    private final UserService userService;
+    public ContractController(ContractService contractService, LocationService locationService, UserService userService) {
         this.contractService = contractService;
         this.locationService = locationService;
+        this.userService = userService;
     }
 
     /**
@@ -320,12 +324,19 @@ public class ContractController {
     @GetMapping("/api/v1/users/{userId}/contracts")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<ContractGetDTO> getContractsByUser(
-            @PathVariable("userId") Long userId,
+    public List<ContractGetDTO> getUserContracts(
+            @PathVariable Long userId,
             @RequestParam(required = false) ContractStatus status) {
         
-        // Get contracts from service
-        List<Contract> contracts = contractService.getContractsByUser(userId, status);
+        // Check if user is a Requester
+        List<Contract> contracts;
+        if (userService.getUserById(userId) instanceof Requester) {
+            // Get contracts from service with optional status filter
+            contracts = contractService.getContractsByRequesterId(userId, status);
+        } else {
+            // Get contracts from service with optional status filter
+            contracts = contractService.getContractsByDriverId(userId, status);
+        }
         
         // Convert to DTOs
         return contracts.stream()
