@@ -110,7 +110,7 @@ public class ContractController {
         Contract createdContract = contractService.createContract(contractInput);
 
         // Notify waiting clients via ContractPollingService
-        contractPollingService.updateFutures(createdContract);
+        contractPollingService.updateFutures(createdContract, fromLocation.getLatitude(), fromLocation.getLongitude());
 
         return ContractDTOMapper.INSTANCE.convertContractEntityToContractGetDTO(createdContract);
     }
