@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs24.rest.mapper;
 import ch.uzh.ifi.hase.soprafs24.entity.Offer;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.OfferGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.OfferPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.OfferPutDTO;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
@@ -31,4 +32,11 @@ public interface OfferDTOMapper {
     @Mapping(target = "offerStatus", ignore = true)
     @Mapping(target = "creationDateTime", ignore = true)
     Offer convertOfferPostDTOtoEntity(OfferPostDTO offerPostDTO);
+
+    @Mapping(target = "offerId", ignore = true)
+    @Mapping(target = "contract", ignore = true)
+    @Mapping(target = "driver", ignore = true)
+    @Mapping(target = "creationDateTime", ignore = true)
+    @Mapping(source = "status", target = "offerStatus")
+    Offer convertOfferPutDTOtoEntity(OfferPutDTO offerPutDTO);
 } 

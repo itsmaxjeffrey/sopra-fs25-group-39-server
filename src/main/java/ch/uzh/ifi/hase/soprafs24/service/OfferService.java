@@ -22,6 +22,7 @@ import ch.uzh.ifi.hase.soprafs24.repository.OfferRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.OfferGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.OfferPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.OfferPutDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.OfferDTOMapper;
 
 /**
@@ -39,6 +40,7 @@ public class OfferService {
     private final OfferRepository offerRepository;
     private final ContractRepository contractRepository;
     private final UserRepository userRepository;
+    private final OfferDTOMapper offerDTOMapper = OfferDTOMapper.INSTANCE;
 
     @Autowired
     public OfferService(
@@ -80,7 +82,7 @@ public class OfferService {
         }
 
         return offers.stream()
-                .map(OfferDTOMapper.INSTANCE::convertEntityToOfferGetDTO)
+                .map(offerDTOMapper::convertEntityToOfferGetDTO)
                 .collect(Collectors.toList());
     }
 
@@ -94,7 +96,7 @@ public class OfferService {
     public OfferGetDTO getOffer(Long offerId) {
         Offer offer = offerRepository.findById(offerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Offer not found"));
-        return OfferDTOMapper.INSTANCE.convertEntityToOfferGetDTO(offer);
+        return offerDTOMapper.convertEntityToOfferGetDTO(offer);
     }
 
     /**
@@ -126,7 +128,7 @@ public class OfferService {
         }
 
         // Create new offer
-        Offer offer = OfferDTOMapper.INSTANCE.convertOfferPostDTOtoEntity(offerPostDTO);
+        Offer offer = offerDTOMapper.convertOfferPostDTOtoEntity(offerPostDTO);
         offer.setContract(contract);
         offer.setDriver(driver);
         offer.setOfferStatus(OfferStatus.CREATED);
@@ -137,7 +139,7 @@ public class OfferService {
 
         log.debug("Created offer: {}", offer);
 
-        return OfferDTOMapper.INSTANCE.convertEntityToOfferGetDTO(offer);
+        return offerDTOMapper.convertEntityToOfferGetDTO(offer);
     }
 
     /**
@@ -164,8 +166,36 @@ public class OfferService {
         log.debug("Deleted offer: {}", offer);
     }
 
+    /**
+     * Updates the status of an offer
+     * 
+     * @param offerId The ID of the offer to update
+     * @param status The new status to set
+     * @return The updated offer
+     * @throws ResponseStatusException if the offer is not found or the status update is invalid
+     */
     public OfferGetDTO updateOfferStatus(Long offerId, OfferStatus status) {
-        // Implementation will be added later
-        throw new UnsupportedOperationException("Not implemented yet");
+        Offer offer = offerRepository.findById(offerId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Offer not found"));
+
+        // Validate status transition
+        if (offer.getOfferStatus() == OfferStatus.DELETED) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Cannot update a deleted offer");
+        }
+
+        if (offer.getOfferStatus() == OfferStatus.ACCEPTED && status != OfferStatus.ACCEPTED) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Cannot change status of an accepted offer");
+        }
+
+        if (offer.getOfferStatus() == OfferStatus.REJECTED && status != OfferStatus.REJECTED) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Cannot change status of a rejected offer");
+        }
+
+        // Update the status directly
+        offer.setOfferStatus(status);
+        offer = offerRepository.save(offer);
+        log.debug("Updated status of offer {} to {}", offerId, status);
+
+        return offerDTOMapper.convertEntityToOfferGetDTO(offer);
     }
 } 
