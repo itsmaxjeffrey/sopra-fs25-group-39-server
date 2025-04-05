@@ -1,6 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.ResponseEntity;
@@ -14,14 +14,14 @@ import java.util.Map;
 @Service
 public class GoogleMapsService {
 
-    @Value("${google.maps.api.key}")
-    private String apiKey;
-
+    private final String apiKey;
     private final RestTemplate restTemplate;
     private static final String DISTANCE_MATRIX_URL = "https://maps.googleapis.com/maps/api/distancematrix/json";
     private static final String GEOCODING_URL = "https://maps.googleapis.com/maps/api/geocode/json";
 
-    public GoogleMapsService() {
+    @Autowired
+    public GoogleMapsService(String googleMapsApiKey) {
+        this.apiKey = googleMapsApiKey;
         this.restTemplate = new RestTemplate();
     }
 
