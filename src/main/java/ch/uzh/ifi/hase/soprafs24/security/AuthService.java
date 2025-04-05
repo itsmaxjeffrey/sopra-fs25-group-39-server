@@ -1,4 +1,4 @@
-package ch.uzh.ifi.hase.soprafs24.service;
+package ch.uzh.ifi.hase.soprafs24.security;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,8 +7,8 @@ import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,31 +16,47 @@ import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Car;
 import ch.uzh.ifi.hase.soprafs24.entity.Driver;
+import ch.uzh.ifi.hase.soprafs24.entity.Location;
 import ch.uzh.ifi.hase.soprafs24.entity.Requester;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.CarRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserLoginDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserRegisterDTO;
+import ch.uzh.ifi.hase.soprafs24.service.CarService;
+import ch.uzh.ifi.hase.soprafs24.service.FileStorageService;
+import ch.uzh.ifi.hase.soprafs24.service.LocationService;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.RequesterRegisterDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.BaseUserRegisterDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.CarDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.DriverRegisterDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
 
 @Service
 @Transactional
 public class AuthService {
 
     private final Logger log = LoggerFactory.getLogger(AuthService.class);
+    private UserRepository userRepository;
 
-    private final UserRepository userRepository;
     private final CarRepository carRepository;
     private final FileStorageService fileStorageService;
+    private final CarService carService;
+    private final LocationService locationService;
 
-    @Autowired
+
     public AuthService(
             UserRepository userRepository,
             CarRepository carRepository,
-            FileStorageService fileStorageService) {
+            FileStorageService fileStorageService,
+            CarService carService,
+            LocationService locationService) {
         this.userRepository = userRepository;
         this.carRepository = carRepository;
         this.fileStorageService = fileStorageService;
+        this.carService = carService;
+        this.locationService = locationService;
+
+
     }
 
     /**
@@ -48,10 +64,13 @@ public class AuthService {
      * Returns the authenticated user after registration
      */
     public User registerUser(
-            UserRegisterDTO userRegisterDTO,
-            MultipartFile profilePicture,
-            MultipartFile driverLicense,
-            MultipartFile driverInsurance) {
+            BaseUserRegisterDTO userRegisterDTO,
+            @Nullable CarDTO carDTO,
+            @Nullable LocationDTO locationDTO,
+            @Nullable MultipartFile profilePicture,
+            @Nullable MultipartFile driverLicense,
+            @Nullable MultipartFile driverInsurance,
+            @Nullable MultipartFile driverCarPicture) {
         
         // Validate input
         if (userRegisterDTO.getUserAccountType() == null) {
@@ -63,47 +82,31 @@ public class AuthService {
         checkUserCredentialUniqueness(userRegisterDTO);
         
         User newUser;
-        
-        if (null == userRegisterDTO.getUserAccountType()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Invalid user account type");
-        } 
-        else // Create appropriate user type
-            switch (userRegisterDTO.getUserAccountType()) {
-                case DRIVER -> {
-                    // Validate driver-specific requirements
-                    if (driverLicense == null || driverLicense.isEmpty()) {
-                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                                "Driver license is required for driver registration");
-                    }   if (userRegisterDTO.getCarId() == null) {
-                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                                "Car is required for driver registration");
-                    }   Driver driver = new Driver();
-                    // Process driver license (required)
-                    String driverLicensePath = fileStorageService.storeFile(driverLicense, "driver-licenses");
-                    driver.setDriverLicensePath(driverLicensePath);
-                    // Process driver insurance if provided
-                    if (driverInsurance != null && !driverInsurance.isEmpty()) {
-                        String driverInsurancePath = fileStorageService.storeFile(driverInsurance, "driver-insurances");
-                        driver.setDriverInsurancePath(driverInsurancePath);
-                    }   // Set driver-specific fields
-                    driver.setPreferredRange(userRegisterDTO.getPreferredRange());
-                    // Set car if provided
-                    if (userRegisterDTO.getCarId() != null) {
-                        Optional<Car> car = carRepository.findById(userRegisterDTO.getCarId());
-                        if (car.isEmpty()) {
-                            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Car not found");
-                        }
-                        driver.setCar(car.get());
-                    }   newUser = driver;
+        switch (userRegisterDTO.getUserAccountType()) {
+            case DRIVER -> {
+                if (!(userRegisterDTO instanceof DriverRegisterDTO)) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Driver registration requires DriverRegisterDTO");
                 }
-                case REQUESTER -> {
-                    Requester requester = new Requester();
-                    newUser = requester;
-                }
-                default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                            "Invalid user account type");
+                    newUser = registerDriver(
+                        (DriverRegisterDTO) userRegisterDTO,
+                        carDTO,
+                        locationDTO,
+                        driverLicense,
+                        driverInsurance,
+                        driverCarPicture);
+                         
             }
+            case REQUESTER -> {
+                if (!(userRegisterDTO instanceof RequesterRegisterDTO)) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Requester registration requires RequesterRegisterDTO");
+                }
+                newUser = registerRequester((RequesterRegisterDTO) userRegisterDTO);
+            }
+            default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Invalid user account type");
+        }
         
         // Process profile picture if provided
         if (profilePicture != null && !profilePicture.isEmpty()) {
@@ -183,64 +186,21 @@ public class AuthService {
         log.debug("User logged out: {}", user.getUsername());
     }
     
-    /**
-     * Validate a user's token
-     * @return true if valid, false otherwise
-     */
-    public boolean validateToken(String token) {
-        if (token == null || token.isEmpty()) {
-            return false;
-        }
-        
-        return userRepository.existsByToken(token);
-    }
+    //register driver helper
     
-    /**
-     * Validate if a token belongs to a specific user
-     * @return true if valid for this user, false otherwise
-     */
-    public boolean validateTokenForUser(Long userId, String token) {
-        if (token == null || token.isEmpty() || userId == null) {
-            return false;
-        }
-        
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isEmpty()) {
-            return false;
-        }
-        
-        User user = userOptional.get();
-        return token.equals(user.getToken());
-    }
-    
-    /**
-     * Get user by token
-     */
-    public User getUserByToken(String token) {
-        if (token == null || token.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
-        }
-        
-        Optional<User> userOptional = userRepository.findByToken(token);
-        
-        if (userOptional.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
-        }
-        
-        return userOptional.get();
-    }
-    
-    /**
-     * Generate a unique token for authentication
-     */
-    private String generateToken() {
-        return UUID.randomUUID().toString();
-    }
+
+    //requester register helper
+
+
+
+
+
+
     
     /**
      * Check if username, email, phone number are unique
      */
-    private void checkUserCredentialUniqueness(UserRegisterDTO userToRegister) {
+    private void checkUserCredentialUniqueness(BaseUserRegisterDTO userToRegister) {
         List<String> notUniqueAttributes = new ArrayList<>();
 
         if (userRepository.existsByUsername(userToRegister.getUsername())) {
@@ -264,4 +224,5 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
         }
     }
+
 }
