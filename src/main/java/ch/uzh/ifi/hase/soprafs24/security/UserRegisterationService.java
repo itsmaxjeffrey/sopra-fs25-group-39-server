@@ -108,6 +108,8 @@ public class UserRegisterationService {
         
         // Save the user to repository
         newUser = userRepository.save(newUser);
+        userRepository.flush();
+
         
         log.debug("Created new user: {}", newUser.getUsername());
         

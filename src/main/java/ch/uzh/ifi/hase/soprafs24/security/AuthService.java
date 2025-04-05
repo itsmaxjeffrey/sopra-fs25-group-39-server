@@ -34,13 +34,11 @@ public class AuthService {
 
 
    
-    /**
-     * Login a user with username and password
-     * The system determines the account type
-     */
+    
+    //handle login
     public User loginUser(BaseUserLoginDTO baseUserLoginDTO) {
         // Find user by username
-        Optional<User> userOptional = userRepository.findByUsername(userLoginDTO.getUsername());
+        Optional<User> userOptional = userRepository.findByUsername(baseUserLoginDTO.getUsername());
             
         if (userOptional.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, 
@@ -50,7 +48,7 @@ public class AuthService {
         User user = userOptional.get();
         
         // Check password (in a real app, use proper password encryption)
-        if (!user.getPassword().equals(userLoginDTO.getPassword())) {
+        if (!user.getPassword().equals(baseUserLoginDTO.getPassword())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, 
                 "Password is incorrect");
         }
@@ -61,28 +59,29 @@ public class AuthService {
         
         // Save updated user with new token
         user = userRepository.save(user);
+        userRepository.flush();
+
+
         
         log.debug("User logged in: {}", user.getUsername());
         return user;
     }
     
 
-    public void logoutUser(String token) {
+    //handle logout
+    public void logoutUser(String token, Long userId) {
         if (token == null || token.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token is required");
         }
-        
-        User user = getUserByToken(token);
+        tokenService.validateTokenById(userId,token);
+        User user = userRepository.getUserById(userId);
         user.setToken(null);
         userRepository.save(user);
+        userRepository.flush();
+
         
         log.debug("User logged out: {}", user.getUsername());
     }
-    
-    //register driver helper
-    
-
-    //requester register helper
 
 
 
