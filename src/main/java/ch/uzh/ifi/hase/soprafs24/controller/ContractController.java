@@ -3,13 +3,17 @@ package ch.uzh.ifi.hase.soprafs24.controller;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Contract;
 import ch.uzh.ifi.hase.soprafs24.entity.Location;
+import ch.uzh.ifi.hase.soprafs24.entity.Requester;
+import ch.uzh.ifi.hase.soprafs24.entity.Driver;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractPutDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractCancelDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractFilterDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.ContractDTOMapper;
+import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import ch.uzh.ifi.hase.soprafs24.service.ContractService;
 import ch.uzh.ifi.hase.soprafs24.service.LocationService;
 import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
@@ -21,49 +25,51 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 public class ContractController {
 
     private final ContractService contractService;
     private final LocationService locationService;
-
-    public ContractController(ContractService contractService, LocationService locationService) {
+    private final UserService userService;
+    public ContractController(ContractService contractService, LocationService locationService, UserService userService) {
         this.contractService = contractService;
         this.locationService = locationService;
+        this.userService = userService;
     }
 
     /**
      * Get all contracts with optional filtering
      * 
      * Example request with filters:
-     * GET /api/v1/contracts?status=REQUESTED&minPrice=50&maxPrice=200&minDate=2024-04-01T00:00:00&maxDate=2024-04-30T23:59:59
+     * GET /api/v1/contracts?lat=47.3769&lng=8.5417&filters={"radius": 10, "price": 100, "weight": 50, "height": 2, "length": 3, "width": 1.5, "requiredPeople": 2, "fragile": true, "coolingRequired": false, "rideAlong": true, "fromAddress": "Zurich", "toAddress": "Bern", "moveDateTime": "2024-04-15T10:00:00"}
      * 
-     * @param status Filter by contract status (e.g., REQUESTED, ACCEPTED, COMPLETED)
-     * @param fromLocation Filter by from location (not implemented yet)
-     * @param toLocation Filter by to location (not implemented yet)
-     * @param radius Search radius in kilometers (not implemented yet)
-     * @param minPrice Minimum price (e.g., 50.0)
-     * @param maxPrice Maximum price (e.g., 200.0)
-     * @param minDate Minimum move date (e.g., 2024-04-01T00:00:00)
-     * @param maxDate Maximum move date (e.g., 2024-04-30T23:59:59)
+     * @param lat Latitude for location-based search (placeholder for future implementation)
+     * @param lng Longitude for location-based search (placeholder for future implementation)
+     * @param filters JSON string containing filter criteria
      * @return List of contracts matching the criteria
      */
     @GetMapping("/api/v1/contracts")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public List<ContractGetDTO> getAllContracts(
-            @RequestParam(required = false) ContractStatus status,
-            @RequestParam(required = false) String fromLocation,
-            @RequestParam(required = false) String toLocation,
-            @RequestParam(required = false) Double radius,
-            @RequestParam(required = false) Double minPrice,
-            @RequestParam(required = false) Double maxPrice,
-            @RequestParam(required = false) LocalDateTime minDate,
-            @RequestParam(required = false) LocalDateTime maxDate) {
+            @RequestParam(required = false) Double lat,
+            @RequestParam(required = false) Double lng,
+            @RequestParam(required = false) String filters) {
+
+        // Parse filters if provided
+        ContractFilterDTO filterDTO = null;
+        if (filters != null && !filters.isEmpty()) {
+            try {
+                filterDTO = new ObjectMapper().readValue(filters, ContractFilterDTO.class);
+            } catch (Exception e) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid filters format");
+            }
+        }
 
         // Get filtered contracts from service
-        List<Contract> contracts = contractService.getContracts(status, minPrice, maxPrice, minDate, maxDate);
+        List<Contract> contracts = contractService.getContracts(lat, lng, filterDTO);
         
         // Convert to DTOs
         return contracts.stream()
@@ -318,16 +324,34 @@ public class ContractController {
     @GetMapping("/api/v1/users/{userId}/contracts")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<ContractGetDTO> getContractsByUser(
-            @PathVariable("userId") Long userId,
+    public List<ContractGetDTO> getUserContracts(
+            @PathVariable Long userId,
             @RequestParam(required = false) ContractStatus status) {
         
-        // Get contracts from service
-        List<Contract> contracts = contractService.getContractsByUser(userId, status);
+        // Check if user is a Requester
+        List<Contract> contracts;
+        if (userService.getUserById(userId) instanceof Requester) {
+            // Get contracts from service with optional status filter
+            contracts = contractService.getContractsByRequesterId(userId, status);
+        } else {
+            // Get contracts from service with optional status filter
+            contracts = contractService.getContractsByDriverId(userId, status);
+        }
         
         // Convert to DTOs
         return contracts.stream()
             .map(ContractDTOMapper.INSTANCE::convertContractEntityToContractGetDTO)
             .collect(Collectors.toList());
+    }
+
+    /**
+     * Delete a contract
+     * 
+     * @param contractId The ID of the contract to delete
+     */
+    @DeleteMapping("/api/v1/contracts/{contractId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteContract(@PathVariable Long contractId) {
+        contractService.deleteContract(contractId);
     }
 }

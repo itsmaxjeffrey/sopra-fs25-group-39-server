@@ -166,7 +166,7 @@ public class ContractServiceTest {
         Mockito.when(contractRepository.findByRequester_UserId(Mockito.any())).thenReturn(userContracts);
 
         // when
-        List<Contract> foundContracts = contractService.getContractsByUser(1L);
+        List<Contract> foundContracts = contractService.getContractsByUser(1L, ContractStatus.REQUESTED);
 
         // then
         assertEquals(userContracts.size(), foundContracts.size());
