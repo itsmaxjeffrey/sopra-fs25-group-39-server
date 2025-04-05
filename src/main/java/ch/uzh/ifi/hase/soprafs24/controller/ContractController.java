@@ -34,11 +34,11 @@ public class ContractController {
     private final ContractService contractService;
     private final LocationService locationService;
     private final ContractPollingService contractPollingService;
-
-
-    public ContractController(ContractService contractService, LocationService locationService, ContractPollingService contractPollingService) {
     private final UserService userService;
-    public ContractController(ContractService contractService, LocationService locationService, UserService userService) {
+
+
+
+    public ContractController(ContractService contractService, LocationService locationService, UserService userService, ContractPollingService contractPollingService) {
         this.contractService = contractService;
         this.locationService = locationService;
         this.contractPollingService = contractPollingService;
