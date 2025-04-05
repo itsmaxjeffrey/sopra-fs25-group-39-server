@@ -163,79 +163,44 @@ DELETE /api/v1/contracts/123
 
 | FE | BE | Mapping | Method | Parameter | Parameter Type | Status Code | Response | Description | User Story |
 |---------|--------|-----------|----------------|-------------|----------|-------------|-----------|-----------|-----------|
-| No ❌ | No ❌ | `/api/v1/offers` | GET | `contractId` (optional), `driverId` (optional), `status` (optional), `sort` (optional), `limit` (optional), `offset` (optional) | Query | 200 | List of offers with pagination | Get all offers with optional filtering | S4, S11 |
-| No ❌ | No ❌ | `/api/v1/offers` | POST | `contractId <string>`, `driverId <string>`, `message <string>` (optional), `price <number>`, `estimatedTime <string>` | Body | 201, 400, 409 | Created offer object | Create a new offer | S12 |
+| No ❌ | No ❌ | `/api/v1/offers` | GET | `contractId` (optional), `driverId` (optional), `status` (optional) | Query | 200 | List of offers | Get all offers with optional filtering | S4, S11 |
+| No ❌ | No ❌ | `/api/v1/offers` | POST | `contractId <string>`, `driverId <string>` | Body | 201, 400, 409 | Created offer object | Create a new offer | S12 |
 | No ❌ | No ❌ | `/api/v1/offers/{offerId}` | GET | `offerId <string>` | Path | 200, 404 | Detailed offer object | Get a specific offer | S4, S11 |
-| No ❌ | No ❌ | `/api/v1/offers/{offerId}` | PUT | `offerId <string>`, `message <string>` (optional), `price <number>` (optional), `estimatedTime <string>` (optional) | Path, Body | 200, 400, 403, 404 | Updated offer object | Update offer details | S6 |
 | No ❌ | No ❌ | `/api/v1/offers/{offerId}` | DELETE | `offerId <string>` | Path | 204, 403, 404 | None | Delete an offer | S6 |
 | No ❌ | No ❌ | `/api/v1/contracts/{contractId}/offers` | GET | `contractId <string>` | Path | 200, 404 | List of offers | Get all offers for a specific contract | S7 |
-| No ❌ | No ❌ | `/api/v1/offers/{offerId}/status` | PUT | `offerId <string>`, `status <string>`, `reason <string>` (optional) | Path, Body | 200, 400, 403, 404 | Updated offer with new status | Update offer status (e.g., cancel) | S12 |
+| No ❌ | No ❌ | `/api/v1/offers/{offerId}/status` | PUT | `offerId <string>`, `status <string>` | Path, Body | 200, 400, 403, 404 | Updated offer with new status | Update offer status | S12 |
 
 ### Offer Status Values
-- PENDING: Initial state when offer is created
+- CREATED: Initial state when offer is created
 - ACCEPTED: Offer has been accepted by requester
 - REJECTED: Offer has been rejected by requester
-- CANCELLED: Offer has been cancelled by driver
-- EXPIRED: Offer has expired due to time limit
-- WITHDRAWN: Offer has been withdrawn by driver
+- DELETED: Offer has been deleted
 
 ### Query Parameters for GET /api/v1/offers
 - `contractId`: Filter by contract ID
 - `driverId`: Filter by driver ID
-- `status`: Filter by offer status
-- `sort`: Sort by field (e.g., "price", "createdAt")
-- `limit`: Number of results to return (default: 20)
-- `offset`: Pagination offset (default: 0)
+- `status`: Filter by offer status (CREATED, ACCEPTED, REJECTED, DELETED)
 
-### Request/Response Examples
-
-#### Create Offer (POST /api/v1/offers)
-```json
-{
-  "contractId": "123",
-  "driverId": "456",
-  "message": "I can help with this move",
-  "price": 100.00,
-  "estimatedTime": "2 hours"
-}
-```
-
-#### Update Offer Status (PUT /api/v1/offers/{offerId}/status)
-```json
-{
-  "status": "CANCELLED",
-  "reason": "No longer available"
-}
-```
-
-#### Get Offers with Filtering (GET /api/v1/offers)
-```
-/api/v1/offers?contractId=123&status=ACTIVE&sort=price&limit=10
-```
-
-#### Response Format
+### Response Format
 ```json
 {
   "status": "success",
   "data": {
     "offers": [
       {
-        "id": "789",
-        "contractId": "123",
-        "driverId": "456",
-        "message": "I can help with this move",
-        "price": 100.00,
-        "estimatedTime": "2 hours",
-        "status": "PENDING",
-        "createdAt": "2024-04-05T10:00:00Z",
-        "updatedAt": "2024-04-05T10:00:00Z"
+        "offerId": 123,
+        "contract": {
+          "contractId": 456,
+          // contract details
+        },
+        "driver": {
+          "driverId": 789,
+          // driver details
+        },
+        "offerStatus": "CREATED",
+        "creationDateTime": "2024-04-05T10:00:00Z"
       }
-    ],
-    "pagination": {
-      "total": 1,
-      "limit": 10,
-      "offset": 0
-    }
+    ]
   }
 }
 ```
