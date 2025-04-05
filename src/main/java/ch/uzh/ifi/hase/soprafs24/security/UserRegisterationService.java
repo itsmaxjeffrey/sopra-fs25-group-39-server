@@ -1,28 +1,30 @@
 package ch.uzh.ifi.hase.soprafs24.security;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
-import ch.uzh.ifi.hase.soprafs24.entity.Driver;
-import ch.uzh.ifi.hase.soprafs24.entity.Requester;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.BaseUserRegisterDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.CarDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.DriverRegisterDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.RequesterRegisterDTO;;
-
+import ch.uzh.ifi.hase.soprafs24.rest.dto.RequesterRegisterDTO;
+import ch.uzh.ifi.hase.soprafs24.service.FileStorageService;
 @Service
 public class UserRegisterationService {
-
+    
+    private static final Logger log = LoggerFactory.getLogger(UserRegisterationService.class);
+    
     private final UserRepository userRepository;
     private final DriverRegisterationService driverRegisterationService;
     private final RequesterRegisterationService requesterRegisterationService;
+    private final FileStorageService fileStorageService;
     private final TokenService tokenService;
 
     //initialize
@@ -30,10 +32,12 @@ public class UserRegisterationService {
     UserRepository userRepository,
     DriverRegisterationService driverRegisterationService,
     RequesterRegisterationService requesterRegisterationService,
+    FileStorageService fileStorageService,
     TokenService tokenService){
         this.userRepository = userRepository;
         this.driverRegisterationService = driverRegisterationService;
         this.requesterRegisterationService = requesterRegisterationService;
+        this.fileStorageService = fileStorageService;
         this.tokenService = tokenService;
     }
 
@@ -48,21 +52,7 @@ public class UserRegisterationService {
         @Nullable MultipartFile driverCarPicture){
 
 
-        // checks that account type is not empty
-        if (baseUserRegisterDTO.getUserAccountType() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
-                "User account type must be specified");
-        }
         User newUser;
-
-            if (baseUserRegisterDTO.getUserAccountType() == UserAccountType.DRIVER) {
-                newUser = new Driver(); // Create driver object
-            } else if (baseUserRegisterDTO.getUserAccountType() == UserAccountType.REQUESTER) {
-                newUser = new Requester(); // Create requester object
-            } else {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid user account type");
-            }
-
         switch (baseUserRegisterDTO.getUserAccountType()) {
             case DRIVER -> {
                 if (!(baseUserRegisterDTO instanceof DriverRegisterDTO)) {
@@ -78,6 +68,7 @@ public class UserRegisterationService {
                         driverCarPicture);
                         
             }
+            
             case REQUESTER -> {
                 if (!(baseUserRegisterDTO instanceof RequesterRegisterDTO)) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -85,8 +76,12 @@ public class UserRegisterationService {
                 }
                 newUser = requesterRegisterationService.registerRequester((RequesterRegisterDTO) baseUserRegisterDTO);
             }
+
+            //if user account type unknown
             default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                         "Invalid user account type");
+
+
         }
         
         // Process profile picture if provided
