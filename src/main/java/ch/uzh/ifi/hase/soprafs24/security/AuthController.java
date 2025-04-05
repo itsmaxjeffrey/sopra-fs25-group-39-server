@@ -2,7 +2,7 @@ package ch.uzh.ifi.hase.soprafs24.controller;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Driver;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserRegisterDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.BaseUserRegisterDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserLoginDTO;
 import ch.uzh.ifi.hase.soprafs24.service.AuthService;
 
@@ -36,7 +36,7 @@ public class AuthController {
      */
     @PostMapping("/register")
     public ResponseEntity<Object> registerUser(
-            @RequestPart("userData") UserRegisterDTO userRegisterDTO,
+            @RequestPart("userData") BaseUserRegisterDTO userRegisterDTO,
             @RequestPart(value = "profilePicture", required = false) MultipartFile profilePicture,
             @RequestPart(value = "driverLicense", required = false) MultipartFile driverLicense,
             @RequestPart(value = "driverInsurance", required = false) MultipartFile driverInsurance) {

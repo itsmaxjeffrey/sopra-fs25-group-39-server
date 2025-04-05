@@ -2,6 +2,7 @@ package ch.uzh.ifi.hase.soprafs24.entity;
 
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -18,8 +19,7 @@ import lombok.Setter;
 public class Requester extends User {
 
     @OneToMany(mappedBy="requester",fetch = FetchType.LAZY)
-    private List<Contract> contracts;
-
+    private List<Contract> contracts = new ArrayList<>();
     
     public void addContract(Contract contract){
         this.contracts.add(contract);
