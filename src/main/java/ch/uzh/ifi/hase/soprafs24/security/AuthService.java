@@ -69,12 +69,18 @@ public class AuthService {
     
 
     //handle logout
-    public void logoutUser(Long userId, String token) {
+    public void logoutUser(String token) {
         if (token == null || token.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token is required");
         }
-        tokenService.validateTokenById(userId,token);
-        User user = userRepository.getUserById(userId);
+        
+        Optional<User> userOptional = userRepository.findByToken(token);
+        if (userOptional.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
+        }
+        User user = userOptional.get();
+        
+        // Invalidate token
         user.setToken(null);
         userRepository.save(user);
         userRepository.flush();

@@ -93,11 +93,12 @@ public class AuthController {
      * POST /api/v1/auth/logout
      */
     @PostMapping("/logout")
-    public ResponseEntity<Object> logoutUser(@RequestHeader("userId") Long userId, @RequestHeader("Authorization") String token) {
-        authService.logoutUser(userId,token);
+    public ResponseEntity<Object> logoutUser(@RequestHeader("Authorization") String token) {
+        authService.logoutUser(token);
         
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Successfully logged out");
+        response.put("timestamp", System.currentTimeMillis());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
