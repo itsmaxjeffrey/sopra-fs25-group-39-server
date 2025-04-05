@@ -52,7 +52,7 @@
 | FE | BE | Mapping | Method | Parameter | Parameter Type | Status Code | Response | Description | User Story |
 |---------|--------|-----------|----------------|-------------|----------|-------------|-----------|-----------|-----------|
 | No ❌ | Yes ✅ | `/api/v1/contracts` | POST | `newContract <Contract>` | Body | 201, 400, 404 | Created contract object | Create a new contract | S5 | 
-| No ❌ | Yes ✅ | `/api/v1/contracts` | GET | `status <string>`, `fromLocation <string>`, `toLocation <string>`, `radius <number>`, `minPrice <number>`, `maxPrice <number>`, `minDate <date>`, `maxDate <date>` | Query | 200 | List of Contracts | Get available contracts with filtering | S11 |
+| Yes ✅ | Yes ✅ | `/api/v1/contracts` | GET | `lat <number>`, `lng <number>`, `filters <object>`{ radius (number), price (number), weight (number), height (number), length (number), width (number), requiredPeople (number), fragile (boolean), coolingRequired (boolean), rideAlong (boolean), fromAddress (string), toAddress (string), moveDateTime (string) } | Query | 200 | List of Contracts | Get available contracts with filtering | S11 |
 | No ❌ | Yes ✅ | `/api/v1/contracts/{id}` | GET | `id <string>` | Path | 200, 404 | Contract details object | Get contract details | S7, S12 |
 | No ❌ | Yes ✅ | `/api/v1/contracts/{id}` | PUT | `id <string>`, `contractToUpdate <Contract>` | Path, Body | 200, 400, 403 | Updated contract object | Update a contract | S6 |
 | No ❌ | Yes ✅ | `/api/v1/contracts/{id}/cancel` | PUT | `id <string>`, `reason <string>` | Path, Body | 200, 400, 403, 409 | Updated contract with cancel status | Cancel a contract (72h policy) | S8 | 
@@ -60,6 +60,47 @@
 | No ❌ | No ❌ | `/api/v1/contracts/{id}/photos` | POST | `id <string>`, `photos <file[]>`, `type <string>` (before/after) | Path, Body | 201, 400, 403 | Photo upload confirmation with URLs | Upload before/after photos | S19 | 
 | No ❌ | No ❌ | `/api/v1/contracts/{id}/collateral` | POST | `id <string>`, `collateralAmount <number>` | Path, Body | 200, 400, 403, 409 | Updated contract with collateral | Provide contract collateral | S21 | 
 | No ❌ | Yes ✅ | `/api/v1/users/{userId}/contracts` | GET | `userId <string>`, `status <string>` | Path, Query | 200 | List of contracts for a specific user| Get user's contracts | S12 | 
+
+### Contract Filtering Details
+The GET `/api/v1/contracts` endpoint supports the following filter parameters:
+
+#### Query Parameters
+- `lat` (optional): Latitude for location-based search (placeholder for future implementation)
+- `lng` (optional): Longitude for location-based search (placeholder for future implementation)
+- `filters` (optional): JSON string containing filter criteria
+
+#### Filter Object Structure
+```json
+{
+  "radius": 10,           // Search radius in kilometers (placeholder)
+  "price": 100,          // Maximum price
+  "weight": 50,          // Maximum weight in kg
+  "height": 2,           // Maximum height in meters
+  "length": 3,           // Maximum length in meters
+  "width": 1.5,          // Maximum width in meters
+  "requiredPeople": 2,   // Maximum required manpower
+  "fragile": true,       // Whether fragile items are required
+  "coolingRequired": false, // Whether cooling is required
+  "rideAlong": true,     // Whether ride along is required
+  "fromAddress": "Zurich", // From address
+  "toAddress": "Bern",   // To address
+  "moveDateTime": "2024-04-15T10:00:00" // Exact move date and time
+}
+```
+
+#### Filtering Logic
+- All filters are optional
+- If no filters are provided, all contracts are returned
+- Price, weight, and dimensions are filtered as maximum values
+- Boolean filters (fragile, coolingRequired, rideAlong) are exact matches
+- Move date time is an exact match
+- Location-based filtering (lat, lng, radius) is currently a placeholder and returns all contracts
+- Volume is calculated from height, length, and width if all three are provided
+
+#### Example Request
+```
+GET /api/v1/contracts?lat=47.3769&lng=8.5417&filters={"radius": 10, "price": 100, "weight": 50, "height": 2, "length": 3, "width": 1.5, "requiredPeople": 2, "fragile": true, "coolingRequired": false, "rideAlong": true, "fromAddress": "Zurich", "toAddress": "Bern", "moveDateTime": "2024-04-15T10:00:00"}
+```
 
 ### Contract Status Values
 The following status values are supported:
