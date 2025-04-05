@@ -52,17 +52,26 @@
 | FE | BE | Mapping | Method | Parameter | Parameter Type | Status Code | Response | Description | User Story |
 |---------|--------|-----------|----------------|-------------|----------|-------------|-----------|-----------|-----------|
 | No ❌ | Yes ✅ | `/api/v1/contracts` | POST | `newContract <Contract>` | Body | 201, 400, 404 | Created contract object | Create a new contract | S5 | 
-| No ❌ | Yes ✅ | `/api/v1/contracts` | GET | `status <string>`, `fromLocation <string>`, `toLocation <string>`, `radius <number>`, `minPrice <number>`, `maxPrice <number>`, `minDate <date>`, `maxDate <date>` | Query | 200 | List of Contracts | Get available contracts with filtering | S11 |
+| Yes ✅ | Yes ✅ | `/api/v1/contracts` | GET | `lat <number>`, `lng <number>`, `filters <object>`{ radius (number), price (number), weight (number), height (number), length (number), width (number), requiredPeople (number), fragile (boolean), coolingRequired (boolean), rideAlong (boolean), fromAddress (string), toAddress (string), moveDateTime (string) } | Query | 200 | List of Contracts | Get available contracts with filtering | S11 |
 | No ❌ | Yes ✅ | `/api/v1/contracts/{id}` | GET | `id <string>` | Path | 200, 404 | Contract details object | Get contract details | S7, S12 |
 | No ❌ | Yes ✅ | `/api/v1/contracts/{id}` | PUT | `id <string>`, `contractToUpdate <Contract>` | Path, Body | 200, 400, 403 | Updated contract object | Update a contract | S6 |
 | No ❌ | Yes ✅ | `/api/v1/contracts/{id}/cancel` | PUT | `id <string>`, `reason <string>` | Path, Body | 200, 400, 403, 409 | Updated contract with cancel status | Cancel a contract (72h policy) | S8 | 
 | No ❌ | Yes ✅ | `/api/v1/contracts/{id}/fulfill` | PUT | `id <string>` | Path | 200, 400, 403 | Updated contract status | Mark contract as fulfilled | S9, S18 | 
 | No ❌ | No ❌ | `/api/v1/contracts/{id}/photos` | POST | `id <string>`, `photos <file[]>`, `type <string>` (before/after) | Path, Body | 201, 400, 403 | Photo upload confirmation with URLs | Upload before/after photos | S19 | 
 | No ❌ | No ❌ | `/api/v1/contracts/{id}/collateral` | POST | `id <string>`, `collateralAmount <number>` | Path, Body | 200, 400, 403, 409 | Updated contract with collateral | Provide contract collateral | S21 | 
-| No ❌ | Yes ✅ | `/api/v1/users/{userId}/contracts` | GET | `userId <string>`, `status <string>` | Path, Query | 200 | List of contracts for a specific user| Get user's contracts | S12 | 
+| No ❌ | Yes ✅ | `/api/v1/users/{userId}/contracts` | GET | `userId <string>`, `status <string>` (optional) | Path, Query | 200 | List of contracts for a specific user| Get user's contracts with optional status filtering | S12 | 
+| No ❌ | Yes ✅ | `/api/v1/contracts/{id}` | DELETE | `id <string>` | Path | 204, 403, 409 | None | Delete a contract (soft delete) | S8 | 
 
-### Contract Status Values
-The following status values are supported:
+### User Contracts Details
+The GET `/api/v1/users/{userId}/contracts` endpoint supports the following parameters:
+
+#### Path Parameters
+- `userId` (required): The ID of the user whose contracts to retrieve
+
+#### Query Parameters
+- `status` (optional): Contract status to filter by. If not provided, returns all contracts for the user.
+
+#### Supported Status Values
 - REQUESTED: Initial state when a contract is created
 - DELETED: Contract has been deleted
 - OFFERED: Driver has made an offer
@@ -71,12 +80,84 @@ The following status values are supported:
 - COMPLETED: Contract has been fulfilled
 - FINALIZED: Contract is fully completed with all steps
 
-### Contract Update Rules
-- Only contracts in REQUESTED or OFFERED status can be updated
-- Completed or canceled contracts cannot be updated
-- Contract cancellation requires a reason
-- Contract fulfillment can only be done on ACCEPTED contracts
-- Contract cancellation must be done at least 72 hours before the move date
+#### Example Requests
+```
+# Get all contracts for a user
+GET /api/v1/users/123/contracts
+
+# Get only requested contracts for a user
+GET /api/v1/users/123/contracts?status=REQUESTED
+
+# Get only completed contracts for a user
+GET /api/v1/users/123/contracts?status=COMPLETED
+```
+
+#### Response Format
+The endpoint returns a list of contracts in the following format:
+```json
+[
+  {
+    "contractId": 123,
+    "title": "Moving furniture",
+    "price": 100.0,
+    "mass": 50.0,
+    "volume": 2.0,
+    "fragile": true,
+    "coolingRequired": false,
+    "rideAlong": true,
+    "manPower": 2,
+    "contractDescription": "Moving a sofa and two chairs",
+    "moveDateTime": "2024-04-15T10:00:00",
+    "contractStatus": "REQUESTED",
+    "creationDateTime": "2024-04-01T15:30:00",
+    "requesterId": 123,
+    "fromLocation": {
+      "address": "Zurich",
+      "latitude": 47.3769,
+      "longitude": 8.5417
+    },
+    "toLocation": {
+      "address": "Bern",
+      "latitude": 46.9480,
+      "longitude": 7.4474
+    }
+  }
+]
+```
+
+#### Notes
+- The endpoint automatically detects whether the user is a requester or driver and returns the appropriate contracts
+- For requesters, it returns contracts they have created
+- For drivers, it returns contracts they have been assigned to
+- Status filtering works for both requester and driver accounts
+
+### Contract Deletion Details
+The DELETE `/api/v1/contracts/{id}` endpoint supports the following:
+
+#### Path Parameters
+- `id` (required): The ID of the contract to delete
+
+#### Rules and Restrictions
+- Only the requester who created the contract can delete it
+- A contract can only be deleted if it's in REQUESTED or OFFERED status
+- Cannot delete a contract that is:
+  - Already ACCEPTED
+  - Already COMPLETED
+  - Already CANCELED
+  - Already DELETED
+- Cannot delete a contract less than 72 hours before the move date
+- Deletion is implemented as a soft delete (status set to DELETED)
+- The contract remains in the database for record-keeping
+
+#### Example Request
+```
+DELETE /api/v1/contracts/123
+```
+
+#### Response Codes
+- 204: Successfully deleted
+- 403: Not authorized to delete this contract
+- 409: Contract cannot be deleted (wrong status or too close to move date)
 
 ## Offer Management
 

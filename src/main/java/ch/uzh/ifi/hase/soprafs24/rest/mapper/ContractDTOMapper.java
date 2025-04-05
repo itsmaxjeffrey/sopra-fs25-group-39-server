@@ -41,6 +41,7 @@ public interface ContractDTOMapper {
     @Mapping(target = "fromAddress", ignore = true)
     @Mapping(target = "toAddress", ignore = true)
     @Mapping(target = "cancelReason", ignore = true)
+    @Mapping(target = "driver", ignore = true)
     Contract convertContractPostDTOtoEntity(ContractPostDTO contractPostDTO);
 
     @Mapping(source = "contractId", target = "contractId")
@@ -86,5 +87,6 @@ public interface ContractDTOMapper {
     @Mapping(target = "fromAddress", ignore = true)
     @Mapping(target = "toAddress", ignore = true)
     @Mapping(target = "cancelReason", ignore = true)
+    @Mapping(target = "driver", ignore = true)
     Contract convertContractPutDTOtoEntity(ContractPutDTO contractPutDTO);
 } 
