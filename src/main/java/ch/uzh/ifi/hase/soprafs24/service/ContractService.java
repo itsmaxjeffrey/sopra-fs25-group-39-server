@@ -378,4 +378,46 @@ public class ContractService {
         // Save the updated contract
         return contractRepository.save(contract);
     }
+
+    /**
+     * Delete a contract (soft delete)
+     * 
+     * @param contractId The ID of the contract to delete
+     * @throws ResponseStatusException if the contract cannot be deleted
+     */
+    public void deleteContract(Long contractId) {
+        Contract contract = getContractById(contractId);
+        
+        // Check if contract can be deleted based on status
+        if (contract.getContractStatus() != ContractStatus.REQUESTED && 
+            contract.getContractStatus() != ContractStatus.OFFERED) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, 
+                "Contract can only be deleted in REQUESTED or OFFERED status");
+        }
+        
+        // Check if contract is already deleted
+        if (contract.getContractStatus() == ContractStatus.DELETED) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, 
+                "Contract is already deleted");
+        }
+        
+        // Check if the move date is within 72 hours
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime moveDateTime = contract.getMoveDateTime();
+        long hoursUntilMove = ChronoUnit.HOURS.between(now, moveDateTime);
+        
+        if (hoursUntilMove < 72) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, 
+                "Cannot delete contract less than 72 hours before move date");
+        }
+        
+        // Soft delete by setting status to DELETED
+        contract.setContractStatus(ContractStatus.DELETED);
+        
+        // Save the updated contract
+        contractRepository.save(contract);
+        contractRepository.flush();
+        
+        log.debug("Deleted Contract: {}", contract);
+    }
 }

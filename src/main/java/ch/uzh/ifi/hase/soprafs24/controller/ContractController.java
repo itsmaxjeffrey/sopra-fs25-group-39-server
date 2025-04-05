@@ -343,4 +343,15 @@ public class ContractController {
             .map(ContractDTOMapper.INSTANCE::convertContractEntityToContractGetDTO)
             .collect(Collectors.toList());
     }
+
+    /**
+     * Delete a contract
+     * 
+     * @param contractId The ID of the contract to delete
+     */
+    @DeleteMapping("/api/v1/contracts/{contractId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteContract(@PathVariable Long contractId) {
+        contractService.deleteContract(contractId);
+    }
 }

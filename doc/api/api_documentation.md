@@ -60,6 +60,7 @@
 | No ❌ | No ❌ | `/api/v1/contracts/{id}/photos` | POST | `id <string>`, `photos <file[]>`, `type <string>` (before/after) | Path, Body | 201, 400, 403 | Photo upload confirmation with URLs | Upload before/after photos | S19 | 
 | No ❌ | No ❌ | `/api/v1/contracts/{id}/collateral` | POST | `id <string>`, `collateralAmount <number>` | Path, Body | 200, 400, 403, 409 | Updated contract with collateral | Provide contract collateral | S21 | 
 | No ❌ | Yes ✅ | `/api/v1/users/{userId}/contracts` | GET | `userId <string>`, `status <string>` (optional) | Path, Query | 200 | List of contracts for a specific user| Get user's contracts with optional status filtering | S12 | 
+| No ❌ | Yes ✅ | `/api/v1/contracts/{id}` | DELETE | `id <string>` | Path | 204, 403, 409 | None | Delete a contract (soft delete) | S8 | 
 
 ### User Contracts Details
 The GET `/api/v1/users/{userId}/contracts` endpoint supports the following parameters:
@@ -129,6 +130,34 @@ The endpoint returns a list of contracts in the following format:
 - For requesters, it returns contracts they have created
 - For drivers, it returns contracts they have been assigned to
 - Status filtering works for both requester and driver accounts
+
+### Contract Deletion Details
+The DELETE `/api/v1/contracts/{id}` endpoint supports the following:
+
+#### Path Parameters
+- `id` (required): The ID of the contract to delete
+
+#### Rules and Restrictions
+- Only the requester who created the contract can delete it
+- A contract can only be deleted if it's in REQUESTED or OFFERED status
+- Cannot delete a contract that is:
+  - Already ACCEPTED
+  - Already COMPLETED
+  - Already CANCELED
+  - Already DELETED
+- Cannot delete a contract less than 72 hours before the move date
+- Deletion is implemented as a soft delete (status set to DELETED)
+- The contract remains in the database for record-keeping
+
+#### Example Request
+```
+DELETE /api/v1/contracts/123
+```
+
+#### Response Codes
+- 204: Successfully deleted
+- 403: Not authorized to delete this contract
+- 409: Contract cannot be deleted (wrong status or too close to move date)
 
 ## Offer Management
 
