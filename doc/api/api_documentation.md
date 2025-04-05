@@ -163,11 +163,48 @@ DELETE /api/v1/contracts/123
 
 | FE | BE | Mapping | Method | Parameter | Parameter Type | Status Code | Response | Description | User Story |
 |---------|--------|-----------|----------------|-------------|----------|-------------|-----------|-----------|-----------|
-| No ❌ | No ❌ | `/api/v1/contracts/{id}/offers/{offerId}` | GET | `id <string>, offerId <string>` | Path | 200, 404 | Detailed offer object | Get a specific offer | S4, S11 |
-| No ❌ | No ❌ | `/api/v1/contracts/{id}/offers/{offerId}` | DELETE | `id <string>, offerId <string>` | Path | 204, 403, 409 | None | Delete an offer | S6 |
-| No ❌ | No ❌ | `/api/v1/contracts/{id}/offers` | GET | `id <string>`, | Path, Query | 200, 404 | List of driver offers | Get all driver offers for a contract | S7 |
-| No ❌ | No ❌ | `/api/v1/contracts/{id}/offers` | POST | `id <string>`, `driverId <string>`, `message <string>` (optional) | Path, Body | 201, 400, 409 | Created offer object | Driver makes an offer for a contract | S12 |
-| No ❌ | No ❌ | `/api/v1/contracts/{id}/offers` | PUT | `id <string>`, `driverId <string>`, `message <string>` (optional) | Path, Body | 201, 400, 409 | Cancel offer | Driver cancels an offer for a contract | S12 |
+| No ❌ | Yes ✅ | `/api/v1/offers` | GET | `contractId` (optional), `driverId` (optional), `status` (optional) | Query | 200 | List of offers | Get all offers with optional filtering | S4, S11 |
+| No ❌ | Yes ✅ | `/api/v1/offers` | POST | `contractId <string>`, `driverId <string>` | Body | 201, 400, 409 | Created offer object | Create a new offer | S12 |
+| No ❌ | Yes ✅ | `/api/v1/offers/{offerId}` | GET | `offerId <string>` | Path | 200, 404 | Detailed offer object | Get a specific offer | S4, S11 |
+| No ❌ | Yes ✅ | `/api/v1/offers/{offerId}` | DELETE | `offerId <string>` | Path | 204, 403, 404 | None | Delete an offer | S6 |
+| No ❌ | Yes ✅ | `/api/v1/contracts/{contractId}/offers` | GET | `contractId <string>` | Path | 200, 404 | List of offers | Get all offers for a specific contract | S7 |
+| No ❌ | Yes ✅ | `/api/v1/offers/{offerId}/status` | PUT | `offerId <string>`, `status <string>` | Path, Body | 200, 400, 403, 404 | Updated offer with new status | Update offer status | S12 |
+| No ❌ | Yes ✅ | `/api/v1/users/{driverId}/offers` | GET | `driverId <string>`, `status` (optional) | Path, Query | 200, 404 | List of offers | Get all offers for a specific driver | S4, S11 |
+
+### Offer Status Values
+- CREATED: Initial state when offer is created
+- ACCEPTED: Offer has been accepted by requester
+- REJECTED: Offer has been rejected by requester
+- DELETED: Offer has been deleted
+
+### Query Parameters for GET /api/v1/offers
+- `contractId`: Filter by contract ID
+- `driverId`: Filter by driver ID
+- `status`: Filter by offer status (CREATED, ACCEPTED, REJECTED, DELETED)
+
+### Response Format
+```json
+{
+  "status": "success",
+  "data": {
+    "offers": [
+      {
+        "offerId": 123,
+        "contract": {
+          "contractId": 456,
+          // contract details
+        },
+        "driver": {
+          "driverId": 789,
+          // driver details
+        },
+        "offerStatus": "CREATED",
+        "creationDateTime": "2024-04-05T10:00:00Z"
+      }
+    ]
+  }
+}
+```
 
 ## Ratings and Feedback
 
