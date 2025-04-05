@@ -13,6 +13,7 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractCancelDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractFilterDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.ContractDTOMapper;
+import ch.uzh.ifi.hase.soprafs24.service.ContractPollingService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import ch.uzh.ifi.hase.soprafs24.service.ContractService;
 import ch.uzh.ifi.hase.soprafs24.service.LocationService;
@@ -32,10 +33,15 @@ public class ContractController {
 
     private final ContractService contractService;
     private final LocationService locationService;
+    private final ContractPollingService contractPollingService;
     private final UserService userService;
-    public ContractController(ContractService contractService, LocationService locationService, UserService userService) {
+
+
+
+    public ContractController(ContractService contractService, LocationService locationService, UserService userService, ContractPollingService contractPollingService) {
         this.contractService = contractService;
         this.locationService = locationService;
+        this.contractPollingService = contractPollingService;
         this.userService = userService;
     }
 
@@ -102,6 +108,9 @@ public class ContractController {
 
         // Create contract
         Contract createdContract = contractService.createContract(contractInput);
+
+        // Notify waiting clients via ContractPollingService
+        contractPollingService.updateFutures(createdContract, fromLocation.getLatitude(), fromLocation.getLongitude());
 
         return ContractDTOMapper.INSTANCE.convertContractEntityToContractGetDTO(createdContract);
     }
