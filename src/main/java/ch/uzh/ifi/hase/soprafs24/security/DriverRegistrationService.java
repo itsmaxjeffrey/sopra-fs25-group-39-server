@@ -18,7 +18,7 @@ import ch.uzh.ifi.hase.soprafs24.service.LocationService;
 
 
 @Service
-public class DriverRegisterationService {
+public class DriverRegistrationService {
 
     private final FileStorageService fileStorageService;
     private final CarService carService;
@@ -26,7 +26,7 @@ public class DriverRegisterationService {
 
 
 
-    public DriverRegisterationService(
+    public DriverRegistrationService(
         UserRepository userRepository, 
         CarRepository carRepository,
         FileStorageService fileStorageService, 

@@ -17,26 +17,26 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.register.DriverRegisterDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.register.RequesterRegisterDTO;
 import ch.uzh.ifi.hase.soprafs24.service.FileStorageService;
 @Service
-public class UserRegisterationService {
+public class UserRegistrationService {
     
-    private static final Logger log = LoggerFactory.getLogger(UserRegisterationService.class);
+    private static final Logger log = LoggerFactory.getLogger(UserRegistrationService.class);
     
     private final UserRepository userRepository;
-    private final DriverRegisterationService driverRegisterationService;
-    private final RequesterRegisterationService requesterRegisterationService;
+    private final DriverRegistrationService driverRegistrationService;
+    private final RequesterRegistrationService requesterRegistrationService;
     private final FileStorageService fileStorageService;
     private final TokenService tokenService;
 
     //initialize
-    public UserRegisterationService(
+    public UserRegistrationService(
     UserRepository userRepository,
-    DriverRegisterationService driverRegisterationService,
-    RequesterRegisterationService requesterRegisterationService,
+    DriverRegistrationService driverRegistrationService,
+    RequesterRegistrationService requesterRegistrationService,
     FileStorageService fileStorageService,
     TokenService tokenService){
         this.userRepository = userRepository;
-        this.driverRegisterationService = driverRegisterationService;
-        this.requesterRegisterationService = requesterRegisterationService;
+        this.driverRegistrationService = driverRegistrationService;
+        this.requesterRegistrationService = requesterRegistrationService;
         this.fileStorageService = fileStorageService;
         this.tokenService = tokenService;
     }
@@ -59,7 +59,7 @@ public class UserRegisterationService {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                         "Driver registration requires DriverRegisterDTO");
                 }
-                    newUser = driverRegisterationService.registerDriver(
+                    newUser = driverRegistrationService.registerDriver(
                         (DriverRegisterDTO) baseUserRegisterDTO,
                         carDTO,
                         locationDTO,
@@ -74,7 +74,7 @@ public class UserRegisterationService {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                         "Requester registration requires RequesterRegisterDTO");
                 }
-                newUser = requesterRegisterationService.registerRequester((RequesterRegisterDTO) baseUserRegisterDTO);
+                newUser = requesterRegistrationService.registerRequester((RequesterRegisterDTO) baseUserRegisterDTO);
             }
 
             //if user account type unknown
