@@ -24,19 +24,40 @@ public class GoogleMapsConfig {
 
     @Bean
     public String googleMapsApiKey() {
-        // First try to get from environment variable
+        log.info("Starting Google Maps API key initialization...");
+        
+        // First try to get from environment variable (GitHub Actions secret)
         String apiKey = System.getenv("GOOGLE_MAPS_API_KEY");
         log.info("Environment variable GOOGLE_MAPS_API_KEY: {}", apiKey != null ? "***" : "null");
         
         // If not found in environment, try from properties
         if (apiKey == null) {
+            log.info("API key not found in environment variables, checking properties...");
             apiKey = environment.getProperty("GOOGLE_MAPS_API_KEY");
             log.info("Property GOOGLE_MAPS_API_KEY: {}", apiKey != null ? "***" : "null");
         }
         
+        // If still not found, try from .env.local file (for local development)
         if (apiKey == null) {
-            log.error("GOOGLE_MAPS_API_KEY not found in environment or properties");
-            throw new IllegalStateException("GOOGLE_MAPS_API_KEY environment variable is not set");
+            log.info("API key not found in properties, checking .env.local file...");
+            try {
+                Properties props = PropertiesLoaderUtils.loadProperties(new ClassPathResource(".env.local"));
+                apiKey = props.getProperty("GOOGLE_MAPS_API_KEY");
+                log.info("Found API key in .env.local file: {}", apiKey != null ? "***" : "null");
+            } catch (IOException e) {
+                log.warn("Could not load .env.local file: {}", e.getMessage());
+            }
+        }
+        
+        // Validate the API key
+        if (apiKey == null || apiKey.trim().isEmpty()) {
+            log.error("GOOGLE_MAPS_API_KEY is not set or empty");
+            throw new IllegalStateException("GOOGLE_MAPS_API_KEY environment variable is not set or empty");
+        }
+        
+        if (apiKey.length() < 20) {
+            log.error("GOOGLE_MAPS_API_KEY appears to be invalid (too short)");
+            throw new IllegalStateException("GOOGLE_MAPS_API_KEY appears to be invalid");
         }
         
         log.info("Successfully loaded Google Maps API key");

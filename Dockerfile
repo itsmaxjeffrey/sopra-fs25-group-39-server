@@ -29,4 +29,4 @@ COPY --from=build /app/build/libs/*.jar /app/soprafs24.jar
 # Expose the port on which the server will be running (based on application.properties)
 EXPOSE 8080
 # start server with environment variable
-CMD ["sh", "-c", "GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY} java -jar /app/soprafs24.jar"]
+CMD ["java", "-jar", "/app/soprafs24.jar"]
