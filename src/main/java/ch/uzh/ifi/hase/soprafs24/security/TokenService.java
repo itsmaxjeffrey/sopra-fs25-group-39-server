@@ -27,7 +27,7 @@ public class TokenService {
     }
     
     //check if the token of the user matches the id it has.
-    public boolean validateTokenForUser(Long userId, String token) {
+    public boolean validateTokenById(Long userId, String token) {
         
         //token empty case
         if (token == null || token.isEmpty() || userId == null) {
