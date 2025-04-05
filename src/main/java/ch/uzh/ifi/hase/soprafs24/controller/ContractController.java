@@ -1,48 +1,55 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Contract;
 import ch.uzh.ifi.hase.soprafs24.entity.Location;
 import ch.uzh.ifi.hase.soprafs24.entity.Requester;
-import ch.uzh.ifi.hase.soprafs24.entity.Driver;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractGetDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractPostDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractPutDTO;
+import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractCancelDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractFilterDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractGetDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractPutDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.ContractDTOMapper;
+import ch.uzh.ifi.hase.soprafs24.rest.mapper.LocationDTOMapper;
 import ch.uzh.ifi.hase.soprafs24.service.ContractPollingService;
-import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import ch.uzh.ifi.hase.soprafs24.service.ContractService;
 import ch.uzh.ifi.hase.soprafs24.service.LocationService;
-import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
-import java.time.LocalDateTime;
-import java.util.stream.Collectors;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 public class ContractController {
 
+    private final UserRepository userRepository;
     private final ContractService contractService;
     private final LocationService locationService;
     private final ContractPollingService contractPollingService;
-    private final UserService userService;
 
 
-
-    public ContractController(ContractService contractService, LocationService locationService, UserService userService, ContractPollingService contractPollingService) {
+    public ContractController(ContractService contractService, LocationService locationService, ContractPollingService contractPollingService, UserRepository userRepository) {
         this.contractService = contractService;
         this.locationService = locationService;
         this.contractPollingService = contractPollingService;
-        this.userService = userService;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -95,8 +102,8 @@ public class ContractController {
         validateContractPostDTO(contractPostDTO);
 
         // Create locations first
-        Location fromLocation = DTOMapper.INSTANCE.convertLocationDTOtoEntity(contractPostDTO.getFromLocation());
-        Location toLocation = DTOMapper.INSTANCE.convertLocationDTOtoEntity(contractPostDTO.getToLocation());
+        Location fromLocation = LocationDTOMapper.INSTANCE.convertLocationDTOToEntity(contractPostDTO.getFromLocation());
+        Location toLocation = LocationDTOMapper.INSTANCE.convertLocationDTOToEntity(contractPostDTO.getToLocation());
 
         fromLocation = locationService.createLocation(fromLocation);
         toLocation = locationService.createLocation(toLocation);
@@ -339,7 +346,7 @@ public class ContractController {
         
         // Check if user is a Requester
         List<Contract> contracts;
-        if (userService.getUserById(userId) instanceof Requester) {
+        if (userRepository.getUserById(userId) instanceof Requester) {
             // Get contracts from service with optional status filter
             contracts = contractService.getContractsByRequesterId(userId, status);
         } else {

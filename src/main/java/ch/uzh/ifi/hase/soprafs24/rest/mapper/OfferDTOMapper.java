@@ -1,11 +1,13 @@
 package ch.uzh.ifi.hase.soprafs24.rest.mapper;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
+
 import ch.uzh.ifi.hase.soprafs24.entity.Offer;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.OfferGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.OfferPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.OfferPutDTO;
-import org.mapstruct.*;
-import org.mapstruct.factory.Mappers;
 
 /**
  * OfferDTOMapper
@@ -14,7 +16,7 @@ import org.mapstruct.factory.Mappers;
  * representation (OfferGetDTO for getting)
  * and vice versa.
  */
-@Mapper(uses = {ContractDTOMapper.class, DTOMapper.class})
+@Mapper(uses = {ContractDTOMapper.class})
 public interface OfferDTOMapper {
 
     OfferDTOMapper INSTANCE = Mappers.getMapper(OfferDTOMapper.class);
