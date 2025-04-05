@@ -30,13 +30,13 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.register.BaseUserRegisterDTO;
 public class AuthController {
 
     private final AuthService authService;
-    private final UserRegisterationService userRegisterationService;
+    private final UserRegistrationService userRegistrationService;
 
     public AuthController(
         AuthService authService,
-        UserRegisterationService userRegisterationService) {
+        UserRegistrationService userRegistrationService) {
             this.authService = authService;
-            this.userRegisterationService = userRegisterationService;
+            this.userRegistrationService = userRegistrationService;
     }
 
     /**
@@ -55,7 +55,7 @@ public class AuthController {
             @RequestPart(value = "driverCarPicture", required = false) MultipartFile driverCarPicture) {
         
         // Register and login the user with file uploads
-        User authenticatedUser = userRegisterationService.registerUser(
+        User authenticatedUser = userRegistrationService.registerUser(
             baseUserRegisterDTO,
             carDTO,
             locationDTO,
