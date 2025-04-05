@@ -140,9 +140,28 @@ public class OfferService {
         return OfferDTOMapper.INSTANCE.convertEntityToOfferGetDTO(offer);
     }
 
+    /**
+     * Delete an offer
+     * 
+     * @param offerId The ID of the offer to delete
+     * @throws ResponseStatusException if offer not found or not authorized
+     */
     public void deleteOffer(Long offerId) {
-        // Implementation will be added later
-        throw new UnsupportedOperationException("Not implemented yet");
+        // Check if offer exists
+        Offer offer = offerRepository.findById(offerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Offer not found"));
+
+        // Check if offer can be deleted (only CREATED status can be deleted)
+        if (offer.getOfferStatus() != OfferStatus.CREATED) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, 
+                "Only offers with CREATED status can be deleted");
+        }
+
+        // Delete the offer
+        offerRepository.delete(offer);
+        offerRepository.flush();
+
+        log.debug("Deleted offer: {}", offer);
     }
 
     public OfferGetDTO updateOfferStatus(Long offerId, OfferStatus status) {

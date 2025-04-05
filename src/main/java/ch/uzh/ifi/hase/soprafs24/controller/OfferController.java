@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs24.controller;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -93,5 +94,17 @@ public class OfferController {
     @ResponseBody
     public OfferGetDTO createOffer(@RequestBody OfferPostDTO offerPostDTO) {
         return offerService.createOffer(offerPostDTO);
+    }
+
+    /**
+     * Delete an offer
+     * 
+     * Example call:
+     * DELETE /api/v1/offers/789
+     */
+    @DeleteMapping("/api/v1/offers/{offerId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteOffer(@PathVariable Long offerId) {
+        offerService.deleteOffer(offerId);
     }
 } 
