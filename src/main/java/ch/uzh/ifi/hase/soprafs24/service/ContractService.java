@@ -15,6 +15,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.Location;
 import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
 import ch.uzh.ifi.hase.soprafs24.repository.ContractRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractFilterDTO;
 
 import java.util.List;
 import java.time.LocalDateTime;
@@ -67,23 +68,71 @@ public class ContractService {
     /**
      * Gets all contracts with optional filtering
      * 
-     * @param status Filter by contract status
-     * @param minPrice Minimum price
-     * @param maxPrice Maximum price
-     * @param minDate Minimum move date
-     * @param maxDate Maximum move date
+     * @param lat Latitude for location-based search (placeholder for future implementation)
+     * @param lng Longitude for location-based search (placeholder for future implementation)
+     * @param filters Filter criteria
      * @return List of filtered contracts
      */
-    public List<Contract> getContracts(ContractStatus status, Double minPrice, Double maxPrice, 
-                                     LocalDateTime minDate, LocalDateTime maxDate) {
+    public List<Contract> getContracts(Double lat, Double lng, ContractFilterDTO filters) {
         List<Contract> contracts = contractRepository.findAll();
         
         return contracts.stream()
-            .filter(contract -> status == null || contract.getContractStatus() == status)
-            .filter(contract -> minPrice == null || contract.getPrice() >= minPrice)
-            .filter(contract -> maxPrice == null || contract.getPrice() <= maxPrice)
-            .filter(contract -> minDate == null || !contract.getMoveDateTime().isBefore(minDate))
-            .filter(contract -> maxDate == null || !contract.getMoveDateTime().isAfter(maxDate))
+            .filter(contract -> {
+                if (filters == null) return true;
+                
+                // Filter by price
+                if (filters.getPrice() != null && contract.getPrice() > filters.getPrice()) {
+                    return false;
+                }
+                
+                // Filter by weight (mass)
+                if (filters.getWeight() != null && contract.getMass() > filters.getWeight()) {
+                    return false;
+                }
+                
+                // Filter by dimensions (assuming volume is calculated from height, length, width)
+                if (filters.getHeight() != null && filters.getLength() != null && filters.getWidth() != null) {
+                    double maxVolume = filters.getHeight() * filters.getLength() * filters.getWidth();
+                    if (contract.getVolume() > maxVolume) {
+                        return false;
+                    }
+                }
+                
+                // Filter by required people
+                if (filters.getRequiredPeople() != null && contract.getManPower() > filters.getRequiredPeople()) {
+                    return false;
+                }
+                
+                // Filter by fragile items
+                if (filters.getFragile() != null && filters.getFragile() && !contract.isFragile()) {
+                    return false;
+                }
+                
+                // Filter by cooling required
+                if (filters.getCoolingRequired() != null && filters.getCoolingRequired() && !contract.isCoolingRequired()) {
+                    return false;
+                }
+                
+                // Filter by ride along
+                if (filters.getRideAlong() != null && filters.getRideAlong() && !contract.isRideAlong()) {
+                    return false;
+                }
+                
+                // Filter by move date time
+                if (filters.getMoveDateTime() != null && !contract.getMoveDateTime().equals(filters.getMoveDateTime())) {
+                    return false;
+                }
+                
+                // Placeholder for location-based filtering
+                // TODO: Implement proper distance calculation using Google Maps API
+                if (lat != null && lng != null && filters.getRadius() != null) {
+                    // For now, return all contracts regardless of distance
+                    // This will be replaced with actual distance calculation later
+                    return true;
+                }
+                
+                return true;
+            })
             .collect(Collectors.toList());
     }
 
