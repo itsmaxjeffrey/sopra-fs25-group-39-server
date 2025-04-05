@@ -1,12 +1,8 @@
 package ch.uzh.ifi.hase.soprafs24.security;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Car;
 import ch.uzh.ifi.hase.soprafs24.entity.Driver;
@@ -14,8 +10,8 @@ import ch.uzh.ifi.hase.soprafs24.entity.Location;
 import ch.uzh.ifi.hase.soprafs24.repository.CarRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.CarDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.DriverRegisterDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.register.DriverRegisterDTO;
 import ch.uzh.ifi.hase.soprafs24.service.CarService;
 import ch.uzh.ifi.hase.soprafs24.service.FileStorageService;
 import ch.uzh.ifi.hase.soprafs24.service.LocationService;
@@ -24,10 +20,6 @@ import ch.uzh.ifi.hase.soprafs24.service.LocationService;
 @Service
 public class DriverRegisterationService {
 
-    //logger
-    private final Logger log = LoggerFactory.getLogger(DriverRegisterationService.class);
-    
-    
     private final FileStorageService fileStorageService;
     private final CarService carService;
     private final LocationService locationService;
