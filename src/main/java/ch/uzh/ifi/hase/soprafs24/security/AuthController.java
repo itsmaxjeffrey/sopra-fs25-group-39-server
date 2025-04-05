@@ -1,18 +1,24 @@
-package ch.uzh.ifi.hase.soprafs24.controller;
-
-import ch.uzh.ifi.hase.soprafs24.entity.Driver;
-import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserLoginDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.register.BaseUserRegisterDTO;
-import ch.uzh.ifi.hase.soprafs24.service.AuthService;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+package ch.uzh.ifi.hase.soprafs24.security;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import ch.uzh.ifi.hase.soprafs24.entity.Driver;
+import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.CarDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.login.BaseUserLoginDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.register.BaseUserRegisterDTO;
 
 /**
  * Auth Controller
@@ -24,9 +30,13 @@ import java.util.Map;
 public class AuthController {
 
     private final AuthService authService;
+    private final UserRegisterationService userRegisterationService;
 
-    public AuthController(AuthService authService) {
-        this.authService = authService;
+    public AuthController(
+        AuthService authService,
+        UserRegisterationService userRegisterationService) {
+            this.authService = authService;
+            this.userRegisterationService = userRegisterationService;
     }
 
     /**
@@ -36,13 +46,23 @@ public class AuthController {
      */
     @PostMapping("/register")
     public ResponseEntity<Object> registerUser(
-            @RequestPart("userData") BaseUserRegisterDTO userRegisterDTO,
+            @RequestPart(name="baseUserRegisterData",required=false) BaseUserRegisterDTO baseUserRegisterDTO,
+            @RequestPart(name="carData",required=false) CarDTO carDTO,
+            @RequestPart(name="locationData",required=false) LocationDTO locationDTO,
             @RequestPart(value = "profilePicture", required = false) MultipartFile profilePicture,
             @RequestPart(value = "driverLicense", required = false) MultipartFile driverLicense,
-            @RequestPart(value = "driverInsurance", required = false) MultipartFile driverInsurance) {
+            @RequestPart(value = "driverInsurance", required = false) MultipartFile driverInsurance,
+            @RequestPart(value = "driverCarPicture", required = false) MultipartFile driverCarPicture) {
         
         // Register and login the user with file uploads
-        User authenticatedUser = authService.registerUser(userRegisterDTO, profilePicture, driverLicense, driverInsurance);
+        User authenticatedUser = userRegisterationService.registerUser(
+            baseUserRegisterDTO,
+            carDTO,
+            locationDTO,
+            profilePicture,
+            driverLicense,
+            driverInsurance,
+            driverCarPicture);
         
         // Create response map with user data including authentication token
         Map<String, Object> response = createAuthenticatedUserResponse(authenticatedUser);
@@ -57,9 +77,9 @@ public class AuthController {
      * System determines the account type based on username
      */
     @PostMapping("/login")
-    public ResponseEntity<Object> loginUser(@RequestBody UserLoginDTO userLoginDTO) {
+    public ResponseEntity<Object> loginUser(@RequestBody BaseUserLoginDTO BaseUserLoginDTO) {
         // Login user
-        User authenticatedUser = authService.loginUser(userLoginDTO);
+        User authenticatedUser = authService.loginUser(BaseUserLoginDTO);
         
         // Create response map with user data including authentication token
         Map<String, Object> response = createAuthenticatedUserResponse(authenticatedUser);
@@ -73,12 +93,12 @@ public class AuthController {
      * POST /api/v1/auth/logout
      */
     @PostMapping("/logout")
-    public ResponseEntity<Object> logoutUser(@RequestHeader("Authorization") String token) {
-        authService.logoutUser(token);
+    public ResponseEntity<Object> logoutUser(@RequestHeader("userId") Long userId, @RequestHeader("Authorization") String token) {
+        authService.logoutUser(userId,token);
         
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Successfully logged out");
-        
+
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     
