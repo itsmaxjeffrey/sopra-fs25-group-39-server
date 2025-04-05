@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -419,5 +420,28 @@ public class ContractService {
         contractRepository.flush();
         
         log.debug("Deleted Contract: {}", contract);
+    }
+
+    /**
+     * Automatically update contract statuses based on move date
+     * This method should be called periodically to update contracts
+     */
+    @Scheduled(fixedRate = 21600000) // Run every 6 hours
+    public void updateContractStatuses() {
+        LocalDateTime now = LocalDateTime.now();
+        
+        // Find all ACCEPTED contracts where move date has passed
+        List<Contract> contractsToUpdate = contractRepository.findByContractStatusAndMoveDateTimeBefore(
+            ContractStatus.ACCEPTED, now);
+            
+        for (Contract contract : contractsToUpdate) {
+            contract.setContractStatus(ContractStatus.COMPLETED);
+            log.debug("Automatically updated contract {} to COMPLETED status", contract.getContractId());
+        }
+        
+        if (!contractsToUpdate.isEmpty()) {
+            contractRepository.saveAll(contractsToUpdate);
+            contractRepository.flush();
+        }
     }
 }
