@@ -6,16 +6,31 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Contract;
 import ch.uzh.ifi.hase.soprafs24.repository.ContractRepository;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractFilterDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.ContractDTOMapper;
+import ch.uzh.ifi.hase.soprafs24.service.ContractPollingService.WaitingClient;
+
+/*
+ * ContractPollingService is responsible for handling long polling requests from drivers
+ * who want to receive (almost) real-time updates about contracts based on filters. 
+ * 
+ * Clients send a request with specific filters, and the server holds the connection open (long polling) 
+ * while it waits for relevant contracts to be added. If there are no matching contracts at the time of the request, 
+ * the client will receive an empty list after a 30-second delay. This delay allows the server to efficiently update 
+ * the client with new contracts as they become available without requiring frequent new requests.
+ * 
+ * This service maintains a list of waiting clients and notifies them when new contracts that match their filters 
+ * are added to the system. The goal is to provide an efficient, real-time experience without overwhelming the backend 
+ * with constant client polling.
+ */
+
 
 @RestController
 @RequestMapping("/api/v1/map/proposals/realtime")
@@ -34,38 +49,36 @@ public class ContractPollingService {
         this.contractRepository = contractRepository;
     }
 
-    private static class WaitingClient {
-        final CompletableFuture<List<ContractGetDTO>> future;
-        final ContractFilterDTO filterDTO;
+    public static class WaitingClient {
+        public final CompletableFuture<List<ContractGetDTO>> future;
+        public final ContractFilterDTO filterDTO;
 
-        WaitingClient(CompletableFuture<List<ContractGetDTO>> future, ContractFilterDTO filterDTO) {
+        public WaitingClient(CompletableFuture<List<ContractGetDTO>> future, ContractFilterDTO filterDTO) {
             this.future = future;
             this.filterDTO = filterDTO;
         }
 
-        // To compare prior and current contract lists
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) return true;
-            if (obj == null || getClass() != obj.getClass()) return false;
-            WaitingClient that = (WaitingClient) obj;
-            return future.equals(that.future) && filterDTO.equals(that.filterDTO);
-        }
-        @Override
-        public int hashCode() {
-            return 31 * future.hashCode() + filterDTO.hashCode();
-        }
     }
 
-    public CompletableFuture<List<ContractGetDTO>> pollNewContracts(
-            Double lat, Double lng, ContractFilterDTO filterDTO) {
+    public CompletableFuture<List<ContractGetDTO>> pollNewContracts( Double lat, Double lng, ContractFilterDTO filterDTO) {
         
         CompletableFuture<List<ContractGetDTO>> future = new CompletableFuture<>();
 
-        waitingClients.add(new WaitingClient(future, filterDTO));
+        WaitingClient client = new WaitingClient(future, filterDTO);
+        waitingClients.add(client);
 
+        // Set Timout when Driver does not get an update for 3 minutes
+        CompletableFuture.delayedExecutor(180, TimeUnit.SECONDS).execute(() -> {
+            if (!future.isDone()) {
+                future.complete(List.of());
+                waitingClients.remove(client);
+            }
+        });
+
+        // Get the filtered contracts based on the provided filters
         List<Contract> filteredContracts = contractService.getContracts(lat, lng, filterDTO);
 
+        // If there are matching contracts, complete the future with the filtered contracts
         if (!filteredContracts.isEmpty()) {
             future.complete(
                 filteredContracts.stream()
@@ -73,20 +86,17 @@ public class ContractPollingService {
                     .collect(Collectors.toList())
             );
         } else {
-            CompletableFuture.delayedExecutor(30, TimeUnit.SECONDS).execute(() -> {
-                if (!future.isDone()) {
-                    future.complete(List.of());
-                }
-                waitingClients.remove(new WaitingClient(future, filterDTO));
-            });
+            // If no contracts are found initially, do not complete the future immediately
+            // The connection will remain open until a matching contract is added
+            // We don't complete the future right now, and we'll rely on the update mechanism
         }
 
         return future;
     }
 
-    // This method is triggered when a new contract is added.
+    // Method to update clients when new contracts are added
     public void updateFutures(Contract contract, Double lat, Double lng) {
-        
+        // For each waiting client, check if the new contract matches their filters
         List<ContractGetDTO> contractDTOs = waitingClients.stream()
             .map(client -> {
                 List<Contract> filteredContracts = contractService.getContracts(lat, lng, client.filterDTO);
@@ -97,12 +107,13 @@ public class ContractPollingService {
             .flatMap(List::stream)
             .collect(Collectors.toList());
 
-        // Notify all waiting clients with the filtered contract list
+        // Notify all waiting clients with the updated contract list
         List<WaitingClient> clientsToNotify = new CopyOnWriteArrayList<>(waitingClients);
-        waitingClients.clear();
+        waitingClients.clear(); // Clear waiting clients once notified
 
         for (WaitingClient client : clientsToNotify) {
             client.future.complete(contractDTOs);
         }
     }
+
 }
