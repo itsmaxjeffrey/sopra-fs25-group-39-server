@@ -1,7 +1,5 @@
 package ch.uzh.ifi.hase.soprafs24.security;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -14,7 +12,6 @@ import org.springframework.web.server.ResponseStatusException;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.login.BaseUserLoginDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.register.BaseUserRegisterDTO;
 
 //this file handles login and logout
 @Service
@@ -89,38 +86,5 @@ public class AuthService {
         log.debug("User logged out: {}", user.getUsername());
     }
 
-
-
-
-
-
-    
-    /**
-     * Check if username, email, phone number are unique
-     */
-    private void checkUserCredentialUniqueness(BaseUserRegisterDTO userToRegister) {
-        List<String> notUniqueAttributes = new ArrayList<>();
-
-        if (userRepository.existsByUsername(userToRegister.getUsername())) {
-            notUniqueAttributes.add("Username");
-        }
-        
-        if (userRepository.existsByEmail(userToRegister.getEmail())) {
-            notUniqueAttributes.add("Email");
-        }
-        
-        if (userRepository.existsByPhoneNumber(userToRegister.getPhoneNumber())) {
-            notUniqueAttributes.add("Phone Number");
-        }
-
-        if (!notUniqueAttributes.isEmpty()) {
-            String errorMessage = String.format(
-                "The %s provided %s not unique. Therefore, the account could not be created!",
-                String.join(", ", notUniqueAttributes),
-                notUniqueAttributes.size() > 1 ? "are" : "is"
-            );
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
-        }
-    }
 
 }

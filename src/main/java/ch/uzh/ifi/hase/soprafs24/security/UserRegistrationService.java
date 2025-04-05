@@ -1,5 +1,8 @@
 package ch.uzh.ifi.hase.soprafs24.security;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -51,6 +54,7 @@ public class UserRegistrationService {
         @Nullable MultipartFile driverInsurance,
         @Nullable MultipartFile driverCarPicture){
 
+        checkUserCredentialUniqueness(baseUserRegisterDTO);
 
         User newUser;
         switch (baseUserRegisterDTO.getUserAccountType()) {
@@ -120,6 +124,32 @@ public class UserRegistrationService {
         }
 
 
+    //helper to check uniqueness
+    private void checkUserCredentialUniqueness(BaseUserRegisterDTO userToRegister) {
+        List<String> notUniqueAttributes = new ArrayList<>();
+
+        if (userRepository.existsByUsername(userToRegister.getUsername())) {
+            notUniqueAttributes.add("Username");
+        }
+        
+        if (userRepository.existsByEmail(userToRegister.getEmail())) {
+            notUniqueAttributes.add("Email");
+        }
+        
+        if (userRepository.existsByPhoneNumber(userToRegister.getPhoneNumber())) {
+            notUniqueAttributes.add("Phone Number");
+        }
+
+        if (!notUniqueAttributes.isEmpty()) {
+            String errorMessage = String.format(
+                "The %s provided %s not unique. Therefore, the account could not be created!",
+                String.join(", ", notUniqueAttributes),
+                notUniqueAttributes.size() > 1 ? "are" : "is"
+            );
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
+        }
+    }
+        
         
     }
     
