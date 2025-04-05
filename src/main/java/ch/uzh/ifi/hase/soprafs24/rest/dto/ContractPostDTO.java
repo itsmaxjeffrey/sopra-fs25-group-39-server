@@ -7,7 +7,7 @@ public class ContractPostDTO {
     private String title;
     private float mass;
     private float volume;
-    private boolean isFragile;
+    private boolean fragile;
     private boolean coolingRequired;
     private boolean rideAlong;
     private int manPower;
@@ -44,12 +44,12 @@ public class ContractPostDTO {
         this.volume = volume;
     }
 
-    public boolean getIsFragile() {
-        return isFragile;
+    public boolean getFragile() {
+        return fragile;
     }
 
-    public void setIsFragile(boolean isFragile) {
-        this.isFragile = isFragile;
+    public void setFragile(boolean fragile) {
+        this.fragile = fragile;
     }
 
     public boolean getCoolingRequired() {

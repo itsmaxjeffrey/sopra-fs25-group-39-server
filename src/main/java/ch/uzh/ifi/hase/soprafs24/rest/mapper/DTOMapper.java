@@ -1,16 +1,18 @@
 package ch.uzh.ifi.hase.soprafs24.rest.mapper;
 
-import ch.uzh.ifi.hase.soprafs24.entity.User;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
+
 import ch.uzh.ifi.hase.soprafs24.entity.Car;
 import ch.uzh.ifi.hase.soprafs24.entity.Driver;
 import ch.uzh.ifi.hase.soprafs24.entity.Location;
 import ch.uzh.ifi.hase.soprafs24.entity.Requester;
+import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.CarDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
-import org.mapstruct.*;
-import org.mapstruct.factory.Mappers;
 
 /**
  * DTOMapper
@@ -32,7 +34,7 @@ public interface DTOMapper {
   @Mapping(source = "carModel", target = "carModel")
   @Mapping(source = "space", target = "space")
   @Mapping(source = "supportedWeight", target = "supportedWeight")
-  @Mapping(source = "isElectric", target = "isElectric")
+  @Mapping(source = "electric", target = "electric")
   @Mapping(source = "licensePlate", target = "licensePlate")
   @Mapping(target = "carId", ignore = true)
   @Mapping(target = "carPicturePath", ignore = true)
@@ -65,6 +67,7 @@ public interface DTOMapper {
   @Mapping(target = "ratingsGiven", ignore = true)
   @Mapping(target = "ratingsReceived", ignore = true)
   @Mapping(target = "contracts", ignore = true)
+  @Mapping(target = "token", ignore = true)
   Requester convertUserPostDTOtoRequesterEntity(UserPostDTO userPostDTO);
 
   // Actual mapping methods for user type "Driver"
@@ -88,11 +91,11 @@ public interface DTOMapper {
   
 
   // Specific to Driver (Car Details)
-  @Mapping(source = "car", target = "car")
   @Mapping(target = "driverLicensePath", ignore = true)
   @Mapping(target = "driverInsurancePath", ignore = true)
   @Mapping(target = "location", ignore = true)
   @Mapping(target = "preferredRange", ignore = true)
+  @Mapping(target = "token", ignore = true)
 
   Driver convertUserPostDTOtoDriverEntity(UserPostDTO userPostDTO);
 
