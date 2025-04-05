@@ -130,4 +130,20 @@ public class OfferController {
         }
         return offerService.updateOfferStatus(offerId, offerPutDTO.getStatus());
     }
+
+    /**
+     * Get all offers for a specific driver with optional status filtering
+     * 
+     * Example calls:
+     * GET /api/v1/users/123/offers
+     * GET /api/v1/users/123/offers?status=CREATED
+     */
+    @GetMapping("/api/v1/users/{driverId}/offers")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public List<OfferGetDTO> getOffersByDriver(
+            @PathVariable Long driverId,
+            @RequestParam(required = false) OfferStatus status) {
+        return offerService.getOffers(null, driverId, status);
+    }
 } 
