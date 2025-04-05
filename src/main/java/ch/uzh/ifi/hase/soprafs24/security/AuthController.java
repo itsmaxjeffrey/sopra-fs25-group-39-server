@@ -2,8 +2,8 @@ package ch.uzh.ifi.hase.soprafs24.controller;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Driver;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.BaseUserRegisterDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserLoginDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.register.BaseUserRegisterDTO;
 import ch.uzh.ifi.hase.soprafs24.service.AuthService;
 
 import org.springframework.http.HttpStatus;

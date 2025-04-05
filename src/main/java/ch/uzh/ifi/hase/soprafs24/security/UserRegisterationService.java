@@ -10,11 +10,11 @@ import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.BaseUserRegisterDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.CarDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.DriverRegisterDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.RequesterRegisterDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.register.BaseUserRegisterDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.register.DriverRegisterDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.register.RequesterRegisterDTO;
 import ch.uzh.ifi.hase.soprafs24.service.FileStorageService;
 @Service
 public class UserRegisterationService {
