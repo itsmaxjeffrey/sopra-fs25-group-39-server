@@ -6,21 +6,17 @@ import static org.mockito.Mockito.*;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
-import org.assertj.core.internal.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Contract;
-import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractFilterDTO;
 import ch.uzh.ifi.hase.soprafs24.service.ContractPollingService;
 import ch.uzh.ifi.hase.soprafs24.service.ContractService;
 import ch.uzh.ifi.hase.soprafs24.repository.ContractRepository;
-import ch.uzh.ifi.hase.soprafs24.service.ContractPollingService.WaitingClient;
 
 class ContractPollingServiceTest {
 
@@ -33,7 +29,6 @@ class ContractPollingServiceTest {
     private ContractPollingService contractPollingService;
 
     private ContractFilterDTO filterDTO;
-    private ContractFilterDTO notMatchingFilterDTO;
     private CompletableFuture<List<ContractGetDTO>> future;
 
     @BeforeEach

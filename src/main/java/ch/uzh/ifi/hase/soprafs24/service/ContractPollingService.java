@@ -49,6 +49,7 @@ public class ContractPollingService {
         this.contractRepository = contractRepository;
     }
 
+    // Store all waiting Drivers and their filters 
     public static class WaitingClient {
         public final CompletableFuture<List<ContractGetDTO>> future;
         public final ContractFilterDTO filterDTO;
@@ -96,6 +97,7 @@ public class ContractPollingService {
 
     // Method to update clients when new contracts are added
     public void updateFutures(Contract contract, Double lat, Double lng) {
+
         // For each waiting client, check if the new contract matches their filters
         List<ContractGetDTO> contractDTOs = waitingClients.stream()
             .map(client -> {
@@ -107,10 +109,10 @@ public class ContractPollingService {
             .flatMap(List::stream)
             .collect(Collectors.toList());
 
-        // Notify all waiting clients with the updated contract list
+        // Notify all waiting clients with the updated contract list and see if it matches their filters
         List<WaitingClient> clientsToNotify = new CopyOnWriteArrayList<>(waitingClients);
-        waitingClients.clear(); // Clear waiting clients once notified
 
+        // Complete all futures of drivers that were "interested" in newly added contract
         for (WaitingClient client : clientsToNotify) {
             client.future.complete(contractDTOs);
         }
