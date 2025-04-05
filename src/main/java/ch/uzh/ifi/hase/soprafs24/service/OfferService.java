@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
 import ch.uzh.ifi.hase.soprafs24.constant.OfferStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Contract;
 import ch.uzh.ifi.hase.soprafs24.entity.Driver;
@@ -196,6 +198,66 @@ public class OfferService {
         offer = offerRepository.save(offer);
         log.debug("Updated status of offer {} to {}", offerId, status);
 
+        return offerDTOMapper.convertEntityToOfferGetDTO(offer);
+    }
+
+    /**
+     * Accepts an offer
+     * 
+     * @param offerId The ID of the offer to accept
+     * @return The updated offer DTO
+     */
+    public OfferGetDTO acceptOffer(Long offerId) {
+        Offer offer = offerRepository.findById(offerId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Offer not found"));
+        
+        Contract contract = offer.getContract();
+        
+        // Validate contract status
+        if (contract.getContractStatus() != ContractStatus.REQUESTED) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                "Offers can only be accepted for REQUESTED contracts");
+        }
+        
+        // Set the accepted offer and update contract status
+        contract.setAcceptedOffer(offer);
+        contract.setContractStatus(ContractStatus.ACCEPTED);
+        contract.setAcceptedDateTime(LocalDateTime.now());
+        
+        // Update offer status
+        offer.setOfferStatus(OfferStatus.ACCEPTED);
+        
+        // Save changes
+        contractRepository.save(contract);
+        offer = offerRepository.save(offer);
+        
+        return offerDTOMapper.convertEntityToOfferGetDTO(offer);
+    }
+
+    /**
+     * Rejects an offer
+     * 
+     * @param offerId The ID of the offer to reject
+     * @return The updated offer DTO
+     */
+    public OfferGetDTO rejectOffer(Long offerId) {
+        Offer offer = offerRepository.findById(offerId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Offer not found"));
+        
+        Contract contract = offer.getContract();
+        
+        // Validate contract status
+        if (contract.getContractStatus() != ContractStatus.REQUESTED) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                "Offers can only be rejected for REQUESTED contracts");
+        }
+        
+        // Update offer status
+        offer.setOfferStatus(OfferStatus.REJECTED);
+        
+        // Save changes
+        offer = offerRepository.save(offer);
+        
         return offerDTOMapper.convertEntityToOfferGetDTO(offer);
     }
 } 

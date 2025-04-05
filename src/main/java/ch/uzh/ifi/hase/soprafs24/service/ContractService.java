@@ -13,10 +13,13 @@ import org.springframework.web.server.ResponseStatusException;
 import ch.uzh.ifi.hase.soprafs24.entity.Contract;
 import ch.uzh.ifi.hase.soprafs24.entity.Requester;
 import ch.uzh.ifi.hase.soprafs24.entity.Location;
+import ch.uzh.ifi.hase.soprafs24.entity.Offer;
 import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
+import ch.uzh.ifi.hase.soprafs24.constant.OfferStatus;
 import ch.uzh.ifi.hase.soprafs24.repository.ContractRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractFilterDTO;
+import ch.uzh.ifi.hase.soprafs24.service.GoogleMapsService;
 
 import java.util.List;
 import java.time.LocalDateTime;
@@ -31,12 +34,15 @@ public class ContractService {
     
     private final ContractRepository contractRepository;
     private final UserRepository userRepository;
+    private final GoogleMapsService googleMapsService;
     
     @Autowired
     public ContractService(@Qualifier("contractRepository") ContractRepository contractRepository,
-                          @Qualifier("userRepository") UserRepository userRepository) {
+                          @Qualifier("userRepository") UserRepository userRepository,
+                          GoogleMapsService googleMapsService) {
         this.contractRepository = contractRepository;
         this.userRepository = userRepository;
+        this.googleMapsService = googleMapsService;
     }
     
     /**
@@ -52,6 +58,9 @@ public class ContractService {
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
                 "Requester with ID " + requesterId + " not found"));
 
+        // Validate contract data
+        validateContractData(contract);
+
         // Set initial contract status
         contract.setContractStatus(ContractStatus.REQUESTED);
         
@@ -64,6 +73,39 @@ public class ContractService {
         
         log.debug("Created Contract: {}", contract);
         return contract;
+    }
+
+    private void validateContractData(Contract contract) {
+        // Validate price and collateral
+        if (contract.getPrice() <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price must be positive");
+        }
+        if (contract.getCollateral() < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Collateral cannot be negative");
+        }
+
+        // Validate mass and volume
+        if (contract.getMass() <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mass must be positive");
+        }
+        if (contract.getVolume() <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Volume must be positive");
+        }
+
+        // Validate manpower
+        if (contract.getManPower() <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Manpower must be positive");
+        }
+
+        // Validate move date time
+        if (contract.getMoveDateTime() == null || contract.getMoveDateTime().isBefore(LocalDateTime.now())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Move date time must be in the future");
+        }
+
+        // Validate locations
+        if (contract.getFromAddress() == null || contract.getToAddress() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Both from and to addresses must be provided");
+        }
     }
 
     /**
@@ -124,12 +166,14 @@ public class ContractService {
                     return false;
                 }
                 
-                // Placeholder for location-based filtering
-                // TODO: Implement proper distance calculation using Google Maps API
-                if (lat != null && lng != null && filters.getRadius() != null) {
-                    // For now, return all contracts regardless of distance
-                    // This will be replaced with actual distance calculation later
-                    return true;
+                // Location-based filtering using Google Maps API
+                if (lat != null && lng != null && filters.getRadius() != null && contract.getFromAddress() != null) {
+                    double distance = googleMapsService.calculateDistance(
+                        lat, lng,
+                        contract.getFromAddress().getLatitude(),
+                        contract.getFromAddress().getLongitude()
+                    );
+                    return distance <= filters.getRadius();
                 }
                 
                 return true;
@@ -285,25 +329,37 @@ public class ContractService {
      * @throws ResponseStatusException if the update is not allowed
      */
     private void validateContractUpdate(Contract existingContract, Contract contractUpdates) {
-        // Cannot update a completed or cancelled contract
-        if (existingContract.getContractStatus() == ContractStatus.COMPLETED || 
-            existingContract.getContractStatus() == ContractStatus.CANCELED) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, 
-                "Cannot update a completed or canceled contract");
+        // Validate price and collateral updates
+        if (contractUpdates.getPrice() > 0 && contractUpdates.getPrice() != existingContract.getPrice()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price cannot be changed after contract creation");
+        }
+        if (contractUpdates.getCollateral() >= 0 && contractUpdates.getCollateral() != existingContract.getCollateral()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Collateral cannot be changed after contract creation");
         }
 
-        // Cannot change status to a previous status
-        if (contractUpdates.getContractStatus() != null && 
-            contractUpdates.getContractStatus().ordinal() < existingContract.getContractStatus().ordinal()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, 
-                "Cannot change contract status to a previous status");
+        // Validate mass and volume updates
+        if (contractUpdates.getMass() > 0 && contractUpdates.getMass() != existingContract.getMass()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mass cannot be changed after contract creation");
+        }
+        if (contractUpdates.getVolume() > 0 && contractUpdates.getVolume() != existingContract.getVolume()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Volume cannot be changed after contract creation");
         }
 
-        // Cannot change move date to the past
+        // Validate manpower update
+        if (contractUpdates.getManPower() > 0 && contractUpdates.getManPower() != existingContract.getManPower()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Manpower cannot be changed after contract creation");
+        }
+
+        // Validate move date time update
         if (contractUpdates.getMoveDateTime() != null && 
-            contractUpdates.getMoveDateTime().isBefore(LocalDateTime.now())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
-                "Cannot set move date to the past");
+            !contractUpdates.getMoveDateTime().equals(existingContract.getMoveDateTime())) {
+            if (contractUpdates.getMoveDateTime().isBefore(LocalDateTime.now())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Move date time must be in the future");
+            }
+            if (existingContract.getContractStatus() != ContractStatus.REQUESTED) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                    "Move date time can only be changed for REQUESTED contracts");
+            }
         }
     }
 
