@@ -30,11 +30,18 @@ public class GoogleMapsConfig {
         String apiKey = System.getenv("GOOGLE_MAPS_API_KEY");
         log.info("Environment variable GOOGLE_MAPS_API_KEY: {}", apiKey != null ? "***" : "null");
         
-        // If not found in environment, try from properties
+        // If not found in environment, try from system properties
         if (apiKey == null) {
-            log.info("API key not found in environment variables, checking properties...");
+            log.info("API key not found in environment variables, checking system properties...");
+            apiKey = System.getProperty("GOOGLE_MAPS_API_KEY");
+            log.info("System property GOOGLE_MAPS_API_KEY: {}", apiKey != null ? "***" : "null");
+        }
+        
+        // If not found in system properties, try from Spring properties
+        if (apiKey == null) {
+            log.info("API key not found in system properties, checking Spring properties...");
             apiKey = environment.getProperty("GOOGLE_MAPS_API_KEY");
-            log.info("Property GOOGLE_MAPS_API_KEY: {}", apiKey != null ? "***" : "null");
+            log.info("Spring property GOOGLE_MAPS_API_KEY: {}", apiKey != null ? "***" : "null");
         }
         
         // If still not found, try from .env.local file (for local development)

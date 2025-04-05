@@ -20,6 +20,8 @@ ENV SPRING_PROFILES_ACTIVE=production
 ARG GOOGLE_MAPS_API_KEY
 # Set environment variable for runtime
 ENV GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
+# Also set it as a system property for Spring
+ENV JAVA_TOOL_OPTIONS="-DGOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}"
 # get non-root user
 USER 3301
 # Set container working directory to /app
