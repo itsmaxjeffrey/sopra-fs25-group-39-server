@@ -10,6 +10,7 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractPutDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractCancelDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.ContractDTOMapper;
+import ch.uzh.ifi.hase.soprafs24.service.ContractPollingService;
 import ch.uzh.ifi.hase.soprafs24.service.ContractService;
 import ch.uzh.ifi.hase.soprafs24.service.LocationService;
 import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
@@ -27,10 +28,13 @@ public class ContractController {
 
     private final ContractService contractService;
     private final LocationService locationService;
+    private final ContractPollingService contractPollingService;
 
-    public ContractController(ContractService contractService, LocationService locationService) {
+
+    public ContractController(ContractService contractService, LocationService locationService, ContractPollingService contractPollingService) {
         this.contractService = contractService;
         this.locationService = locationService;
+        this.contractPollingService = contractPollingService;
     }
 
     /**
@@ -96,6 +100,9 @@ public class ContractController {
 
         // Create contract
         Contract createdContract = contractService.createContract(contractInput);
+
+        // Notify waiting clients via ContractPollingService
+        contractPollingService.updateFutures(createdContract);
 
         return ContractDTOMapper.INSTANCE.convertContractEntityToContractGetDTO(createdContract);
     }
