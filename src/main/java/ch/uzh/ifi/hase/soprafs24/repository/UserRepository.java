@@ -18,5 +18,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
   boolean existsByToken(String token);
   // JPA dynamically implements "SELECT * FROM user WHERE phoneNumber = :phoneNumber"
   User findByPhoneNumber(String phoneNumber);
-  User getUserById(Long userId);
+  Optional<User> findByUserId(Long userId);
 }

@@ -24,6 +24,7 @@ import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Contract;
 import ch.uzh.ifi.hase.soprafs24.entity.Location;
 import ch.uzh.ifi.hase.soprafs24.entity.Requester;
+import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractCancelDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractFilterDTO;
@@ -346,7 +347,11 @@ public class ContractController {
         
         // Check if user is a Requester
         List<Contract> contracts;
-        if (userRepository.getUserById(userId) instanceof Requester) {
+        User user = userRepository.findByUserId(userId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
+                "User with ID " + userId + " not found"));
+            
+        if (user instanceof Requester) {
             // Get contracts from service with optional status filter
             contracts = contractService.getContractsByRequesterId(userId, status);
         } else {
