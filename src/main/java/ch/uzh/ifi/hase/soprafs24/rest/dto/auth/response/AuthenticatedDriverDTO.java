@@ -10,6 +10,7 @@ public class AuthenticatedDriverDTO extends AuthenticatedUserDTO {
     private String driverLicensePath;
     private String driverInsurancePath;
     private float preferredRange;
-    private CarDTO car;
     private LocationDTO location;
+    private CarDTO carDTO;
+
 }
