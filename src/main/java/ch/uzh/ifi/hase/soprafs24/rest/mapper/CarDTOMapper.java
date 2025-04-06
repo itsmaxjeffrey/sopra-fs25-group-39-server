@@ -26,7 +26,7 @@ public interface CarDTOMapper {
     @Mapping(source = "electric", target = "electric")
     @Mapping(source = "licensePlate", target = "licensePlate")
     @Mapping(source = "carPicturePath", target = "carPicturePath")
-    @Mapping(source = "driver", target = "driver")
+    @Mapping(target = "driver", ignore = true) // Ignore driver for mapping, handle it in service layer
 
     Car convertCarDTOToEntity(CarDTO carDTO);
 
@@ -38,7 +38,7 @@ public interface CarDTOMapper {
     @Mapping(source = "electric", target = "electric")
     @Mapping(source = "licensePlate", target = "licensePlate")
     @Mapping(source = "carPicturePath", target = "carPicturePath")
-    @Mapping(source = "driver", target = "driver")
+    @Mapping(source = "driver.userId", target = "driverId")
 
     CarDTO convertEntityToCarDTO(Car car);
 

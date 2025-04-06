@@ -5,16 +5,14 @@ import org.springframework.stereotype.Service;
 import ch.uzh.ifi.hase.soprafs24.entity.Driver;
 import ch.uzh.ifi.hase.soprafs24.entity.Requester;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.CarDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.response.AuthenticatedDriverDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.response.AuthenticatedRequesterDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.response.AuthenticatedUserDTO;
 
 @Service
 public class UserDTOMapper {
-    
-    // Use the existing mappers
-    private final CarDTOMapper carDTOMapper = CarDTOMapper.INSTANCE;
-    private final LocationDTOMapper locationDTOMapper = LocationDTOMapper.INSTANCE;
     
     public AuthenticatedUserDTO convertToDTO(User user) {
         if (user instanceof Driver) {
@@ -65,14 +63,24 @@ public class UserDTOMapper {
         dto.setDriverInsurancePath(driver.getDriverInsurancePath());
         dto.setPreferredRange(driver.getPreferredRange());
         
-        // Use CarDTOMapper instead of manual mapping
+        // Map car if exists
         if (driver.getCar() != null) {
-            dto.setCar(carDTOMapper.convertEntityToCarDTO(driver.getCar()));
+            CarDTO carDTO = new CarDTO();
+            carDTO.setCarModel(driver.getCar().getCarModel());
+            carDTO.setSpace(driver.getCar().getSpace());
+            carDTO.setSupportedWeight(driver.getCar().getSupportedWeight());
+            carDTO.setElectric(driver.getCar().isElectric());
+            carDTO.setLicensePlate(driver.getCar().getLicensePlate());
+            dto.setCarDTO(carDTO);
         }
         
-        // Use LocationDTOMapper instead of manual mapping
+        // Map location if exists
         if (driver.getLocation() != null) {
-            dto.setLocation(locationDTOMapper.convertEntityToLocationDTO(driver.getLocation()));
+            LocationDTO locationDTO = new LocationDTO();
+            locationDTO.setLatitude(driver.getLocation().getLatitude());
+            locationDTO.setLongitude(driver.getLocation().getLongitude());
+            locationDTO.setFormattedAddress(driver.getLocation().getFormattedAddress());
+            dto.setLocation(locationDTO);
         }
         
         return dto;

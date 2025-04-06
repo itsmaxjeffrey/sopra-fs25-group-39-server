@@ -1,6 +1,5 @@
 package ch.uzh.ifi.hase.soprafs24.rest.dto;
 
-import ch.uzh.ifi.hase.soprafs24.entity.Driver;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,5 +13,5 @@ public class CarDTO {
     private boolean electric;
     private String licensePlate;
     private String carPicturePath;
-    private DriverDTO driver;
+    private Long driverId;
 }
