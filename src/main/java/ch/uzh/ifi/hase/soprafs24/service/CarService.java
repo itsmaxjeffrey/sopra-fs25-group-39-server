@@ -10,7 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Car;
+import ch.uzh.ifi.hase.soprafs24.entity.Driver;
 import ch.uzh.ifi.hase.soprafs24.repository.CarRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 
 @Service
 @Transactional
@@ -19,10 +21,13 @@ public class CarService {
     private final Logger log = LoggerFactory.getLogger(CarService.class);
     
     private final CarRepository carRepository;
+    private final UserRepository userRepository;
     
     @Autowired
-    public CarService(@Qualifier("carRepository") CarRepository carRepository) {
+    public CarService(@Qualifier("carRepository") CarRepository carRepository,
+                      @Qualifier("userRepository") UserRepository userRepository) {
         this.carRepository = carRepository;
+        this.userRepository = userRepository;
     }
     
     /**
@@ -59,5 +64,34 @@ public class CarService {
         return carRepository.findById(carId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
                 "Car with ID " + carId + " not found"));
+    }
+    
+    /**
+     * Associates a car with a driver
+     * 
+     * @param carId The ID of the car
+     * @param driverId The ID of the driver
+     * @return The updated car entity
+     */
+    public Car associateCarWithDriver(Long carId, Long driverId) {
+        Car car = getCarById(carId);
+        
+        // Find driver
+        Driver driver = userRepository.findById(driverId)
+            .filter(user -> user instanceof Driver)
+            .map(user -> (Driver) user)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
+                "Driver with ID " + driverId + " not found"));
+        
+        // Set bidirectional relationship
+        car.setDriver(driver);
+        driver.setCar(car);
+        
+        // Save entities
+        car = carRepository.save(car);
+        carRepository.flush();
+        
+        log.debug("Associated Car: {} with Driver: {}", car.getCarId(), driver.getUserId());
+        return car;
     }
 }

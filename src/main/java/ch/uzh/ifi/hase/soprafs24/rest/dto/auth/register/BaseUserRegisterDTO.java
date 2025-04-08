@@ -1,4 +1,4 @@
-package ch.uzh.ifi.hase.soprafs24.rest.dto;
+package ch.uzh.ifi.hase.soprafs24.rest.dto.auth.register;
 
 import java.time.LocalDate;
 
@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter
-public class UserRegisterDTO {
+public class BaseUserRegisterDTO {
     // Common fields for all users
     private String username;
     private String password;
@@ -19,10 +19,4 @@ public class UserRegisterDTO {
     private String userBio;
     private LocalDate birthDate;
     private String profilePicturePath;
-
-    // Driver specific fields
-    private String driverLicensePath;
-    private String driverInsurancePath;
-    private Long carId;
-    private float preferredRange;
 }
