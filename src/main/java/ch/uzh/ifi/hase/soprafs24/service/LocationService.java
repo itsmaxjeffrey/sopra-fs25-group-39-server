@@ -20,7 +20,6 @@ public class LocationService {
     
     private final LocationRepository locationRepository;
     
-    @Autowired
     public LocationService(@Qualifier("locationRepository") LocationRepository locationRepository) {
         this.locationRepository = locationRepository;
     }

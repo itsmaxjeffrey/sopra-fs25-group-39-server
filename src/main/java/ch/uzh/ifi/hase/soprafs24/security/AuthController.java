@@ -2,6 +2,9 @@ package ch.uzh.ifi.hase.soprafs24.security;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,6 +36,8 @@ public class AuthController {
 
     private final AuthService authService;
     private final UserRegistrationService userRegistrationService;
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
+
 
     @Autowired
     private UserDTOMapper userDTOMapper;
@@ -42,6 +47,7 @@ public class AuthController {
         UserRegistrationService userRegistrationService) {
             this.authService = authService;
             this.userRegistrationService = userRegistrationService;
+            
     }
 
     /**
@@ -50,30 +56,38 @@ public class AuthController {
      * User is automatically logged in after registration
      */
     @PostMapping("/register")
-    public ResponseEntity<Object> registerUser(
-            @RequestPart(name="baseUserRegisterData",required=false) BaseUserRegisterDTO baseUserRegisterDTO,
-            @RequestPart(name="carData",required=false) CarDTO carDTO,
-            @RequestPart(name="locationData",required=false) LocationDTO locationDTO,
-            @RequestPart(value = "profilePicture", required = false) MultipartFile profilePicture,
-            @RequestPart(value = "driverLicense", required = false) MultipartFile driverLicense,
-            @RequestPart(value = "driverInsurance", required = false) MultipartFile driverInsurance,
-            @RequestPart(value = "driverCarPicture", required = false) MultipartFile driverCarPicture) {
-        
-        // Register and login the user with file uploads
-        User authenticatedUser = userRegistrationService.registerUser(
-            baseUserRegisterDTO,
-            carDTO,
-            locationDTO,
-            profilePicture,
-            driverLicense,
-            driverInsurance,
-            driverCarPicture);
-        
-        // Create response map with user data including authentication token
-        AuthenticatedUserDTO response = createAuthenticatedUserResponse(authenticatedUser);
-        
-        // Return created status with user data
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    public ResponseEntity<Object> registerUser(@RequestBody BaseUserRegisterDTO baseUserRegisterDTO) {
+        logger.debug("Received registration request: {}", baseUserRegisterDTO);
+    
+        try {
+            // Register and login the user
+            User authenticatedUser = userRegistrationService.registerUser(
+                baseUserRegisterDTO,
+                null, // No car data
+                null, // No location data
+                null, // No profile picture
+                null, // No driver license
+                null, // No driver insurance
+                null  // No driver car picture
+            );
+    
+            // Create response map with user data including authentication token
+            AuthenticatedUserDTO response = createAuthenticatedUserResponse(authenticatedUser);
+    
+            // Log the response
+            logger.debug("Returning response: {}", response);
+    
+            // Return created status with user data
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } catch (Exception e) {
+            logger.error("Error during registration: {}", e.getMessage(), e);
+    
+            // Return an error response
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Registration failed");
+            errorResponse.put("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
