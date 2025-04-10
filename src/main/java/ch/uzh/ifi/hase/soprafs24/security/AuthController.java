@@ -19,6 +19,7 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.CarDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.login.BaseUserLoginDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.register.BaseUserRegisterDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.register.UserRegistrationRequest;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.response.AuthenticatedUserDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.UserDTOMapper;
 
@@ -50,24 +51,13 @@ public class AuthController {
      * User is automatically logged in after registration
      */
     @PostMapping("/register")
-    public ResponseEntity<Object> registerUser(
-            @RequestPart(name="baseUserRegisterData",required=false) BaseUserRegisterDTO baseUserRegisterDTO,
-            @RequestPart(name="carData",required=false) CarDTO carDTO,
-            @RequestPart(name="locationData",required=false) LocationDTO locationDTO,
-            @RequestPart(value = "profilePicture", required = false) MultipartFile profilePicture,
-            @RequestPart(value = "driverLicense", required = false) MultipartFile driverLicense,
-            @RequestPart(value = "driverInsurance", required = false) MultipartFile driverInsurance,
-            @RequestPart(value = "driverCarPicture", required = false) MultipartFile driverCarPicture) {
+    public ResponseEntity<Object> registerUser(@RequestBody UserRegistrationRequest request) {
         
         // Register and login the user with file uploads
-        User authenticatedUser = userRegistrationService.registerUser(
-            baseUserRegisterDTO,
-            carDTO,
-            locationDTO,
-            profilePicture,
-            driverLicense,
-            driverInsurance,
-            driverCarPicture);
+        User authenticatedUser = userRegistrationService.processRegistration(
+        request.getUser(), 
+        request.getCar(), 
+        request.getLocation());
         
         // Create response map with user data including authentication token
         AuthenticatedUserDTO response = createAuthenticatedUserResponse(authenticatedUser);
