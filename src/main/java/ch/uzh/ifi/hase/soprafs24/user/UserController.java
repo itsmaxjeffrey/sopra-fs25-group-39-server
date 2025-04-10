@@ -47,11 +47,19 @@ public class UserController {
         @RequestHeader("UserId") Long userId, 
         @RequestHeader("Authorization") String token, 
         @PathVariable("paramUserId") Long paramUserId) {
-           try{ User requestedUser = userService.getUserById(paramUserId, token);
+           try{ 
 
-            // check if the user is viewing their own profileapplication
-            if (userId.equals(paramUserId)) {
-                User user = authorizationService.authenticateUser(userId, token);
+            //if a user is not logged in, they cannot see anything
+            User authenticatedUser = authorizationService.authenticateUser(userId, token);
+            if (authenticatedUser == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of("status", "error", "message", "Invalid authentication"));
+            }
+
+            User requestedUser = userService.getUserById(paramUserId, token);
+
+            // check if the user is viewing their own profile
+            if (authenticatedUser.getUserId().equals(paramUserId)) {
 
                 AuthenticatedUserDTO fullUserDTO = UserDTOMapper.INSTANCE.convertToDTO(requestedUser);
                 return ResponseEntity.ok(fullUserDTO);
