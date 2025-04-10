@@ -105,19 +105,25 @@ public class UserService {
         return updatedUser;
     }
 
+
+    //helper method for edit user to check uniquenss
     private void validateUniqueFields(BaseUserUpdateDTO updates, User existingUser) {
         // Check username uniqueness
         if (updates.getUsername() != null && !updates.getUsername().isEmpty() && 
             !updates.getUsername().equals(existingUser.getUsername())) {
-            if (userRepository.existsByUsername(updates.getUsername())) {
+            
+            // This should check if any OTHER user has this username
+            if (userRepository.existsByUsernameAndUserIdNot(updates.getUsername(), existingUser.getUserId())) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Username is already taken");
             }
         }
-        
+    
         // Check email uniqueness  
         if (updates.getEmail() != null && !updates.getEmail().isEmpty() && 
             !updates.getEmail().equals(existingUser.getEmail())) {
-            if (userRepository.existsByEmail(updates.getEmail())) {
+            
+            // This should check if any OTHER user has this email
+            if (userRepository.existsByEmailAndUserIdNot(updates.getEmail(), existingUser.getUserId())) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Email is already taken");
             }
         }
@@ -125,125 +131,130 @@ public class UserService {
         // Check phone number uniqueness
         if (updates.getPhoneNumber() != null && !updates.getPhoneNumber().isEmpty() && 
             !updates.getPhoneNumber().equals(existingUser.getPhoneNumber())) {
-            if (userRepository.existsByPhoneNumber(updates.getPhoneNumber())) {
+            
+            // This should check if any OTHER user has this phone number
+            if (userRepository.existsByPhoneNumberAndUserIdNot(updates.getPhoneNumber(), existingUser.getUserId())) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Phone number is already taken");
             }
         }
+
+        
     }
 
-    private User updateCommonFields(User existingUser, BaseUserUpdateDTO updates) {
-        if (updates.getUsername() != null && !updates.getUsername().isEmpty()) {
-            existingUser.setUsername(updates.getUsername());
-        }
-        
-        if (updates.getEmail() != null && !updates.getEmail().isEmpty()) {
-            existingUser.setEmail(updates.getEmail());
-        }
-        
-        if (updates.getPhoneNumber() != null && !updates.getPhoneNumber().isEmpty()) {
-            existingUser.setPhoneNumber(updates.getPhoneNumber());
-        }
-        
-        if (updates.getFirstName() != null) {
-            existingUser.setFirstName(updates.getFirstName());
-        }
-        
-        if (updates.getLastName() != null) {
-            existingUser.setLastName(updates.getLastName());
-        }
-        
-        if (updates.getUserBio() != null) {
-            existingUser.setUserBio(updates.getUserBio());
-        }
-        
-        if (updates.getBirthDate() != null) {
-            existingUser.setBirthDate(updates.getBirthDate());
-        }
-        
-        if (updates.getProfilePicturePath() != null) {
-            existingUser.setProfilePicturePath(updates.getProfilePicturePath());
-        }
-        
-        return existingUser;
-    }
 
-    // We added the Driver parameter from the mapper to simplify mapping
-    private Driver updateDriverFields(Driver existingDriver, Driver driverFromDTO, DriverUpdateDTO updates) {
-        // Update common fields
-        updateCommonFields(existingDriver, updates);
-        
-        // Update driver-specific simple fields from mapped entity
-        if (driverFromDTO.getDriverLicensePath() != null) {
-            existingDriver.setDriverLicensePath(driverFromDTO.getDriverLicensePath());
-        }
-        
-        if (driverFromDTO.getDriverInsurancePath() != null) {
-            existingDriver.setDriverInsurancePath(driverFromDTO.getDriverInsurancePath());
-        }
-        
-        if (driverFromDTO.getPreferredRange() > 0) {
-            existingDriver.setPreferredRange(driverFromDTO.getPreferredRange());
-        }
-        
-        // Handle car updates if provided
-        if (updates.getCar() != null) {
-            // Update existing car or create new one
-            Car car = existingDriver.getCar();
-            if (car == null) {
-                car = new Car();
-            }
-            
-            if (updates.getCar().getCarModel() != null) {
-                car.setCarModel(updates.getCar().getCarModel());
-            }
-            
-            if (updates.getCar().getLicensePlate() != null) {
-                car.setLicensePlate(updates.getCar().getLicensePlate());
-            }
-            
-            if (updates.getCar().getCarPicturePath() != null) {
-                car.setCarPicturePath(updates.getCar().getCarPicturePath());
-            }
-            
-            if (updates.getCar().getSpace() > 0) {
-                car.setSpace(updates.getCar().getSpace());
-            }
-            
-            if (updates.getCar().getSupportedWeight() > 0) {
-                car.setSupportedWeight(updates.getCar().getSupportedWeight());
-            }
-            
-            car.setElectric(updates.getCar().isElectric());
-            
-            car = carService.createCar(car);
-            existingDriver.setCar(car);
-        }
-        
-        // Handle location updates if provided
-        if (updates.getLocation() != null) {
-            Location location = existingDriver.getLocation();
-            if (location == null) {
-                location = new Location();
-            }
-            
-            location.setLatitude(updates.getLocation().getLatitude());
-            location.setLongitude(updates.getLocation().getLongitude());
-            location.setFormattedAddress(updates.getLocation().getFormattedAddress());
-            
-            location = locationService.createLocation(location);
-            existingDriver.setLocation(location);
-        }
-        
-        return existingDriver;
-    }
 
-    // We added the Requester parameter from the mapper to simplify mapping
-    private Requester updateRequesterFields(Requester existingRequester, Requester requesterFromDTO, RequesterUpdateDTO updates) {
-        // Update common fields
-        updateCommonFields(existingRequester, updates);
-        
-        // Add requester-specific updates here if needed
-        
-        return existingRequester;
+    // Add these helper methods for the editUser method
+
+private User updateCommonFields(User existingUser, BaseUserUpdateDTO updates) {
+    if (updates.getUsername() != null && !updates.getUsername().isEmpty()) {
+        existingUser.setUsername(updates.getUsername());
     }
+    
+    if (updates.getEmail() != null && !updates.getEmail().isEmpty()) {
+        existingUser.setEmail(updates.getEmail());
+    }
+    
+    if (updates.getPhoneNumber() != null && !updates.getPhoneNumber().isEmpty()) {
+        existingUser.setPhoneNumber(updates.getPhoneNumber());
+    }
+    
+    if (updates.getFirstName() != null) {
+        existingUser.setFirstName(updates.getFirstName());
+    }
+    
+    if (updates.getLastName() != null) {
+        existingUser.setLastName(updates.getLastName());
+    }
+    
+    if (updates.getUserBio() != null) {
+        existingUser.setUserBio(updates.getUserBio());
+    }
+    
+    if (updates.getBirthDate() != null) {
+        existingUser.setBirthDate(updates.getBirthDate());
+    }
+    
+    if (updates.getProfilePicturePath() != null) {
+        existingUser.setProfilePicturePath(updates.getProfilePicturePath());
+    }
+    
+    return existingUser;
+}
+
+private Driver updateDriverFields(Driver driver, Driver driverDataFromDTO, DriverUpdateDTO updates) {
+    // Update common fields
+    updateCommonFields(driver, updates);
+    
+    // Update driver-specific fields
+    if (updates.getDriverLicensePath() != null) {
+        driver.setDriverLicensePath(updates.getDriverLicensePath());
+    }
+    
+    if (updates.getDriverInsurancePath() != null) {
+        driver.setDriverInsurancePath(updates.getDriverInsurancePath());
+    }
+    
+    if (updates.getPreferredRange() > 0) {
+        driver.setPreferredRange(updates.getPreferredRange());
+    }
+    
+    // Handle car updates if provided
+    if (updates.getCar() != null) {
+        Car car = driver.getCar();
+        if (car == null) {
+            car = new Car();
+        }
+        
+        if (updates.getCar().getCarModel() != null) {
+            car.setCarModel(updates.getCar().getCarModel());
+        }
+        
+        if (updates.getCar().getLicensePlate() != null) {
+            car.setLicensePlate(updates.getCar().getLicensePlate());
+        }
+        
+        if (updates.getCar().getCarPicturePath() != null) {
+            car.setCarPicturePath(updates.getCar().getCarPicturePath());
+        }
+        
+        if (updates.getCar().getSpace() > 0) {
+            car.setSpace(updates.getCar().getSpace());
+        }
+        
+        if (updates.getCar().getSupportedWeight() > 0) {
+            car.setSupportedWeight(updates.getCar().getSupportedWeight());
+        }
+        
+        car.setElectric(updates.getCar().isElectric());
+        
+        car = carService.createCar(car);
+        driver.setCar(car);
+    }
+    
+    // Handle location updates if provided
+    if (updates.getLocation() != null) {
+        Location location = driver.getLocation();
+        if (location == null) {
+            location = new Location();
+        }
+        
+        location.setLatitude(updates.getLocation().getLatitude());
+        location.setLongitude(updates.getLocation().getLongitude());
+        location.setFormattedAddress(updates.getLocation().getFormattedAddress());
+        
+        location = locationService.createLocation(location);
+        driver.setLocation(location);
+    }
+    
+    return driver;
+}
+
+private Requester updateRequesterFields(Requester requester, Requester requesterDataFromDTO, RequesterUpdateDTO updates) {
+    // Update common fields
+    updateCommonFields(requester, updates);
+    
+    // Add requester-specific field updates here if needed in the future
+    
+    return requester;
+}
 }

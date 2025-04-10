@@ -19,5 +19,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
   // JPA dynamically implements "SELECT * FROM user WHERE phoneNumber = :phoneNumber"
   User findByPhoneNumber(String phoneNumber);
   Optional<User> findByUserId(Long userId);
+  boolean existsByUsernameAndUserIdNot(String username, Long userId);
+  boolean existsByEmailAndUserIdNot(String email, Long userId);
+  boolean existsByPhoneNumberAndUserIdNot(String phoneNumber, Long userId);
 
 }
