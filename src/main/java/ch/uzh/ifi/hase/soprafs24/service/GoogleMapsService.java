@@ -44,6 +44,7 @@ public class GoogleMapsService {
      * @param destLng Destination longitude
      * @return Distance in kilometers
      */
+    @SuppressWarnings("unchecked")
     public double calculateDistance(double originLat, double originLng, double destLat, double destLng) {
         log.debug("Calculating distance from ({}, {}) to ({}, {})", originLat, originLng, destLat, destLng);
         
@@ -138,6 +139,7 @@ public class GoogleMapsService {
      * @param address The address to geocode
      * @return Array containing latitude and longitude
      */
+    @SuppressWarnings("unchecked")
     public double[] geocodeAddress(String address) {
         log.debug("Geocoding address: {}", address);
         
