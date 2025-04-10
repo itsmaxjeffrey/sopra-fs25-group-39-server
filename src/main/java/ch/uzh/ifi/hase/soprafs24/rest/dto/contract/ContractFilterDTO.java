@@ -1,8 +1,9 @@
-package ch.uzh.ifi.hase.soprafs24.rest.dto;
+package ch.uzh.ifi.hase.soprafs24.rest.dto.contract;
+
+import java.time.LocalDateTime;
 
 import lombok.Getter;
 import lombok.Setter;
-import java.time.LocalDateTime;
 
 @Getter @Setter
 public class ContractFilterDTO {

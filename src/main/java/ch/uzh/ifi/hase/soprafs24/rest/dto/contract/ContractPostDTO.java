@@ -1,9 +1,10 @@
-package ch.uzh.ifi.hase.soprafs24.rest.dto;
+package ch.uzh.ifi.hase.soprafs24.rest.dto.contract;
 
-import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
 import java.time.LocalDateTime;
 
-public class ContractPutDTO {
+import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
+
+public class ContractPostDTO {
     private String title;
     private float mass;
     private float volume;
@@ -14,10 +15,10 @@ public class ContractPutDTO {
     private String contractDescription;
     private float price;
     private float collateral;
+    private Long requesterId;
     private LocationDTO fromLocation;
     private LocationDTO toLocation;
     private LocalDateTime moveDateTime;
-    private ContractStatus contractStatus;
 
     // Getters and Setters
     public String getTitle() {
@@ -100,6 +101,14 @@ public class ContractPutDTO {
         this.collateral = collateral;
     }
 
+    public Long getRequesterId() {
+        return requesterId;
+    }
+
+    public void setRequesterId(Long requesterId) {
+        this.requesterId = requesterId;
+    }
+
     public LocationDTO getFromLocation() {
         return fromLocation;
     }
@@ -123,12 +132,4 @@ public class ContractPutDTO {
     public void setMoveDateTime(LocalDateTime moveDateTime) {
         this.moveDateTime = moveDateTime;
     }
-
-    public ContractStatus getContractStatus() {
-        return contractStatus;
-    }
-
-    public void setContractStatus(ContractStatus contractStatus) {
-        this.contractStatus = contractStatus;
-    }
-} 
+}

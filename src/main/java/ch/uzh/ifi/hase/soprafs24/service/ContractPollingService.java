@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Contract;
 import ch.uzh.ifi.hase.soprafs24.repository.ContractRepository;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractFilterDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractGetDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractFilterDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.ContractDTOMapper;
 import ch.uzh.ifi.hase.soprafs24.service.ContractPollingService.WaitingClient;
 

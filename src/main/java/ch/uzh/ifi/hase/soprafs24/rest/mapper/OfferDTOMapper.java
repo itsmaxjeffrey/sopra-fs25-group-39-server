@@ -5,9 +5,9 @@ import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Offer;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.OfferGetDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.OfferPostDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.OfferPutDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferGetDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferPutDTO;
 
 /**
  * OfferDTOMapper

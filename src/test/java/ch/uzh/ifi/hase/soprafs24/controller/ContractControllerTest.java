@@ -3,12 +3,13 @@ package ch.uzh.ifi.hase.soprafs24.controller;
 import ch.uzh.ifi.hase.soprafs24.entity.Contract;
 import ch.uzh.ifi.hase.soprafs24.entity.Requester;
 import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractPutDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractCancelDTO;
 import ch.uzh.ifi.hase.soprafs24.service.ContractService;
 import ch.uzh.ifi.hase.soprafs24.service.LocationService;
 import ch.uzh.ifi.hase.soprafs24.service.ContractPollingService;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractCancelDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractPutDTO;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;

@@ -1,11 +1,11 @@
-package ch.uzh.ifi.hase.soprafs24.rest.dto;
+package ch.uzh.ifi.hase.soprafs24.rest.dto.contract;
+
+import java.time.LocalDateTime;
 
 import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
-import java.time.LocalDateTime;
-import java.util.List;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
 
-public class ContractGetDTO {
-    private Long contractId;
+public class ContractPutDTO {
     private String title;
     private float mass;
     private float volume;
@@ -16,24 +16,12 @@ public class ContractGetDTO {
     private String contractDescription;
     private float price;
     private float collateral;
-    private Long requesterId;
     private LocationDTO fromLocation;
     private LocationDTO toLocation;
     private LocalDateTime moveDateTime;
     private ContractStatus contractStatus;
-    private LocalDateTime creationDateTime;
-    private List<String> contractPhotos;
-    private String cancelReason;
 
     // Getters and Setters
-    public Long getContractId() {
-        return contractId;
-    }
-
-    public void setContractId(Long contractId) {
-        this.contractId = contractId;
-    }
-
     public String getTitle() {
         return title;
     }
@@ -114,14 +102,6 @@ public class ContractGetDTO {
         this.collateral = collateral;
     }
 
-    public Long getRequesterId() {
-        return requesterId;
-    }
-
-    public void setRequesterId(Long requesterId) {
-        this.requesterId = requesterId;
-    }
-
     public LocationDTO getFromLocation() {
         return fromLocation;
     }
@@ -153,28 +133,4 @@ public class ContractGetDTO {
     public void setContractStatus(ContractStatus contractStatus) {
         this.contractStatus = contractStatus;
     }
-
-    public LocalDateTime getCreationDateTime() {
-        return creationDateTime;
-    }
-
-    public void setCreationDateTime(LocalDateTime creationDateTime) {
-        this.creationDateTime = creationDateTime;
-    }
-
-    public List<String> getContractPhotos() {
-        return contractPhotos;
-    }
-
-    public void setContractPhotos(List<String> contractPhotos) {
-        this.contractPhotos = contractPhotos;
-    }
-
-    public String getCancelReason() {
-        return cancelReason;
-    }
-
-    public void setCancelReason(String cancelReason) {
-        this.cancelReason = cancelReason;
-    }
-}
+} 

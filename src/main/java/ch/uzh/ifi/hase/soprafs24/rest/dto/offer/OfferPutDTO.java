@@ -1,4 +1,4 @@
-package ch.uzh.ifi.hase.soprafs24.rest.dto;
+package ch.uzh.ifi.hase.soprafs24.rest.dto.offer;
 
 import ch.uzh.ifi.hase.soprafs24.constant.OfferStatus;
 import lombok.Getter;

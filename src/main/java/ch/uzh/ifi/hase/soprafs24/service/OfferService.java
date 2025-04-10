@@ -22,8 +22,8 @@ import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.ContractRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.OfferRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.OfferGetDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.OfferPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferGetDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.OfferDTOMapper;
 
 /**
