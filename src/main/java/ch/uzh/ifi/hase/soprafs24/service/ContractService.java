@@ -15,16 +15,10 @@ import org.springframework.web.server.ResponseStatusException;
 import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Contract;
 import ch.uzh.ifi.hase.soprafs24.entity.Requester;
-import ch.uzh.ifi.hase.soprafs24.entity.Location;
-import ch.uzh.ifi.hase.soprafs24.entity.Offer;
-import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
-import ch.uzh.ifi.hase.soprafs24.constant.OfferStatus;
 import ch.uzh.ifi.hase.soprafs24.repository.ContractRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractFilterDTO;
-import ch.uzh.ifi.hase.soprafs24.service.GoogleMapsService;
 
-import java.util.List;
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 import java.time.temporal.ChronoUnit;
