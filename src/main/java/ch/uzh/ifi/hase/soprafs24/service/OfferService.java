@@ -24,7 +24,6 @@ import ch.uzh.ifi.hase.soprafs24.repository.OfferRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.OfferGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.OfferPostDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.OfferPutDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.OfferDTOMapper;
 
 /**
