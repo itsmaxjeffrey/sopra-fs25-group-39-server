@@ -4,17 +4,23 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.register.UserRegistrationRequestDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.response.AuthenticatedUserDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.mapper.UserDTOMapper;
 
 @RestController
 @RequestMapping("/api/v1/auth")
 public class RegistrationController {
+
+    private final UserDTOMapper userDTOMapper;
     private final UserRegistrationService userRegistrationService;
 
-    public RegistrationController(UserRegistrationService userRegistrationService) {
+    public RegistrationController(UserRegistrationService userRegistrationService, UserDTOMapper userDTOMapper) {
+        this.userDTOMapper = userDTOMapper;
         this.userRegistrationService = userRegistrationService;
     }
     
@@ -42,6 +48,14 @@ public class RegistrationController {
         
         // Return created status with user data
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+        /**
+     * Helper method to create authenticated user response 
+     * that includes authentication token and user account type
+     */
+    private AuthenticatedUserDTO createAuthenticatedUserResponse(User user) {
+        return userDTOMapper.convertToDTO(user);
     }
 
 }

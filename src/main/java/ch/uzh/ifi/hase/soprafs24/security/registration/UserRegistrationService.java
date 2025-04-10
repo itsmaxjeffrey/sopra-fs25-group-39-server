@@ -143,7 +143,7 @@ public class UserRegistrationService {
                 String.join(", ", notUniqueAttributes),
                 notUniqueAttributes.size() > 1 ? "are" : "is"
             );
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, errorMessage);
         }
     }
         

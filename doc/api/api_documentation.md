@@ -28,7 +28,7 @@
 | FE | BE | Mapping | Method | Parameter | Parameter Type | Status Code | Response | Description | User Story |
 |---------|--------|-----------|----------------|-------------|----------|-------------|-----------|-----------|-----------|
 | No ❌ | Yes ✅ | `/api/v1/auth/register/driver` | POST | `driverToRegister <User>` | Body | 201, 400, 409 | `createdDriver <User>` | Register a new driver account | S1 | 
-| No ❌ | Yes ✅ | `/api/v1/auth/register/requester` | POST | `requesterToRegister <User>` | Body | 201, 400, 409 | `createdRequester <User>` | Register a new requester account | S1 | 
+
 | No ❌ | No ❌ | `/api/v1/auth/login` | POST | `username <string>`, `password <string>` | Body | 200, 401 | `{ "token": "jwt-token", "user": {...} }` | Authenticate user and create session | S2 | 
 | No ❌ | No ❌ | `/api/v1/auth/logout` | POST | Auth token | Header | 200, 401 | `{ "message": "Successfully logged out" }` | End user session | S2 |
 | No ❌ | No ❌ | `/api/v1/auth/refresh` | POST | Refresh token | Body | 200, 401 | `{ "token": "new-jwt-token" }` | Refresh authentication token | S2 |
