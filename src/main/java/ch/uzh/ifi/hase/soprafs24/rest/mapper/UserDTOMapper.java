@@ -66,17 +66,21 @@ public class UserDTOMapper {
         // Map car if exists
         if (driver.getCar() != null) {
             CarDTO carDTO = new CarDTO();
+            carDTO.setCarId(driver.getCar().getCarId());
             carDTO.setCarModel(driver.getCar().getCarModel());
             carDTO.setSpace(driver.getCar().getSpace());
             carDTO.setSupportedWeight(driver.getCar().getSupportedWeight());
             carDTO.setElectric(driver.getCar().isElectric());
             carDTO.setLicensePlate(driver.getCar().getLicensePlate());
+            carDTO.setCarPicturePath(driver.getCar().getCarPicturePath());
+            carDTO.setDriverId(driver.getUserId());
             dto.setCarDTO(carDTO);
         }
         
         // Map location if exists
         if (driver.getLocation() != null) {
             LocationDTO locationDTO = new LocationDTO();
+            locationDTO.setId(driver.getLocation().getId());
             locationDTO.setLatitude(driver.getLocation().getLatitude());
             locationDTO.setLongitude(driver.getLocation().getLongitude());
             locationDTO.setFormattedAddress(driver.getLocation().getFormattedAddress());

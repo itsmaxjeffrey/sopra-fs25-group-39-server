@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.entity.User;
@@ -18,7 +17,6 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.register.BaseUserRegisterDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.register.DriverRegisterDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.register.RequesterRegisterDTO;
-import ch.uzh.ifi.hase.soprafs24.service.FileStorageService;
 @Service
 public class UserRegistrationService {
     
@@ -46,6 +44,16 @@ public class UserRegistrationService {
         BaseUserRegisterDTO baseUserRegisterDTO,
         @Nullable CarDTO carDTO,
         @Nullable LocationDTO locationDTO){
+
+            
+        if (baseUserRegisterDTO == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User data is required");
+        }
+        
+        if (baseUserRegisterDTO.getUserAccountType() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                "User account type is required (DRIVER or REQUESTER)");
+        }
 
         checkUserCredentialUniqueness(baseUserRegisterDTO);
 
@@ -82,7 +90,7 @@ public class UserRegistrationService {
         
         // Set common user fields
         newUser.setUsername(baseUserRegisterDTO.getUsername());
-        newUser.setPassword(baseUserRegisterDTO.getPassword()); // In a real app, encrypt this!
+        newUser.setPassword(baseUserRegisterDTO.getPassword());
         newUser.setEmail(baseUserRegisterDTO.getEmail());
         newUser.setFirstName(baseUserRegisterDTO.getFirstName());
         newUser.setLastName(baseUserRegisterDTO.getLastName());
@@ -92,6 +100,7 @@ public class UserRegistrationService {
         newUser.setUserAccountType(baseUserRegisterDTO.getUserAccountType());
         newUser.setWalletBalance(0.0);
         newUser.setProfilePicturePath(baseUserRegisterDTO.getProfilePicturePath());
+
         
         // Generate authentication token
         String token = tokenService.generateToken();
