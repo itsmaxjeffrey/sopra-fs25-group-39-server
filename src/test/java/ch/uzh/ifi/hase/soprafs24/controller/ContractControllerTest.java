@@ -1,14 +1,10 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Contract;
-import ch.uzh.ifi.hase.soprafs24.entity.Location;
 import ch.uzh.ifi.hase.soprafs24.entity.Requester;
 import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractPostDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractPutDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractCancelDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
 import ch.uzh.ifi.hase.soprafs24.service.ContractService;
 import ch.uzh.ifi.hase.soprafs24.service.LocationService;
 import ch.uzh.ifi.hase.soprafs24.service.ContractPollingService;
@@ -23,13 +19,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
