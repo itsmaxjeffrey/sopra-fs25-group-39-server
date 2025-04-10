@@ -4,13 +4,18 @@ import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "userAccountType")
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME, 
+    property = "userAccountType",
+    include = As.EXISTING_PROPERTY  // This tells Jackson to also set the property
+)
 @JsonSubTypes({
     @JsonSubTypes.Type(value = DriverRegisterDTO.class, name = "DRIVER"),
     @JsonSubTypes.Type(value = RequesterRegisterDTO.class, name = "REQUESTER")
