@@ -1,4 +1,4 @@
-package ch.uzh.ifi.hase.soprafs24.security;
+package ch.uzh.ifi.hase.soprafs24.security.registration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +17,7 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.register.BaseUserRegisterDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.register.DriverRegisterDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.register.RequesterRegisterDTO;
+import ch.uzh.ifi.hase.soprafs24.security.TokenService;
 @Service
 public class UserRegistrationService {
     

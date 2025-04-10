@@ -1,4 +1,4 @@
-package ch.uzh.ifi.hase.soprafs24.security;
+package ch.uzh.ifi.hase.soprafs24.security.authentication;
 
 import java.util.Optional;
 
@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.login.BaseUserLoginDTO;
+import ch.uzh.ifi.hase.soprafs24.security.TokenService;
 
 //this file handles login and logout
 @Service

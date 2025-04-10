@@ -1,11 +1,13 @@
 package ch.uzh.ifi.hase.soprafs24.rest.mapper;
 
-import ch.uzh.ifi.hase.soprafs24.entity.Contract;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractPostDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractGetDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractPutDTO;
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
+
+import ch.uzh.ifi.hase.soprafs24.entity.Contract;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractGetDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractPutDTO;
 
 /**
  * ContractDTOMapper

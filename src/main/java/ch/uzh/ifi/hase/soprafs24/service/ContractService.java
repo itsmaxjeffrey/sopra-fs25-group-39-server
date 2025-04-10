@@ -17,7 +17,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.Contract;
 import ch.uzh.ifi.hase.soprafs24.entity.Requester;
 import ch.uzh.ifi.hase.soprafs24.repository.ContractRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractFilterDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractFilterDTO;
 
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
