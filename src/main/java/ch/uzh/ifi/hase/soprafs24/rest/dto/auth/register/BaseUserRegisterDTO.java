@@ -2,11 +2,19 @@ package ch.uzh.ifi.hase.soprafs24.rest.dto.auth.register;
 
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "userAccountType")
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = DriverRegisterDTO.class, name = "DRIVER"),
+    @JsonSubTypes.Type(value = RequesterRegisterDTO.class, name = "REQUESTER")
+})
 public class BaseUserRegisterDTO {
     // Common fields for all users
     private String username;
