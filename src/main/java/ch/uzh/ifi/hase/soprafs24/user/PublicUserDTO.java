@@ -11,6 +11,7 @@ public class PublicUserDTO {
     private String firstName;
     private String lastName;
     private String userBio;
+    private String phoneNumber;
     private String profilePicturePath;
     private UserAccountType userAccountType;
 }
