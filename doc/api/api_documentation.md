@@ -38,12 +38,8 @@
 | No ❌ | Yes ✅ | `/api/v1/users/{id}` | GET | `id <string>` | Path | 200, 404 | User object with profile details | Get user details | S3, S10 | 
 | No ❌ | No ❌ | `/api/v1/users/{id}` | PUT | `id <string>`, profile fields | Path, Body | 200, 400, 403 | Updated user object | Update user profile | S3, S10 | 
 | No ❌ | No ❌ | `/api/v1/users/{id}` | DELETE | `id <string>` | Path | 204, 403 | None | Delete user account | S3, S10 | 
-| No ❌ | No ❌ | `/api/v1/users/requesters/{id}` | GET | `id <string>` | Path | 200, 404 | Requester profile details | Get requester-specific profile | S3 | 
-| No ❌ | No ❌ | `/api/v1/users/requesters/{id}` | PUT | `id <string>`, requester-specific fields | Path, Body | 200, 400, 403 | Updated requester profile | Update requester profile | S3 | 
-| No ❌ | No ❌ | `/api/v1/users/drivers/{id}` | GET | `id <string>` | Path | 200, 404 | Driver profile with vehicle details | Get driver-specific profile | S10 | 
-| No ❌ | No ❌ | `/api/v1/users/drivers/{id}` | PUT | `id <string>`, driver-specific fields | Path, Body | 200, 400, 403 | Updated driver profile | Update driver profile | S10 |
-| No ❌ | No ❌ | `/api/v1/users/drivers/{id}/vehicle` | PUT | `id <string>`, `model <string>`, `volume <number>`, `isElectric <boolean>`, `image <file>` | Path, Body | 200, 400, 403 | Updated vehicle details | Update vehicle information | S10, S16 | 
-| No ❌ | No ❌ | `/api/v1/users/drivers/{id}/insurance` | POST | `id <string>`, `insuranceDocument <file>`, `expiryDate <date>` | Path, Body | 201, 400 | Insurance upload confirmation | Upload insurance policy | S15 | 
+
+
 
 ## Contract Management
 

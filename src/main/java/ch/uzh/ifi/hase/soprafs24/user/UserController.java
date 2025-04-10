@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -49,30 +51,42 @@ public class UserController {
         @PathVariable("paramUserId") Long paramUserId) {
            try{ 
 
-            //if a user is not logged in, they cannot see anything
-            User authenticatedUser = authorizationService.authenticateUser(userId, token);
-            if (authenticatedUser == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(Map.of("status", "error", "message", "Invalid authentication"));
+                //if a user is not logged in, they cannot see anything    
+                User requestedUser = userService.getUser(userId, token);
+
+                // check if the user is viewing their own profile
+                if (requestedUser.getUserId().equals(paramUserId)) {
+
+                    AuthenticatedUserDTO fullUserDTO = UserDTOMapper.INSTANCE.convertToDTO(requestedUser);
+                    return ResponseEntity.ok(fullUserDTO);
+                } else {
+                    PublicUserDTO publicUserDTO = publicUserDTOMapper.convertToPublicUserDTO(requestedUser);
+                    return ResponseEntity.ok(publicUserDTO);
+                }
+            }catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("status", "error", "message", e.getMessage()));
             }
 
-            User requestedUser = userService.getUserById(paramUserId, token);
-
-            // check if the user is viewing their own profile
-            if (authenticatedUser.getUserId().equals(paramUserId)) {
-
-                AuthenticatedUserDTO fullUserDTO = UserDTOMapper.INSTANCE.convertToDTO(requestedUser);
-                return ResponseEntity.ok(fullUserDTO);
-            } else {
-                PublicUserDTO publicUserDTO = publicUserDTOMapper.convertToPublicUserDTO(requestedUser);
-                return ResponseEntity.ok(publicUserDTO);
-            }
-        }catch (Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(Map.of("status", "error", "message", e.getMessage()));
     }
+
+    @PutMapping("/{userId}")
+    public ResponseEntity<?> updateUser(
+        @PathVariable Long userId,
+        @RequestHeader("Authorization") String token,
+        @RequestBody BaseUserUpdateDTO userUpdateDTO) {
             
-    }
+            try {
+                User updatedUser = userService.editUser(userId, token, userUpdateDTO);
+                AuthenticatedUserDTO userDTO = UserDTOMapper.INSTANCE.convertToDTO(updatedUser);
+                return ResponseEntity.ok(userDTO);
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("status", "error", "message", e.getMessage()));
+            }
+}
+            
+
     
     
     
