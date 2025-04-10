@@ -10,15 +10,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.CarDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.login.BaseUserLoginDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.register.BaseUserRegisterDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.register.UserRegistrationRequest;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.response.AuthenticatedUserDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.UserDTOMapper;
@@ -54,10 +49,10 @@ public class AuthController {
     public ResponseEntity<Object> registerUser(@RequestBody UserRegistrationRequest request) {
         
         // Register and login the user with file uploads
-        User authenticatedUser = userRegistrationService.processRegistration(
-        request.getUser(), 
-        request.getCar(), 
-        request.getLocation());
+        User authenticatedUser = userRegistrationService.registerUser(
+            request.getUser(), 
+            request.getCar(), 
+            request.getLocation());
         
         // Create response map with user data including authentication token
         AuthenticatedUserDTO response = createAuthenticatedUserResponse(authenticatedUser);

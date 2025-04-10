@@ -27,7 +27,6 @@ public class UserRegistrationService {
     private final UserRepository userRepository;
     private final DriverRegistrationService driverRegistrationService;
     private final RequesterRegistrationService requesterRegistrationService;
-    private final FileStorageService fileStorageService;
     private final TokenService tokenService;
 
     //initialize
@@ -35,12 +34,10 @@ public class UserRegistrationService {
     UserRepository userRepository,
     DriverRegistrationService driverRegistrationService,
     RequesterRegistrationService requesterRegistrationService,
-    FileStorageService fileStorageService,
     TokenService tokenService){
         this.userRepository = userRepository;
         this.driverRegistrationService = driverRegistrationService;
         this.requesterRegistrationService = requesterRegistrationService;
-        this.fileStorageService = fileStorageService;
         this.tokenService = tokenService;
     }
 
@@ -48,11 +45,7 @@ public class UserRegistrationService {
     public User registerUser(
         BaseUserRegisterDTO baseUserRegisterDTO,
         @Nullable CarDTO carDTO,
-        @Nullable LocationDTO locationDTO,
-        @Nullable MultipartFile profilePicture,
-        @Nullable MultipartFile driverLicense,
-        @Nullable MultipartFile driverInsurance,
-        @Nullable MultipartFile driverCarPicture){
+        @Nullable LocationDTO locationDTO){
 
         checkUserCredentialUniqueness(baseUserRegisterDTO);
 
@@ -66,10 +59,7 @@ public class UserRegistrationService {
                     newUser = driverRegistrationService.registerDriver(
                         (DriverRegisterDTO) baseUserRegisterDTO,
                         carDTO,
-                        locationDTO,
-                        driverLicense,
-                        driverInsurance,
-                        driverCarPicture);
+                        locationDTO);
                         
             }
             
@@ -88,11 +78,7 @@ public class UserRegistrationService {
 
         }
         
-        // Process profile picture if provided
-        if (profilePicture != null && !profilePicture.isEmpty()) {
-            String profilePicturePath = fileStorageService.storeFile(profilePicture, "profile-pictures");
-            newUser.setProfilePicturePath(profilePicturePath);
-        }
+
         
         // Set common user fields
         newUser.setUsername(baseUserRegisterDTO.getUsername());
@@ -105,6 +91,7 @@ public class UserRegistrationService {
         newUser.setBirthDate(baseUserRegisterDTO.getBirthDate());
         newUser.setUserAccountType(baseUserRegisterDTO.getUserAccountType());
         newUser.setWalletBalance(0.0);
+        newUser.setProfilePicturePath(baseUserRegisterDTO.getProfilePicturePath());
         
         // Generate authentication token
         String token = tokenService.generateToken();
