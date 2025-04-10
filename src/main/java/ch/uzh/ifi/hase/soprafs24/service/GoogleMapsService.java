@@ -9,6 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.ParameterizedTypeReference;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,6 +44,7 @@ public class GoogleMapsService {
      * @param destLng Destination longitude
      * @return Distance in kilometers
      */
+    @SuppressWarnings("unchecked")
     public double calculateDistance(double originLat, double originLng, double destLat, double destLng) {
         log.debug("Calculating distance from ({}, {}) to ({}, {})", originLat, originLng, destLat, destLng);
         
@@ -57,11 +59,11 @@ public class GoogleMapsService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        ResponseEntity<Map> response = restTemplate.exchange(
+        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
             DISTANCE_MATRIX_URL + "?origins={origins}&destinations={destinations}&key={key}",
             HttpMethod.GET,
             null,
-            Map.class,
+            new ParameterizedTypeReference<Map<String, Object>>() {},
             params
         );
 
@@ -137,6 +139,7 @@ public class GoogleMapsService {
      * @param address The address to geocode
      * @return Array containing latitude and longitude
      */
+    @SuppressWarnings("unchecked")
     public double[] geocodeAddress(String address) {
         log.debug("Geocoding address: {}", address);
         
@@ -147,11 +150,11 @@ public class GoogleMapsService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        ResponseEntity<Map> response = restTemplate.exchange(
+        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
             GEOCODING_URL + "?address={address}&key={key}",
             HttpMethod.GET,
             null,
-            Map.class,
+            new ParameterizedTypeReference<Map<String, Object>>() {},
             params
         );
 

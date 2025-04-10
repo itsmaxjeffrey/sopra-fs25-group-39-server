@@ -1,8 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.rest.dto;
 
-import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
 import java.time.LocalDateTime;
-
 
 public class ContractPostDTO {
     private String title;
