@@ -1,6 +1,9 @@
 package ch.uzh.ifi.hase.soprafs24.rest.mapper;
 
-import org.springframework.stereotype.Service;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+import org.mapstruct.factory.Mappers;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Driver;
 import ch.uzh.ifi.hase.soprafs24.entity.Requester;
@@ -11,10 +14,15 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.response.AuthenticatedDriverDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.response.AuthenticatedRequesterDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.response.AuthenticatedUserDTO;
 
-@Service
-public class UserDTOMapper {
+@Mapper(
+    componentModel = "spring", 
+    uses = {CarDTOMapper.class, LocationDTOMapper.class}
+)public interface UserDTOMapper {
     
-    public AuthenticatedUserDTO convertToDTO(User user) {
+    UserDTOMapper INSTANCE = Mappers.getMapper(UserDTOMapper.class);
+    
+    // Use this method as the entry point for converting users
+    default AuthenticatedUserDTO convertToDTO(User user) {
         if (user instanceof Driver) {
             return convertToDriverDTO((Driver) user);
         } else if (user instanceof Requester) {
@@ -24,90 +32,71 @@ public class UserDTOMapper {
         }
     }
     
-    private AuthenticatedUserDTO convertToBaseUserDTO(User user) {
-        AuthenticatedUserDTO dto = new AuthenticatedUserDTO();
-        // Map common fields
-        dto.setToken(user.getToken());
-        dto.setUserId(user.getUserId());
-        dto.setUserAccountType(user.getUserAccountType());
-        dto.setUsername(user.getUsername());
-        dto.setEmail(user.getEmail());
-        dto.setFirstName(user.getFirstName());
-        dto.setLastName(user.getLastName());
-        dto.setPhoneNumber(user.getPhoneNumber());
-        dto.setWalletBalance(user.getWalletBalance());
-        dto.setBirthDate(user.getBirthDate());
-        dto.setUserBio(user.getUserBio());
-        dto.setProfilePicturePath(user.getProfilePicturePath());
-        return dto;
+    // Base user mapping
+    @Mapping(source = "token", target = "token")
+    @Mapping(source = "userId", target = "userId")
+    @Mapping(source = "userAccountType", target = "userAccountType")
+    @Mapping(source = "username", target = "username")
+    @Mapping(source = "email", target = "email")
+    @Mapping(source = "firstName", target = "firstName")
+    @Mapping(source = "lastName", target = "lastName")
+    @Mapping(source = "phoneNumber", target = "phoneNumber")
+    @Mapping(source = "walletBalance", target = "walletBalance")
+    @Mapping(source = "birthDate", target = "birthDate")
+    @Mapping(source = "userBio", target = "userBio")
+    @Mapping(source = "profilePicturePath", target = "profilePicturePath")
+    AuthenticatedUserDTO convertToBaseUserDTO(User user);
+    
+    // Driver mapping
+    @Mapping(source = "token", target = "token")
+    @Mapping(source = "userId", target = "userId")
+    @Mapping(source = "userAccountType", target = "userAccountType")
+    @Mapping(source = "username", target = "username")
+    @Mapping(source = "email", target = "email")
+    @Mapping(source = "firstName", target = "firstName")
+    @Mapping(source = "lastName", target = "lastName")
+    @Mapping(source = "phoneNumber", target = "phoneNumber")
+    @Mapping(source = "walletBalance", target = "walletBalance")
+    @Mapping(source = "birthDate", target = "birthDate")
+    @Mapping(source = "userBio", target = "userBio")
+    @Mapping(source = "profilePicturePath", target = "profilePicturePath")
+    @Mapping(source = "driverLicensePath", target = "driverLicensePath")
+    @Mapping(source = "driverInsurancePath", target = "driverInsurancePath")
+    @Mapping(source = "preferredRange", target = "preferredRange")
+    @Mapping(source = "car", target = "carDTO", qualifiedByName = "mapCar")
+    @Mapping(source = "location", target = "location", qualifiedByName = "mapLocation")
+    AuthenticatedDriverDTO convertToDriverDTO(Driver driver);
+    
+    // Requester mapping
+    @Mapping(source = "token", target = "token")
+    @Mapping(source = "userId", target = "userId")
+    @Mapping(source = "userAccountType", target = "userAccountType")
+    @Mapping(source = "username", target = "username")
+    @Mapping(source = "email", target = "email")
+    @Mapping(source = "firstName", target = "firstName")
+    @Mapping(source = "lastName", target = "lastName")
+    @Mapping(source = "phoneNumber", target = "phoneNumber")
+    @Mapping(source = "walletBalance", target = "walletBalance")
+    @Mapping(source = "birthDate", target = "birthDate")
+    @Mapping(source = "userBio", target = "userBio")
+    @Mapping(source = "profilePicturePath", target = "profilePicturePath")
+    // Add requester-specific mappings here if needed
+    AuthenticatedRequesterDTO convertToRequesterDTO(Requester requester);
+    
+    // Custom mappers for nested objects
+    @Named("mapCar")
+    default CarDTO mapCar(ch.uzh.ifi.hase.soprafs24.entity.Car car) {
+        if (car == null) {
+            return null;
+        }
+        return CarDTOMapper.INSTANCE.convertEntityToCarDTO(car);
     }
     
-    private AuthenticatedDriverDTO convertToDriverDTO(Driver driver) {
-        AuthenticatedDriverDTO dto = new AuthenticatedDriverDTO();
-        // Map base fields
-        dto.setToken(driver.getToken());
-        dto.setUserId(driver.getUserId());
-        dto.setUserAccountType(driver.getUserAccountType());
-        dto.setUsername(driver.getUsername());
-        dto.setEmail(driver.getEmail());
-        dto.setFirstName(driver.getFirstName());
-        dto.setLastName(driver.getLastName());
-        dto.setPhoneNumber(driver.getPhoneNumber());
-        dto.setWalletBalance(driver.getWalletBalance());
-        dto.setBirthDate(driver.getBirthDate());
-        dto.setUserBio(driver.getUserBio());
-        dto.setProfilePicturePath(driver.getProfilePicturePath());
-        
-        // Map driver-specific fields
-        dto.setDriverLicensePath(driver.getDriverLicensePath());
-        dto.setDriverInsurancePath(driver.getDriverInsurancePath());
-        dto.setPreferredRange(driver.getPreferredRange());
-        
-        // Map car if exists
-        if (driver.getCar() != null) {
-            CarDTO carDTO = new CarDTO();
-            carDTO.setCarId(driver.getCar().getCarId());
-            carDTO.setCarModel(driver.getCar().getCarModel());
-            carDTO.setSpace(driver.getCar().getSpace());
-            carDTO.setSupportedWeight(driver.getCar().getSupportedWeight());
-            carDTO.setElectric(driver.getCar().isElectric());
-            carDTO.setLicensePlate(driver.getCar().getLicensePlate());
-            carDTO.setCarPicturePath(driver.getCar().getCarPicturePath());
-            carDTO.setDriverId(driver.getUserId());
-            dto.setCarDTO(carDTO);
+    @Named("mapLocation")
+    default LocationDTO mapLocation(ch.uzh.ifi.hase.soprafs24.entity.Location location) {
+        if (location == null) {
+            return null;
         }
-        
-        // Map location if exists
-        if (driver.getLocation() != null) {
-            LocationDTO locationDTO = new LocationDTO();
-            locationDTO.setId(driver.getLocation().getId());
-            locationDTO.setLatitude(driver.getLocation().getLatitude());
-            locationDTO.setLongitude(driver.getLocation().getLongitude());
-            locationDTO.setFormattedAddress(driver.getLocation().getFormattedAddress());
-            dto.setLocation(locationDTO);
-        }
-        
-        return dto;
+        return LocationDTOMapper.INSTANCE.convertEntityToLocationDTO(location);
     }
-    
-    private AuthenticatedRequesterDTO convertToRequesterDTO(Requester requester) {
-        AuthenticatedRequesterDTO dto = new AuthenticatedRequesterDTO();
-        // Map base fields
-        dto.setToken(requester.getToken());
-        dto.setUserId(requester.getUserId());
-        dto.setUserAccountType(requester.getUserAccountType());
-        dto.setUsername(requester.getUsername());
-        dto.setEmail(requester.getEmail());
-        dto.setFirstName(requester.getFirstName());
-        dto.setLastName(requester.getLastName());
-        dto.setPhoneNumber(requester.getPhoneNumber());
-        dto.setWalletBalance(requester.getWalletBalance());
-        dto.setBirthDate(requester.getBirthDate());
-        dto.setUserBio(requester.getUserBio());
-        dto.setProfilePicturePath(requester.getProfilePicturePath());
-        
-        // Add requester-specific mappings if needed
-        
-        return dto;
-    }
-}
+} 

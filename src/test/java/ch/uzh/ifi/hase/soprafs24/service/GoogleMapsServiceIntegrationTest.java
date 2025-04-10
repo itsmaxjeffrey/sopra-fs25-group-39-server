@@ -1,25 +1,34 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.core.env.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.env.Environment;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 
-import static org.junit.jupiter.api.Assertions.*;
+import ch.uzh.ifi.hase.soprafs24.config.GoogleMapsConfig;
 
-@SpringBootTest
+@SpringBootTest(classes = {
+    GoogleMapsService.class,  // Only include the service you're testing
+    GoogleMapsConfig.class    // Include the config if needed
+})
 @ActiveProfiles("test")
 @TestPropertySource(properties = {
     "google.maps.api.key=${GOOGLE_MAPS_API_KEY}"
 })
+
 public class GoogleMapsServiceIntegrationTest {
 
     private static final Logger log = LoggerFactory.getLogger(GoogleMapsServiceIntegrationTest.class);
 
+    
     @Autowired
     private GoogleMapsService googleMapsService;
 

@@ -27,17 +27,15 @@
 
 | FE | BE | Mapping | Method | Parameter | Parameter Type | Status Code | Response | Description | User Story |
 |---------|--------|-----------|----------------|-------------|----------|-------------|-----------|-----------|-----------|
-| No ❌ | Yes ✅ | `/api/v1/auth/register/driver` | POST | `driverToRegister <User>` | Body | 201, 400, 409 | `createdDriver <User>` | Register a new driver account | S1 | 
-
-| No ❌ | No ❌ | `/api/v1/auth/login` | POST | `username <string>`, `password <string>` | Body | 200, 401 | `{ "token": "jwt-token", "user": {...} }` | Authenticate user and create session | S2 | 
-| No ❌ | No ❌ | `/api/v1/auth/logout` | POST | Auth token | Header | 200, 401 | `{ "message": "Successfully logged out" }` | End user session | S2 |
-| No ❌ | No ❌ | `/api/v1/auth/refresh` | POST | Refresh token | Body | 200, 401 | `{ "token": "new-jwt-token" }` | Refresh authentication token | S2 |
+| No ❌ | Yes ✅ | `/api/v1/auth/register` | POST | `userToRegister <User>(requester will have only requesterUserRegisterDTO and driver will have driverRegisterDTO, carDTO and locationDTO)` | Body | 201(tested), 400(tested), 409(tested) | `authenticatedUserResponse(driver/requester) <User>` | Register a new user account | S1 | 
+| No ❌ | Yes ✅ | `/api/v1/auth/login` | POST | `username <string>`, `password <string>` | Body | 200(tested), 401(tested), 404(tested)| `{ "token": "UUID-token", "user": {...} }` | Authenticate user and create session(saving token and userId in local storage) | S2 | 
+| No ❌ | Yes ✅ | `/api/v1/auth/logout` | POST | userId: <userId> , Authorization: <token> | Header | 200(tested), 401(tested) | `{ "message": "Successfully logged out" }` | End user session | S2 |
 
 ## User Management
 
 | FE | BE | Mapping | Method | Parameter | Parameter Type | Status Code | Response | Description | User Story |
 |---------|--------|-----------|----------------|-------------|----------|-------------|-----------|-----------|-----------|
-| No ❌ | No ❌ | `/api/v1/users/{id}` | GET | `id <string>` | Path | 200, 404 | User object with profile details | Get user details | S3, S10 | 
+| No ❌ | Yes ✅ | `/api/v1/users/{id}` | GET | `id <string>` | Path | 200, 404 | User object with profile details | Get user details | S3, S10 | 
 | No ❌ | No ❌ | `/api/v1/users/{id}` | PUT | `id <string>`, profile fields | Path, Body | 200, 400, 403 | Updated user object | Update user profile | S3, S10 | 
 | No ❌ | No ❌ | `/api/v1/users/{id}` | DELETE | `id <string>` | Path | 204, 403 | None | Delete user account | S3, S10 | 
 | No ❌ | No ❌ | `/api/v1/users/requesters/{id}` | GET | `id <string>` | Path | 200, 404 | Requester profile details | Get requester-specific profile | S3 | 

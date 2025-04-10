@@ -3,7 +3,6 @@ package ch.uzh.ifi.hase.soprafs24.security.authentication;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,7 +28,7 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @Autowired
+    
     private UserDTOMapper userDTOMapper;
 
     public AuthController(
@@ -62,8 +61,8 @@ public class AuthController {
      * POST /api/v1/auth/logout
      */
     @PostMapping("/logout")
-    public ResponseEntity<Object> logoutUser(@RequestHeader("Authorization") String token) {
-        authService.logoutUser(token);
+    public ResponseEntity<Object> logoutUser(@RequestHeader("UserId") Long userId, @RequestHeader("Authorization") String token) {
+        authService.logoutUser(userId, token);
         
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Successfully logged out");

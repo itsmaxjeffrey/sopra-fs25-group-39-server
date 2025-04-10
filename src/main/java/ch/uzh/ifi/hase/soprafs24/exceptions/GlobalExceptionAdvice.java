@@ -1,5 +1,10 @@
 package ch.uzh.ifi.hase.soprafs24.exceptions;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -13,8 +18,6 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-
-import javax.servlet.http.HttpServletRequest;
 
 @ControllerAdvice(annotations = RestController.class)
 public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
@@ -40,4 +43,21 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
     log.error("Default Exception Handler -> caught:", ex);
     return new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), ex);
   }
+
+
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity<Object> handleUserNotFoundException(UserNotFoundException ex, WebRequest request) {
+    log.error("User Not Found Exception: {}", ex.getMessage());
+    
+    Map<String, Object> body = new HashMap<>();
+    body.put("status", "error");
+    body.put("error", Map.of(
+      "code", "NOT_FOUND",
+      "message", ex.getMessage()
+    ));
+    
+    return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+
+  } 
+
 }

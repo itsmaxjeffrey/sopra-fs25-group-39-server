@@ -16,7 +16,7 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferPutDTO;
  * representation (OfferGetDTO for getting)
  * and vice versa.
  */
-@Mapper(uses = {ContractDTOMapper.class})
+@Mapper(componentModel = "spring", uses = {ContractDTOMapper.class})
 public interface OfferDTOMapper {
 
     OfferDTOMapper INSTANCE = Mappers.getMapper(OfferDTOMapper.class);
