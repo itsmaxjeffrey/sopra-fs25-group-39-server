@@ -1,9 +1,5 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
-import ch.uzh.ifi.hase.soprafs24.entity.Contract;
-import ch.uzh.ifi.hase.soprafs24.entity.Driver;
-import ch.uzh.ifi.hase.soprafs24.entity.Offer;
-import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
 import ch.uzh.ifi.hase.soprafs24.constant.OfferStatus;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferPostDTO;

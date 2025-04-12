@@ -14,7 +14,6 @@ import org.mockito.*;
 import ch.uzh.ifi.hase.soprafs24.entity.Contract;
 import ch.uzh.ifi.hase.soprafs24.service.ContractPollingService;
 import ch.uzh.ifi.hase.soprafs24.service.ContractService;
-import ch.uzh.ifi.hase.soprafs24.repository.ContractRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractFilterDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractGetDTO;
 
@@ -22,9 +21,6 @@ class ContractPollingServiceTest {
 
     @Mock
     private ContractService contractService;
-
-    @Mock
-    private ContractRepository contractRepository;
 
     private ContractPollingService contractPollingService;
 
@@ -34,7 +30,7 @@ class ContractPollingServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        contractPollingService = new ContractPollingService(contractService, contractRepository);
+        contractPollingService = new ContractPollingService(contractService);
 
         // Create a sample filterDTO
         filterDTO = new ContractFilterDTO();

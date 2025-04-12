@@ -361,7 +361,6 @@ public class ContractServiceTest {
         acceptedContract.setContractId(2L);
         acceptedContract.setContractStatus(ContractStatus.ACCEPTED);
 
-        List<Contract> allContracts = Arrays.asList(requestedContract, acceptedContract);
         Mockito.when(contractRepository.findByContractStatus(ContractStatus.REQUESTED))
             .thenReturn(Collections.singletonList(requestedContract));
         Mockito.when(contractRepository.findByContractStatus(ContractStatus.ACCEPTED))
