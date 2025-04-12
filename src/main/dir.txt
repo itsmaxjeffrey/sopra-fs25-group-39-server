@@ -1,0 +1,123 @@
+./
+├── java/
+│   └── ch/
+│       └── uzh/
+│           └── ifi/
+│               └── hase/
+│                   └── soprafs24/
+│                       ├── config/
+│                       │   └── GoogleMapsConfig.java
+│                       ├── constant/
+│                       │   ├── ContractStatus.java
+│                       │   ├── OfferStatus.java
+│                       │   └── UserAccountType.java
+│                       ├── controller/
+│                       │   ├── ContractController.java
+│                       │   ├── FileStorageController.java
+│                       │   └── OfferController.java
+│                       ├── entity/
+│                       │   ├── Car.java
+│                       │   ├── Contract.java
+│                       │   ├── Driver.java
+│                       │   ├── Location.java
+│                       │   ├── Offer.java
+│                       │   ├── Rating.java
+│                       │   ├── Requester.java
+│                       │   └── User.java
+│                       ├── exceptions/
+│                       │   ├── GlobalExceptionAdvice.java
+│                       │   └── UserNotFoundException.java
+│                       ├── repository/
+│                       │   ├── CarRepository.java
+│                       │   ├── ContractRepository.java
+│                       │   ├── LocationRepository.java
+│                       │   ├── OfferRepository.java
+│                       │   └── UserRepository.java
+│                       ├── rest/
+│                       │   ├── dto/
+│                       │   │   ├── contract/
+│                       │   │   │   ├── ContractCancelDTO.java
+│                       │   │   │   ├── ContractFilterDTO.java
+│                       │   │   │   ├── ContractGetDTO.java
+│                       │   │   │   ├── ContractPostDTO.java
+│                       │   │   │   └── ContractPutDTO.java
+│                       │   │   ├── offer/
+│                       │   │   │   ├── OfferGetDTO.java
+│                       │   │   │   ├── OfferPostDTO.java
+│                       │   │   │   └── OfferPutDTO.java
+│                       │   │   ├── CarDTO.java
+│                       │   │   ├── LocationDTO.java
+│                       │   │   └── RatingDTO.java
+│                       │   └── mapper/
+│                       │       ├── CarDTOMapper.java
+│                       │       ├── ContractDTOMapper.java
+│                       │       ├── LocationDTOMapper.java
+│                       │       ├── OfferDTOMapper.java
+│                       │       └── UserDTOMapper.java
+│                       ├── security/
+│                       │   ├── authentication/
+│                       │   │   ├── responseDTO/
+│                       │   │   │   ├── AuthenticatedDriverDTO.java
+│                       │   │   │   ├── AuthenticatedRequesterDTO.java
+│                       │   │   │   └── AuthenticatedUserDTO.java
+│                       │   │   ├── AuthController.java
+│                       │   │   ├── AuthService.java
+│                       │   │   └── BaseUserLoginDTO.java
+│                       │   ├── authorization/
+│                       │   │   └── AuthorizationService.java
+│                       │   ├── registration/
+│                       │   │   ├── controller/
+│                       │   │   │   └── RegistrationController.java
+│                       │   │   ├── dto/
+│                       │   │   │   ├── BaseUserRegisterDTO.java
+│                       │   │   │   ├── DriverRegisterDTO.java
+│                       │   │   │   ├── RequesterRegisterDTO.java
+│                       │   │   │   └── UserRegistrationRequestDTO.java
+│                       │   │   └── service/
+│                       │   │       ├── DriverRegistrationService.java
+│                       │   │       ├── RequesterRegistrationService.java
+│                       │   │       ├── TokenService.java
+│                       │   │       └── UserRegistrationService.java
+│                       │   └── .DS_Store
+│                       ├── service/
+│                       │   ├── car/
+│                       │   │   ├── CarCreator.java
+│                       │   │   ├── CarService.java
+│                       │   │   ├── CarUpdater.java
+│                       │   │   └── CarValidator.java
+│                       │   ├── location/
+│                       │   │   ├── LocationCreator.java
+│                       │   │   ├── LocationService.java
+│                       │   │   ├── LocationUpdater.java
+│                       │   │   └── LocationValidator.java
+│                       │   ├── user/
+│                       │   │   └── UserUpdater.java
+│                       │   ├── ContractPollingService.java
+│                       │   ├── ContractService.java
+│                       │   ├── FileStorageService.java
+│                       │   ├── GoogleMapsService.java
+│                       │   └── OfferService.java
+│                       ├── user/
+│                       │   ├── DTO/
+│                       │   │   └── update/
+│                       │   │       ├── BaseUserUpdateDTO.java
+│                       │   │       ├── DriverUpdateDTO.java
+│                       │   │       └── RequesterUpdateDTO.java
+│                       │   ├── PublicUserDTO.java
+│                       │   ├── PublicUserDTOMapper.java
+│                       │   ├── UserController.java
+│                       │   ├── UserService.java
+│                       │   └── UserUpdateDTOMapper.java
+│                       ├── .DS_Store
+│                       └── Application.java
+├── resources/
+│   └── application.properties
+├── dir.txt
+└── pr.sh
+
+34 directories, 82 files
+
+Statistics:
+Total files: 82
+Total directories: 34
+Last updated: Sun Apr 13 01:25:22 CEST 2025

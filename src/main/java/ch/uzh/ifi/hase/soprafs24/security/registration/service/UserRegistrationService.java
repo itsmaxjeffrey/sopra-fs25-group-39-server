@@ -10,13 +10,13 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.car.dto.CarDTO;
+import ch.uzh.ifi.hase.soprafs24.location.dto.LocationDTO;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.CarDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
 import ch.uzh.ifi.hase.soprafs24.security.registration.dto.BaseUserRegisterDTO;
 import ch.uzh.ifi.hase.soprafs24.security.registration.dto.DriverRegisterDTO;
 import ch.uzh.ifi.hase.soprafs24.security.registration.dto.RequesterRegisterDTO;
+import ch.uzh.ifi.hase.soprafs24.user.model.User;
 @Service
 public class UserRegistrationService {
     

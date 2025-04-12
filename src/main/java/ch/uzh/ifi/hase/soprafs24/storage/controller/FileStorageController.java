@@ -1,0 +1,100 @@
+package ch.uzh.ifi.hase.soprafs24.storage.controller;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
+
+import ch.uzh.ifi.hase.soprafs24.storage.service.FileStorageService;
+
+/**
+ * Controller for handling file uploads and retrievals
+ * This separates file handling from user registration
+ */
+@RestController
+@RequestMapping("/api/v1/files")
+public class FileStorageController {
+
+    private static final List<String> ALLOWED_FILE_TYPES = Arrays.asList(
+        "profile", "license", "insurance", "car", "misc"
+        );
+
+    private final FileStorageService fileStorageService;
+
+    public FileStorageController(FileStorageService fileStorageService) {
+        this.fileStorageService = fileStorageService;
+    }
+
+    /**
+     * Upload a file and return its storage path
+     * @param file The file to upload
+     * @param fileType The type of file (profile, license, insurance, car)
+     * @return The filepath where the file was stored
+     */
+    @PostMapping("/upload")
+    public ResponseEntity<Map<String, String>> uploadFile(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("type") String fileType) {
+        
+        // Validate file is not empty
+        if (file.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please upload a file");
+        }
+        
+        // Validate file type
+        if (!ALLOWED_FILE_TYPES.contains(fileType)) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST, 
+                "File type must be one of: " + String.join(", ", ALLOWED_FILE_TYPES));
+        }
+        
+        String subdirectory;
+        subdirectory = switch (fileType) {
+            case "profile" -> "profile-pictures";
+            case "license" -> "driver-licenses";
+            case "insurance" -> "driver-insurances";
+            case "car" -> "car-pictures";
+            default -> "misc";
+        };
+
+        String filePath = fileStorageService.storeFile(file, subdirectory);
+        
+        Map<String, String> response = new HashMap<>();
+        response.put("filePath", filePath);
+        
+        return ResponseEntity.ok(response);
+    }
+    
+    /**
+     * Download a file by its filepath
+     * @param filePath The path of the file to download
+     * @return The file resource
+     */
+    @GetMapping("/download/{filePath:.+}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable String filePath) {
+        // Load file as resource
+        Resource resource = fileStorageService.loadFileAsResource(filePath);
+        
+        // Try to determine file's content type
+        String contentType = "application/octet-stream";
+        
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
+    }
+}

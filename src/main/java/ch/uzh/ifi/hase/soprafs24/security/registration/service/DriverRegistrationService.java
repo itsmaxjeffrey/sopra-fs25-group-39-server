@@ -2,17 +2,17 @@ package ch.uzh.ifi.hase.soprafs24.security.registration.service;
 
 import org.springframework.stereotype.Service;
 
-import ch.uzh.ifi.hase.soprafs24.entity.Car;
-import ch.uzh.ifi.hase.soprafs24.entity.Driver;
-import ch.uzh.ifi.hase.soprafs24.entity.Location;
-import ch.uzh.ifi.hase.soprafs24.repository.CarRepository;
+import ch.uzh.ifi.hase.soprafs24.car.dto.CarDTO;
+import ch.uzh.ifi.hase.soprafs24.car.model.Car;
+import ch.uzh.ifi.hase.soprafs24.car.repository.CarRepository;
+import ch.uzh.ifi.hase.soprafs24.car.service.CarService;
+import ch.uzh.ifi.hase.soprafs24.location.dto.LocationDTO;
+import ch.uzh.ifi.hase.soprafs24.location.model.Location;
+import ch.uzh.ifi.hase.soprafs24.location.service.LocationService;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.CarDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
 import ch.uzh.ifi.hase.soprafs24.security.registration.dto.DriverRegisterDTO;
-import ch.uzh.ifi.hase.soprafs24.service.FileStorageService;
-import ch.uzh.ifi.hase.soprafs24.service.LocationService;
-import ch.uzh.ifi.hase.soprafs24.service.car.CarService;
+import ch.uzh.ifi.hase.soprafs24.storage.service.FileStorageService;
+import ch.uzh.ifi.hase.soprafs24.user.model.Driver;
 
 
 @Service
