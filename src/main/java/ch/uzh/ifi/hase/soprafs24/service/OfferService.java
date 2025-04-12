@@ -138,6 +138,13 @@ public class OfferService {
         offer = offerRepository.save(offer);
         offerRepository.flush();
 
+        // Update contract status to OFFERED if this is the first offer
+        if (contract.getContractStatus() == ContractStatus.REQUESTED) {
+            contract.setContractStatus(ContractStatus.OFFERED);
+            contractRepository.save(contract);
+            contractRepository.flush();
+        }
+
         log.debug("Created offer: {}", offer);
 
         return offerDTOMapper.convertEntityToOfferGetDTO(offer);
@@ -154,15 +161,35 @@ public class OfferService {
         Offer offer = offerRepository.findById(offerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Offer not found"));
 
-        // Check if offer can be deleted (only CREATED status can be deleted)
-        if (offer.getOfferStatus() != OfferStatus.CREATED) {
+        Contract contract = offer.getContract();
+
+        // Check if offer can be deleted
+        if (offer.getOfferStatus() == OfferStatus.ACCEPTED) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, 
-                "Only offers with CREATED status can be deleted");
+                "Cannot delete an accepted offer");
+        }
+
+        if (offer.getOfferStatus() == OfferStatus.REJECTED) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, 
+                "Cannot delete a rejected offer");
+        }
+
+        if (contract.getContractStatus() == ContractStatus.ACCEPTED) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, 
+                "Cannot delete an offer for an accepted contract");
         }
 
         // Delete the offer
         offerRepository.delete(offer);
         offerRepository.flush();
+
+        // If this was the last offer and contract is in OFFERED state, revert to REQUESTED
+        List<Offer> remainingOffers = offerRepository.findByContract_ContractId(contract.getContractId());
+        if (contract.getContractStatus() == ContractStatus.OFFERED && remainingOffers.isEmpty()) {
+            contract.setContractStatus(ContractStatus.REQUESTED);
+            contractRepository.save(contract);
+            contractRepository.flush();
+        }
 
         log.debug("Deleted offer: {}", offer);
     }
@@ -213,9 +240,9 @@ public class OfferService {
         Contract contract = offer.getContract();
         
         // Validate contract status
-        if (contract.getContractStatus() != ContractStatus.REQUESTED) {
+        if (contract.getContractStatus() != ContractStatus.OFFERED) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
-                "Offers can only be accepted for REQUESTED contracts");
+                "Offers can only be accepted for OFFERED contracts");
         }
         
         // Set the accepted offer and update contract status
@@ -225,6 +252,16 @@ public class OfferService {
         
         // Update offer status
         offer.setOfferStatus(OfferStatus.ACCEPTED);
+        
+        // Reject all other offers for this contract
+        List<Offer> otherOffers = offerRepository.findByContract_ContractIdAndOfferStatus(
+            contract.getContractId(), OfferStatus.CREATED);
+        for (Offer otherOffer : otherOffers) {
+            if (!otherOffer.getOfferId().equals(offerId)) {
+                otherOffer.setOfferStatus(OfferStatus.REJECTED);
+                offerRepository.save(otherOffer);
+            }
+        }
         
         // Save changes
         contractRepository.save(contract);
@@ -246,13 +283,23 @@ public class OfferService {
         Contract contract = offer.getContract();
         
         // Validate contract status
-        if (contract.getContractStatus() != ContractStatus.REQUESTED) {
+        if (contract.getContractStatus() != ContractStatus.REQUESTED && 
+            contract.getContractStatus() != ContractStatus.OFFERED) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
-                "Offers can only be rejected for REQUESTED contracts");
+                "Offers can only be rejected for REQUESTED or OFFERED contracts");
         }
         
         // Update offer status
         offer.setOfferStatus(OfferStatus.REJECTED);
+        
+        // If this was the last offer and contract is in OFFERED state, revert to REQUESTED
+        List<Offer> remainingOffers = offerRepository.findByContract_ContractIdAndOfferStatus(
+            contract.getContractId(), OfferStatus.CREATED);
+        if (contract.getContractStatus() == ContractStatus.OFFERED && remainingOffers.isEmpty()) {
+            contract.setContractStatus(ContractStatus.REQUESTED);
+            contractRepository.save(contract);
+            contractRepository.flush();
+        }
         
         // Save changes
         offer = offerRepository.save(offer);
