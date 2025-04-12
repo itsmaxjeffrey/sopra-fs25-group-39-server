@@ -4,10 +4,13 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
+import ch.uzh.ifi.hase.soprafs24.entity.Driver;
 import ch.uzh.ifi.hase.soprafs24.entity.Offer;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.response.AuthenticatedDriverDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferPutDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.mapper.UserDTOMapper;
 
 /**
  * OfferDTOMapper
@@ -41,4 +44,14 @@ public interface OfferDTOMapper {
     @Mapping(target = "creationDateTime", ignore = true)
     @Mapping(source = "status", target = "offerStatus")
     Offer convertOfferPutDTOtoEntity(OfferPutDTO offerPutDTO);
+
+    /**
+     * Custom mapping method for converting Driver to AuthenticatedDriverDTO
+     */
+    default AuthenticatedDriverDTO mapDriver(Driver driver) {
+        if (driver == null) {
+            return null;
+        }
+        return (AuthenticatedDriverDTO) new UserDTOMapper().convertToDTO(driver);
+    }
 } 
