@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
@@ -379,8 +380,12 @@ public class ContractService {
      * @return The cancelled contract
      * @throws ResponseStatusException if the contract cannot be cancelled
      */
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public Contract cancelContract(Long contractId, String reason) {
-        Contract contract = getContractById(contractId);
+        // Get contract with optimistic locking
+        Contract contract = contractRepository.findById(contractId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
+                "Contract with ID " + contractId + " not found"));
         
         // Check if contract can be canceled
         if (contract.getContractStatus() == ContractStatus.COMPLETED || 
@@ -406,21 +411,35 @@ public class ContractService {
             }
         }
         
-        // Reject all offers for this contract
-        List<Offer> offers = offerRepository.findByContract_ContractId(contractId);
-        for (Offer offer : offers) {
-            if (offer.getOfferStatus() != OfferStatus.REJECTED) {
-                offer.setOfferStatus(OfferStatus.REJECTED);
-                offerRepository.save(offer);
+        try {
+            // Reject all offers for this contract in a single operation
+            List<Offer> offers = offerRepository.findByContract_ContractId(contractId);
+            for (Offer offer : offers) {
+                if (offer.getOfferStatus() != OfferStatus.REJECTED) {
+                    offer.setOfferStatus(OfferStatus.REJECTED);
+                }
             }
+            offerRepository.saveAll(offers);
+            
+            // Update contract status and reason
+            contract.setContractStatus(ContractStatus.CANCELED);
+            contract.setCancelReason(reason);
+            
+            // Save the updated contract
+            Contract savedContract = contractRepository.save(contract);
+            
+            // Flush changes to ensure they're persisted
+            contractRepository.flush();
+            offerRepository.flush();
+            
+            return savedContract;
+        } catch (Exception e) {
+            // Log the error
+            log.error("Error during contract cancellation: {}", e.getMessage());
+            // The transaction will be automatically rolled back
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, 
+                "Error during contract cancellation. All changes have been rolled back.");
         }
-        
-        // Update contract status and reason
-        contract.setContractStatus(ContractStatus.CANCELED);
-        contract.setCancelReason(reason);
-        
-        // Save the updated contract
-        return contractRepository.save(contract);
     }
 
     /**
