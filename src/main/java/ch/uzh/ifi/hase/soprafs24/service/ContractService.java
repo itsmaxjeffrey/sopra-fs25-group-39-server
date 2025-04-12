@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import java.time.temporal.ChronoUnit;
 import ch.uzh.ifi.hase.soprafs24.entity.Offer;
 import ch.uzh.ifi.hase.soprafs24.constant.OfferStatus;
+import java.time.LocalDate;
 
 @Service
 @Transactional
@@ -165,9 +166,12 @@ public class ContractService {
                     return false;
                 }
                 
-                // Filter by move date time
-                if (filters.getMoveDateTime() != null && !contract.getMoveDateTime().equals(filters.getMoveDateTime())) {
-                    return false;
+                // Filter by move date
+                if (filters.getMoveDate() != null) {
+                    LocalDate contractDate = contract.getMoveDateTime().toLocalDate();
+                    if (!contractDate.equals(filters.getMoveDate())) {
+                        return false;
+                    }
                 }
                 
                 // Location-based filtering using Google Maps API
