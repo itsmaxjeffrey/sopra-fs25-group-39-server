@@ -1,4 +1,4 @@
-package ch.uzh.ifi.hase.soprafs24.rest.dto.auth.register;
+package ch.uzh.ifi.hase.soprafs24.user.DTO.update;
 
 import java.time.LocalDate;
 
@@ -14,22 +14,20 @@ import lombok.Setter;
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME, 
     property = "userAccountType",
-    include = As.EXISTING_PROPERTY  // This tells Jackson to also set the property
+    include = As.EXISTING_PROPERTY  // Use the userAccountType property for type info
 )
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = DriverRegisterDTO.class, name = "DRIVER"),
-    @JsonSubTypes.Type(value = RequesterRegisterDTO.class, name = "REQUESTER")
+    @JsonSubTypes.Type(value = DriverUpdateDTO.class, name = "DRIVER"),
+    @JsonSubTypes.Type(value = RequesterUpdateDTO.class, name = "REQUESTER")
 })
-public class BaseUserRegisterDTO {
-    // Common fields for all users
+public class BaseUserUpdateDTO {
+    private Long userId;
     private String username;
-    private String password;
     private String email;
-    private UserAccountType userAccountType;
     private String firstName;
     private String lastName;
     private String phoneNumber;
-    private String userBio;
     private LocalDate birthDate;
     private String profilePicturePath;
+    private UserAccountType userAccountType;
 }

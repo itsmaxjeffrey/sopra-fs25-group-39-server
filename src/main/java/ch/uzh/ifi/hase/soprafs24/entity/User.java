@@ -92,8 +92,7 @@ public class User implements Serializable {
   @Column(nullable=false, unique = true)
   private String phoneNumber;
 
-  @Column(nullable=true)
-  private String userBio;
+
 
   @Column(nullable=true)
   private String token;

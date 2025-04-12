@@ -12,8 +12,11 @@ import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.exceptions.UserNotFoundException;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.security.authorization.AuthorizationService;
-import ch.uzh.ifi.hase.soprafs24.service.CarService;
 import ch.uzh.ifi.hase.soprafs24.service.LocationService;
+import ch.uzh.ifi.hase.soprafs24.service.car.CarService;
+import ch.uzh.ifi.hase.soprafs24.user.DTO.update.BaseUserUpdateDTO;
+import ch.uzh.ifi.hase.soprafs24.user.DTO.update.DriverUpdateDTO;
+import ch.uzh.ifi.hase.soprafs24.user.DTO.update.RequesterUpdateDTO;
 
 @Service
 public class UserService {
@@ -166,10 +169,7 @@ private User updateCommonFields(User existingUser, BaseUserUpdateDTO updates) {
         existingUser.setLastName(updates.getLastName());
     }
     
-    if (updates.getUserBio() != null) {
-        existingUser.setUserBio(updates.getUserBio());
-    }
-    
+
     if (updates.getBirthDate() != null) {
         existingUser.setBirthDate(updates.getBirthDate());
     }

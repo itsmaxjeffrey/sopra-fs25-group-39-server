@@ -7,6 +7,9 @@ import org.mapstruct.factory.Mappers;
 import ch.uzh.ifi.hase.soprafs24.entity.Driver;
 import ch.uzh.ifi.hase.soprafs24.entity.Requester;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.user.DTO.update.BaseUserUpdateDTO;
+import ch.uzh.ifi.hase.soprafs24.user.DTO.update.DriverUpdateDTO;
+import ch.uzh.ifi.hase.soprafs24.user.DTO.update.RequesterUpdateDTO;
 
 
 @Mapper(componentModel = "spring")
@@ -32,7 +35,6 @@ public interface UserUpdateDTOMapper {
     @Mapping(source = "firstName", target = "firstName")
     @Mapping(source = "lastName", target = "lastName")
     @Mapping(source = "phoneNumber", target = "phoneNumber")
-    @Mapping(source = "userBio", target = "userBio")
     @Mapping(source = "birthDate", target = "birthDate")
     @Mapping(source = "profilePicturePath", target = "profilePicturePath")
     @Mapping(source = "userAccountType", target = "userAccountType")
@@ -51,7 +53,6 @@ public interface UserUpdateDTOMapper {
     @Mapping(source = "firstName", target = "firstName")
     @Mapping(source = "lastName", target = "lastName") 
     @Mapping(source = "phoneNumber", target = "phoneNumber")
-    @Mapping(source = "userBio", target = "userBio")
     @Mapping(source = "birthDate", target = "birthDate")
     @Mapping(source = "profilePicturePath", target = "profilePicturePath")
     @Mapping(source = "userAccountType", target = "userAccountType")
@@ -75,7 +76,6 @@ public interface UserUpdateDTOMapper {
     @Mapping(source = "firstName", target = "firstName")
     @Mapping(source = "lastName", target = "lastName")
     @Mapping(source = "phoneNumber", target = "phoneNumber")
-    @Mapping(source = "userBio", target = "userBio")
     @Mapping(source = "birthDate", target = "birthDate")
     @Mapping(source = "profilePicturePath", target = "profilePicturePath")
     @Mapping(source = "userAccountType", target = "userAccountType")

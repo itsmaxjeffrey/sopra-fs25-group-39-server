@@ -16,7 +16,6 @@ public interface PublicUserDTOMapper {
     @Mapping(source = "firstName", target = "firstName")
     @Mapping(source = "lastName", target = "lastName")
     @Mapping(source = "phoneNumber", target = "phoneNumber")
-    @Mapping(source = "userBio", target = "userBio")
     @Mapping(source = "profilePicturePath", target = "profilePicturePath")
     PublicUserDTO convertToPublicUserDTO(User user);
 

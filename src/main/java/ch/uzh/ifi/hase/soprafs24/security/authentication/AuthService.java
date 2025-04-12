@@ -11,9 +11,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.login.BaseUserLoginDTO;
-import ch.uzh.ifi.hase.soprafs24.security.TokenService;
 import ch.uzh.ifi.hase.soprafs24.security.authorization.AuthorizationService;
+import ch.uzh.ifi.hase.soprafs24.security.registration.service.TokenService;
 
 //this file handles login and logout
 @Service

@@ -42,7 +42,6 @@
 //     assertEquals(user.getFirstName(), foundUser.getFirstName());
 //     assertEquals(user.getLastName(), foundUser.getLastName());
 //     assertEquals(user.getPhoneNumber(), foundUser.getPhoneNumber());
-//     assertEquals(user.getUserBio(), foundUser.getUserBio());
 //     assertEquals(user.getProfilePicturePath(), foundUser.getProfilePicturePath());
 //     assertEquals(user.getBirthDate(), foundUser.getBirthDate());
 //     assertEquals(user.getUserAccountType(), foundUser.getUserAccountType());

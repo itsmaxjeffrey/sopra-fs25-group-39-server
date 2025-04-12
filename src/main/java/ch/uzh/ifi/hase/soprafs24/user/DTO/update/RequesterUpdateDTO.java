@@ -1,4 +1,4 @@
-package ch.uzh.ifi.hase.soprafs24.user;
+package ch.uzh.ifi.hase.soprafs24.user.DTO.update;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
 import lombok.Getter;

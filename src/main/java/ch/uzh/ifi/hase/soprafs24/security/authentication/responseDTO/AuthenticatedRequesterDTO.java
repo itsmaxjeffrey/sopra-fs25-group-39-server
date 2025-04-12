@@ -1,4 +1,4 @@
-package ch.uzh.ifi.hase.soprafs24.rest.dto.auth.response;
+package ch.uzh.ifi.hase.soprafs24.security.authentication.responseDTO;
 
 import lombok.Getter;
 import lombok.Setter;

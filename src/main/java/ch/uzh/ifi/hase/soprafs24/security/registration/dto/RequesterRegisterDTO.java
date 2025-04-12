@@ -1,4 +1,4 @@
-package ch.uzh.ifi.hase.soprafs24.rest.dto.auth.register;
+package ch.uzh.ifi.hase.soprafs24.security.registration.dto;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
 

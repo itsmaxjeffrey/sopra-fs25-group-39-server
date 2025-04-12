@@ -1,4 +1,4 @@
-package ch.uzh.ifi.hase.soprafs24.security.registration;
+package ch.uzh.ifi.hase.soprafs24.security.registration.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -8,9 +8,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.register.UserRegistrationRequestDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.response.AuthenticatedUserDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.UserDTOMapper;
+import ch.uzh.ifi.hase.soprafs24.security.authentication.responseDTO.AuthenticatedUserDTO;
+import ch.uzh.ifi.hase.soprafs24.security.registration.dto.UserRegistrationRequestDTO;
+import ch.uzh.ifi.hase.soprafs24.security.registration.service.UserRegistrationService;
 
 @RestController
 @RequestMapping("/api/v1/auth")

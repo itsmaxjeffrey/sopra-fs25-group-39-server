@@ -12,10 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.login.BaseUserLoginDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.response.AuthenticatedUserDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.UserDTOMapper;
-import ch.uzh.ifi.hase.soprafs24.security.registration.UserRegistrationService;
+import ch.uzh.ifi.hase.soprafs24.security.authentication.responseDTO.AuthenticatedUserDTO;
+import ch.uzh.ifi.hase.soprafs24.security.registration.service.UserRegistrationService;
 
 /**
  * Auth Controller

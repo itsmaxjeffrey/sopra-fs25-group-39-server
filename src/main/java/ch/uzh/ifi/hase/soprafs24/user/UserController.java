@@ -14,9 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ch.uzh.ifi.hase.soprafs24.Application;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.response.AuthenticatedUserDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.UserDTOMapper;
+import ch.uzh.ifi.hase.soprafs24.security.authentication.responseDTO.AuthenticatedUserDTO;
 import ch.uzh.ifi.hase.soprafs24.security.authorization.AuthorizationService;
+import ch.uzh.ifi.hase.soprafs24.user.DTO.update.BaseUserUpdateDTO;
 
 
 @RestController

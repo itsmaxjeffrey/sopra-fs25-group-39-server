@@ -24,7 +24,6 @@ public class UserBuilder {
         user.setProfilePicturePath("/images/profile/default.png");
         user.setWalletBalance(100.0);
         user.setPhoneNumber("+41774882183");
-        user.setUserBio("Default bio");
         user.setToken("96a69961-9db6-42e7-b31b-33fd9ddf2a9a");
     }
 
