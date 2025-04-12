@@ -10,7 +10,6 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.response.AuthenticatedDriverDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferPutDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.mapper.UserDTOMapper;
 
 /**
  * OfferDTOMapper
