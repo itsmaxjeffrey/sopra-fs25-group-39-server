@@ -21,8 +21,8 @@ public interface CarDTOMapper {
 
     //what the user sends
     @Mapping(source = "carModel", target = "carModel")
-    @Mapping(source = "space", target = "space")
-    @Mapping(source = "supportedWeight", target = "supportedWeight")
+    @Mapping(source = "volumeCapacity", target = "volumeCapacity")
+    @Mapping(source = "weightCapacity", target = "weightCapacity")
     @Mapping(source = "electric", target = "electric")
     @Mapping(source = "licensePlate", target = "licensePlate")
     @Mapping(source = "carPicturePath", target = "carPicturePath")
@@ -33,8 +33,8 @@ public interface CarDTOMapper {
     // what the user gets
     @Mapping(source = "carId", target = "carId")
     @Mapping(source = "carModel", target = "carModel")
-    @Mapping(source = "space", target = "space")
-    @Mapping(source = "supportedWeight", target = "supportedWeight")
+    @Mapping(source = "volumeCapacity", target = "volumeCapacity")
+    @Mapping(source = "weightCapacity", target = "weightCapacity")
     @Mapping(source = "electric", target = "electric")
     @Mapping(source = "licensePlate", target = "licensePlate")
     @Mapping(source = "carPicturePath", target = "carPicturePath")

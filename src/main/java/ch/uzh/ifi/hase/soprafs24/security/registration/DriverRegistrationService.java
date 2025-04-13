@@ -47,8 +47,8 @@ public class DriverRegistrationService {
             if (carDTO!=null){
                 Car driverCar = new Car();
                 driverCar.setCarModel(carDTO.getCarModel());
-                driverCar.setSpace(carDTO.getSpace());
-                driverCar.setSupportedWeight(carDTO.getSupportedWeight());
+                driverCar.setVolumeCapacity(carDTO.getVolumeCapacity());
+                driverCar.setWeightCapacity(carDTO.getWeightCapacity());
                 driverCar.setElectric(carDTO.isElectric());
                 driverCar.setLicensePlate(carDTO.getLicensePlate());
                 driverCar.setCarPicturePath(carDTO.getCarPicturePath());

@@ -11,8 +11,8 @@ public class DriverRegisterDTO extends BaseUserRegisterDTO {
     private String driverInsurancePath;
     private String carPicturePath;
     private String carModel;
-    private float space;
-    private float supportedWeight;
+    private float volumeCapacity;
+    private float weightCapacity;
     private boolean electric;
     private String licensePlate;
     private float preferredRange; 

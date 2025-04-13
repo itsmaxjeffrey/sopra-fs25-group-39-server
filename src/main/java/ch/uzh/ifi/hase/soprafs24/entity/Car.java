@@ -28,10 +28,10 @@ public class Car implements Serializable {
     private String carModel;
 
     @Column
-    private float space;
+    private float volumeCapacity;
 
     @Column
-    private float supportedWeight;
+    private float weightCapacity;
 
     @Column
     private boolean electric;

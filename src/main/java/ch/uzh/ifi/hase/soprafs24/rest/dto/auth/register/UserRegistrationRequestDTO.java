@@ -1,5 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.rest.dto.auth.register;
 
+import org.springframework.lang.Nullable;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import ch.uzh.ifi.hase.soprafs24.rest.dto.CarDTO;

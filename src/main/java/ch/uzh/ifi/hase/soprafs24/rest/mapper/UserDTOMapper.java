@@ -68,8 +68,8 @@ public class UserDTOMapper {
             CarDTO carDTO = new CarDTO();
             carDTO.setCarId(driver.getCar().getCarId());
             carDTO.setCarModel(driver.getCar().getCarModel());
-            carDTO.setSpace(driver.getCar().getSpace());
-            carDTO.setSupportedWeight(driver.getCar().getSupportedWeight());
+            carDTO.setVolumeCapacity(driver.getCar().getVolumeCapacity());
+            carDTO.setWeightCapacity(driver.getCar().getWeightCapacity());
             carDTO.setElectric(driver.getCar().isElectric());
             carDTO.setLicensePlate(driver.getCar().getLicensePlate());
             carDTO.setCarPicturePath(driver.getCar().getCarPicturePath());
