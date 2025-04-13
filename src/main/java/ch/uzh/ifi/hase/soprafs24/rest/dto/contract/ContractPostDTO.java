@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.rest.dto.contract;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
 
@@ -19,6 +20,7 @@ public class ContractPostDTO {
     private LocationDTO fromLocation;
     private LocationDTO toLocation;
     private LocalDateTime moveDateTime;
+    private List<String> contractPhotos;
 
     // Getters and Setters
     public String getTitle() {
@@ -131,5 +133,13 @@ public class ContractPostDTO {
 
     public void setMoveDateTime(LocalDateTime moveDateTime) {
         this.moveDateTime = moveDateTime;
+    }
+
+    public List<String> getContractPhotos() {
+        return contractPhotos;
+    }
+
+    public void setContractPhotos(List<String> contractPhotos) {
+        this.contractPhotos = contractPhotos;
     }
 }

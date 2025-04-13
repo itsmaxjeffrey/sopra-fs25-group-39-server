@@ -51,7 +51,7 @@
 
 | FE | BE | Mapping | Method | Parameter | Parameter Type | Status Code | Response | Description | User Story |
 |---------|--------|-----------|----------------|-------------|----------|-------------|-----------|-----------|-----------|
-| No ❌ | Yes ✅ | `/api/v1/contracts` | POST | `newContract <Contract>` | Body | 201, 400, 404 | Created contract object | Create a new contract | S5 | 
+| No ❌ | Yes ✅ | `/api/v1/contracts` | POST | `newContract <Contract>` { title, mass, volume, fragile, coolingRequired, rideAlong, manPower, contractDescription, price, collateral, requesterId, fromLocation, toLocation, moveDateTime, contractPhotos } | Body | 201, 400, 404 | Created contract object | Create a new contract | S5 | 
 | Yes ✅ | Yes ✅ | `/api/v1/contracts` | GET | `lat <number>`, `lng <number>`, `filters <object>`{ radius (number), price (number), weight (number), height (number), length (number), width (number), requiredPeople (number), fragile (boolean), coolingRequired (boolean), rideAlong (boolean), fromAddress (string), toAddress (string), moveDateTime (string) } | Query | 200 | List of Contracts | Get available contracts with filtering | S11 |
 | No ❌ | Yes ✅ | `/api/v1/contracts/{id}` | GET | `id <string>` | Path | 200, 404 | Contract details object | Get contract details | S7, S12 |
 | No ❌ | Yes ✅ | `/api/v1/contracts/{id}` | PUT | `id <string>`, `contractToUpdate <Contract>` | Path, Body | 200, 400, 403 | Updated contract object | Update a contract | S6 |
@@ -599,3 +599,73 @@ or
 | 422 | BUSINESS_RULE_VIOLATION | Operation violates business rules (e.g., cancellation policy) |
 | 429 | RATE_LIMIT_EXCEEDED | Too many requests, try again later |
 | 500 | INTERNAL_SERVER_ERROR | Server encountered an error |
+
+#### Create Contract (POST /api/v1/contracts)
+**Request Body:**
+```json
+{
+  "title": "Moving furniture",
+  "mass": 100.0,
+  "volume": 2.0,
+  "fragile": true,
+  "coolingRequired": false,
+  "rideAlong": true,
+  "manPower": 2,
+  "contractDescription": "Moving a sofa and two chairs",
+  "price": 150.0,
+  "collateral": 200.0,
+  "requesterId": 1,
+  "fromLocation": {
+    "formattedAddress": "Zurich, Switzerland",
+    "latitude": 47.3769,
+    "longitude": 8.5417
+  },
+  "toLocation": {
+    "formattedAddress": "Bern, Switzerland",
+    "latitude": 46.9480,
+    "longitude": 7.4474
+  },
+  "moveDateTime": "2025-05-20T10:00:00",
+  "contractPhotos": [
+    "/path/to/photo1.jpg",
+    "/path/to/photo2.jpg"
+  ]
+}
+```
+
+**Response (201 Created):**
+```json
+{
+  "contractId": 8,
+  "title": "Moving furniture",
+  "mass": 100.0,
+  "volume": 2.0,
+  "fragile": true,
+  "coolingRequired": false,
+  "rideAlong": true,
+  "manPower": 2,
+  "contractDescription": "Moving a sofa and two chairs",
+  "price": 150.0,
+  "collateral": 200.0,
+  "requesterId": 1,
+  "fromLocation": {
+    "locationId": 6,
+    "formattedAddress": "Zurich, Switzerland",
+    "latitude": 47.3769,
+    "longitude": 8.5417
+  },
+  "toLocation": {
+    "locationId": 7,
+    "formattedAddress": "Bern, Switzerland",
+    "latitude": 46.9480,
+    "longitude": 7.4474
+  },
+  "moveDateTime": "2025-05-20T10:00:00",
+  "contractStatus": "REQUESTED",
+  "creationDateTime": "2025-04-13T13:15:41.80276",
+  "contractPhotos": [
+    "/path/to/photo1.jpg",
+    "/path/to/photo2.jpg"
+  ]
+}
+```

@@ -2,6 +2,7 @@ package ch.uzh.ifi.hase.soprafs24.controller;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -123,6 +124,11 @@ public class ContractController {
         Contract contractInput = ContractDTOMapper.INSTANCE.convertContractPostDTOtoEntity(contractPostDTO);
         contractInput.setFromAddress(fromLocation);
         contractInput.setToAddress(toLocation);
+
+        // Initialize contract photos if not provided
+        if (contractInput.getContractPhotos() == null) {
+            contractInput.setContractPhotos(new ArrayList<>());
+        }
 
         // Create contract
         Contract createdContract = contractService.createContract(contractInput);
