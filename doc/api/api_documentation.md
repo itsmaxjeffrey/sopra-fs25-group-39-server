@@ -158,11 +158,11 @@ DELETE /api/v1/contracts/123
 | FE | BE | Mapping | Method | Parameter | Parameter Type | Status Code | Response | Description | User Story |
 |---------|--------|-----------|----------------|-------------|----------|-------------|-----------|-----------|-----------|
 | No ❌ | Yes ✅ | `/api/v1/offers` | GET | `contractId` (optional), `driverId` (optional), `status` (optional) | Query | 200 | List of offers | Get all offers with optional filtering | S4, S11 |
-| No ❌ | Yes ✅ | `/api/v1/offers` | POST | `contractId <string>`, `driverId <string>` | Body | 201, 400, 409 | Created offer object | Create a new offer | S12 |
+| No ❌ | Yes ✅ | `/api/v1/offers` | POST | `contractId <string>`, `driverId <string>` | Body | 201, 400, 404, 409 | Created offer object | Create a new offer | S12 |
 | No ❌ | Yes ✅ | `/api/v1/offers/{offerId}` | GET | `offerId <string>` | Path | 200, 404 | Detailed offer object | Get a specific offer | S4, S11 |
 | No ❌ | Yes ✅ | `/api/v1/offers/{offerId}` | DELETE | `offerId <string>` | Path | 204, 403, 404 | None | Delete an offer | S6 |
 | No ❌ | Yes ✅ | `/api/v1/contracts/{contractId}/offers` | GET | `contractId <string>` | Path | 200, 404 | List of offers | Get all offers for a specific contract | S7 |
-| No ❌ | Yes ✅ | `/api/v1/offers/{offerId}/status` | PUT | `offerId <string>`, `status <string>` | Path, Body | 200, 400, 403, 404 | Updated offer with new status | Update offer status | S12 |
+| No ❌ | Yes ✅ | `/api/v1/offers/{offerId}/status` | PUT | `offerId <string>`, `status <string>` | Path, Body | 200, 400, 403, 404, 409 | Updated offer with new status | Update offer status | S12 |
 | No ❌ | Yes ✅ | `/api/v1/users/{driverId}/offers` | GET | `driverId <string>`, `status` (optional) | Path, Query | 200, 404 | List of offers | Get all offers for a specific driver | S4, S11 |
 
 ### Offer Status Values
@@ -171,34 +171,360 @@ DELETE /api/v1/contracts/123
 - REJECTED: Offer has been rejected by requester
 - DELETED: Offer has been deleted
 
-### Query Parameters for GET /api/v1/offers
+### Request/Response Formats
+
+#### Create Offer (POST /api/v1/offers)
+**Request Body:**
+```json
+{
+  "contractId": 123,
+  "driverId": 456
+}
+```
+
+**Response (201 Created):**
+```json
+{
+  "offerId": 789,
+  "contract": {
+    "contractId": 123,
+    "title": "Moving furniture",
+    "price": 100.0,
+    "mass": 50.0,
+    "volume": 2.0,
+    "fragile": true,
+    "coolingRequired": false,
+    "rideAlong": true,
+    "manPower": 2,
+    "contractDescription": "Moving a sofa and two chairs",
+    "moveDateTime": "2024-04-15T10:00:00",
+    "contractStatus": "OFFERED",
+    "creationDateTime": "2024-04-01T15:30:00",
+    "requesterId": 123,
+    "fromLocation": {
+      "address": "Zurich",
+      "latitude": 47.3769,
+      "longitude": 8.5417
+    },
+    "toLocation": {
+      "address": "Bern",
+      "latitude": 46.9480,
+      "longitude": 7.4474
+    }
+  },
+  "driver": {
+    "userId": 456,
+    "username": "driver123",
+    "email": "driver@example.com",
+    "firstName": "John",
+    "lastName": "Doe",
+    "phoneNumber": "+41791234567",
+    "walletBalance": 100.0,
+    "birthDate": "1990-01-01",
+    "userBio": "Professional driver",
+    "profilePicturePath": "/uploads/profile-pictures/driver123.jpg",
+    "driverLicensePath": "/uploads/driver-licenses/driver123.jpg",
+    "driverInsurancePath": "/uploads/driver-insurances/driver123.pdf",
+    "preferredRange": 50.0,
+    "location": {
+      "address": "Zurich",
+      "latitude": 47.3769,
+      "longitude": 8.5417
+    },
+    "carDTO": {
+      "model": "Volkswagen Transporter",
+      "volume": 8.0,
+      "isElectric": true
+    }
+  },
+  "offerStatus": "CREATED",
+  "creationDateTime": "2024-04-05T10:00:00"
+}
+```
+
+#### Get Offer (GET /api/v1/offers/{offerId})
+**Response (200 OK):**
+```json
+{
+  "offerId": 789,
+  "contract": {
+    "contractId": 123,
+    "title": "Moving furniture",
+    "price": 100.0,
+    "mass": 50.0,
+    "volume": 2.0,
+    "fragile": true,
+    "coolingRequired": false,
+    "rideAlong": true,
+    "manPower": 2,
+    "contractDescription": "Moving a sofa and two chairs",
+    "moveDateTime": "2024-04-15T10:00:00",
+    "contractStatus": "OFFERED",
+    "creationDateTime": "2024-04-01T15:30:00",
+    "requesterId": 123,
+    "fromLocation": {
+      "address": "Zurich",
+      "latitude": 47.3769,
+      "longitude": 8.5417
+    },
+    "toLocation": {
+      "address": "Bern",
+      "latitude": 46.9480,
+      "longitude": 7.4474
+    }
+  },
+  "driver": {
+    "userId": 456,
+    "username": "driver123",
+    "email": "driver@example.com",
+    "firstName": "John",
+    "lastName": "Doe",
+    "phoneNumber": "+41791234567",
+    "walletBalance": 100.0,
+    "birthDate": "1990-01-01",
+    "userBio": "Professional driver",
+    "profilePicturePath": "/uploads/profile-pictures/driver123.jpg",
+    "driverLicensePath": "/uploads/driver-licenses/driver123.jpg",
+    "driverInsurancePath": "/uploads/driver-insurances/driver123.pdf",
+    "preferredRange": 50.0,
+    "location": {
+      "address": "Zurich",
+      "latitude": 47.3769,
+      "longitude": 8.5417
+    },
+    "carDTO": {
+      "model": "Volkswagen Transporter",
+      "volume": 8.0,
+      "isElectric": true
+    }
+  },
+  "offerStatus": "CREATED",
+  "creationDateTime": "2024-04-05T10:00:00"
+}
+```
+
+#### Update Offer Status (PUT /api/v1/offers/{offerId}/status)
+**Request Body:**
+```json
+{
+  "status": "ACCEPTED"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "offerId": 789,
+  "contract": {
+    "contractId": 123,
+    "title": "Moving furniture",
+    "price": 100.0,
+    "mass": 50.0,
+    "volume": 2.0,
+    "fragile": true,
+    "coolingRequired": false,
+    "rideAlong": true,
+    "manPower": 2,
+    "contractDescription": "Moving a sofa and two chairs",
+    "moveDateTime": "2024-04-15T10:00:00",
+    "contractStatus": "OFFERED",
+    "creationDateTime": "2024-04-01T15:30:00",
+    "requesterId": 123,
+    "fromLocation": {
+      "address": "Zurich",
+      "latitude": 47.3769,
+      "longitude": 8.5417
+    },
+    "toLocation": {
+      "address": "Bern",
+      "latitude": 46.9480,
+      "longitude": 7.4474
+    }
+  },
+  "driver": {
+    "userId": 456,
+    "username": "driver123",
+    "email": "driver@example.com",
+    "firstName": "John",
+    "lastName": "Doe",
+    "phoneNumber": "+41791234567",
+    "walletBalance": 100.0,
+    "birthDate": "1990-01-01",
+    "userBio": "Professional driver",
+    "profilePicturePath": "/uploads/profile-pictures/driver123.jpg",
+    "driverLicensePath": "/uploads/driver-licenses/driver123.jpg",
+    "driverInsurancePath": "/uploads/driver-insurances/driver123.pdf",
+    "preferredRange": 50.0,
+    "location": {
+      "address": "Zurich",
+      "latitude": 47.3769,
+      "longitude": 8.5417
+    },
+    "carDTO": {
+      "model": "Volkswagen Transporter",
+      "volume": 8.0,
+      "isElectric": true
+    }
+  },
+  "offerStatus": "ACCEPTED",
+  "creationDateTime": "2024-04-05T10:00:00"
+}
+```
+
+#### Get Offers with Filtering (GET /api/v1/offers)
+**Query Parameters:**
 - `contractId`: Filter by contract ID
 - `driverId`: Filter by driver ID
 - `status`: Filter by offer status (CREATED, ACCEPTED, REJECTED, DELETED)
 
-### Response Format
+**Response (200 OK):**
+```json
+[
+  {
+    "offerId": 789,
+    "contract": {
+      "contractId": 123,
+      "title": "Moving furniture",
+      "price": 100.0,
+      "mass": 50.0,
+      "volume": 2.0,
+      "fragile": true,
+      "coolingRequired": false,
+      "rideAlong": true,
+      "manPower": 2,
+      "contractDescription": "Moving a sofa and two chairs",
+      "moveDateTime": "2024-04-15T10:00:00",
+      "contractStatus": "OFFERED",
+      "creationDateTime": "2024-04-01T15:30:00",
+      "requesterId": 123,
+      "fromLocation": {
+        "address": "Zurich",
+        "latitude": 47.3769,
+        "longitude": 8.5417
+      },
+      "toLocation": {
+        "address": "Bern",
+        "latitude": 46.9480,
+        "longitude": 7.4474
+      }
+    },
+    "driver": {
+      "userId": 456,
+      "username": "driver123",
+      "email": "driver@example.com",
+      "firstName": "John",
+      "lastName": "Doe",
+      "phoneNumber": "+41791234567",
+      "walletBalance": 100.0,
+      "birthDate": "1990-01-01",
+      "userBio": "Professional driver",
+      "profilePicturePath": "/uploads/profile-pictures/driver123.jpg",
+      "driverLicensePath": "/uploads/driver-licenses/driver123.jpg",
+      "driverInsurancePath": "/uploads/driver-insurances/driver123.pdf",
+      "preferredRange": 50.0,
+      "location": {
+        "address": "Zurich",
+        "latitude": 47.3769,
+        "longitude": 8.5417
+      },
+      "carDTO": {
+        "model": "Volkswagen Transporter",
+        "volume": 8.0,
+        "isElectric": true
+      }
+    },
+    "offerStatus": "CREATED",
+    "creationDateTime": "2024-04-05T10:00:00"
+  },
+  // ... more offers
+]
+```
+
+### Error Responses
+
+**400 Bad Request:**
 ```json
 {
-  "status": "success",
-  "data": {
-    "offers": [
-      {
-        "offerId": 123,
-        "contract": {
-          "contractId": 456,
-          // contract details
-        },
-        "driver": {
-          "driverId": 789,
-          // driver details
-        },
-        "offerStatus": "CREATED",
-        "creationDateTime": "2024-04-05T10:00:00Z"
-      }
-    ]
-  }
+  "message": "Status is required"
 }
 ```
+
+**403 Forbidden:**
+```json
+{
+  "message": "Cannot delete an accepted offer"
+}
+```
+or
+```json
+{
+  "message": "Cannot delete a rejected offer"
+}
+```
+or
+```json
+{
+  "message": "Cannot delete an offer for an accepted contract"
+}
+```
+
+**404 Not Found:**
+```json
+{
+  "message": "Offer not found"
+}
+```
+or
+```json
+{
+  "message": "Contract not found"
+}
+```
+or
+```json
+{
+  "message": "User not found"
+}
+```
+
+**409 Conflict:**
+```json
+{
+  "message": "Offer already exists for this contract and driver"
+}
+```
+or
+```json
+{
+  "message": "Cannot update a deleted offer"
+}
+```
+or
+```json
+{
+  "message": "Cannot change status of an accepted offer"
+}
+```
+or
+```json
+{
+  "message": "Cannot change status of a rejected offer"
+}
+```
+
+### Notes
+- All timestamps are in ISO 8601 format (YYYY-MM-DDTHH:MM:SS)
+- Status transitions are strictly validated:
+  - Cannot update a deleted offer
+  - Cannot change status of an accepted offer
+  - Cannot change status of a rejected offer
+  - Cannot delete an offer for an accepted contract
+- Contract status is automatically updated:
+  - Changes to OFFERED when first offer is created
+  - Reverts to REQUESTED when last offer is deleted
+  - Changes to ACCEPTED when an offer is accepted
+- When an offer is accepted, all other offers for the same contract are automatically rejected
+- Offer deletion is only allowed for offers in CREATED status
 
 ## Ratings and Feedback
 

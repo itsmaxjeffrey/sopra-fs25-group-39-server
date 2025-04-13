@@ -1,6 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.rest.dto.contract;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -19,5 +19,5 @@ public class ContractFilterDTO {
     private Boolean rideAlong;
     private String fromAddress;
     private String toAddress;
-    private LocalDateTime moveDateTime;
+    private LocalDate moveDate;
 } 
