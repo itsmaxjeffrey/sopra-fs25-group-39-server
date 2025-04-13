@@ -123,9 +123,9 @@ public class OfferService {
         Driver driver = (Driver) user;
 
         // Check if offer already exists for this contract and driver
-        if (offerRepository.findByContract_ContractIdAndDriver_UserId(
-                offerPostDTO.getContractId(), offerPostDTO.getDriverId()).size() > 0) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Offer already exists for this contract and driver");
+        List<Offer> existingOffers = offerRepository.findByContract_ContractIdAndDriver_UserId(offerPostDTO.getContractId(), offerPostDTO.getDriverId());
+        if (!existingOffers.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "An offer already exists for this contract and driver");
         }
 
         // Create new offer
