@@ -1,18 +1,12 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
-import ch.uzh.ifi.hase.soprafs24.entity.Contract;
-import ch.uzh.ifi.hase.soprafs24.entity.Requester;
-import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
-import ch.uzh.ifi.hase.soprafs24.service.ContractService;
-import ch.uzh.ifi.hase.soprafs24.service.LocationService;
-import ch.uzh.ifi.hase.soprafs24.service.ContractPollingService;
-import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractCancelDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractPutDTO;
+import java.util.Collections;
+import java.util.List;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import org.junit.jupiter.api.Test;
+import static org.mockito.BDDMockito.given;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -20,17 +14,26 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.Collections;
-import java.util.List;
-
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import org.springframework.web.server.ResponseStatusException;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import ch.uzh.ifi.hase.soprafs24.common.constant.ContractStatus;
+import ch.uzh.ifi.hase.soprafs24.contract.controller.ContractController;
+import ch.uzh.ifi.hase.soprafs24.contract.dto.request.ContractCancelDTO;
+import ch.uzh.ifi.hase.soprafs24.contract.dto.request.ContractPutDTO;
+import ch.uzh.ifi.hase.soprafs24.contract.model.Contract;
+import ch.uzh.ifi.hase.soprafs24.contract.service.ContractPollingService;
+import ch.uzh.ifi.hase.soprafs24.contract.service.ContractService;
+import ch.uzh.ifi.hase.soprafs24.location.service.LocationService;
+import ch.uzh.ifi.hase.soprafs24.user.model.Requester;
+import ch.uzh.ifi.hase.soprafs24.user.repository.UserRepository;
 
 /**
  * ContractControllerTest

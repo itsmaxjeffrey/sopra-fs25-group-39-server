@@ -9,10 +9,10 @@ import ch.uzh.ifi.hase.soprafs24.car.service.CarService;
 import ch.uzh.ifi.hase.soprafs24.location.dto.LocationDTO;
 import ch.uzh.ifi.hase.soprafs24.location.model.Location;
 import ch.uzh.ifi.hase.soprafs24.location.service.LocationService;
-import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.security.registration.dto.DriverRegisterDTO;
 import ch.uzh.ifi.hase.soprafs24.storage.service.FileStorageService;
 import ch.uzh.ifi.hase.soprafs24.user.model.Driver;
+import ch.uzh.ifi.hase.soprafs24.user.repository.UserRepository;
 
 
 @Service

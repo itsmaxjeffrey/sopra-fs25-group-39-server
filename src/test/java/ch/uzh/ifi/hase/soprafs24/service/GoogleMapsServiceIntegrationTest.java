@@ -13,7 +13,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
-import ch.uzh.ifi.hase.soprafs24.config.GoogleMapsConfig;
+import ch.uzh.ifi.hase.soprafs24.common.config.GoogleMapsConfig;
+import ch.uzh.ifi.hase.soprafs24.common.service.GoogleMapsService;
 
 @SpringBootTest(classes = {
     GoogleMapsService.class,  // Only include the service you're testing

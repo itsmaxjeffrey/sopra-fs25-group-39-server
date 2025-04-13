@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -11,12 +12,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.Application;
 import ch.uzh.ifi.hase.soprafs24.security.authentication.dto.response.AuthenticatedUserDTO;
 import ch.uzh.ifi.hase.soprafs24.security.authorization.service.AuthorizationService;
-import ch.uzh.ifi.hase.soprafs24.user.DTO.request.update.BaseUserUpdateDTO;
-import ch.uzh.ifi.hase.soprafs24.user.DTO.response.PublicUserDTO;
+import ch.uzh.ifi.hase.soprafs24.user.dto.request.update.BaseUserUpdateDTO;
+import ch.uzh.ifi.hase.soprafs24.user.dto.response.PublicUserDTO;
 import ch.uzh.ifi.hase.soprafs24.user.mapper.PublicUserDTOMapper;
 import ch.uzh.ifi.hase.soprafs24.user.mapper.UserDTOMapper;
 import ch.uzh.ifi.hase.soprafs24.user.model.User;
@@ -56,15 +58,15 @@ public class UserController {
            try{ 
 
                 //if a user is not logged in, they cannot see anything    
-                User requestedUser = userService.getUser(userId, token);
+                User targetUser = userService.getUserById(userId, token, paramUserId);
 
                 // check if the user is viewing their own profile
-                if (requestedUser.getUserId().equals(paramUserId)) {
+                if (userId.equals(paramUserId)) {
 
-                    AuthenticatedUserDTO fullUserDTO = UserDTOMapper.INSTANCE.convertToDTO(requestedUser);
+                    AuthenticatedUserDTO fullUserDTO = UserDTOMapper.INSTANCE.convertToDTO(targetUser);
                     return ResponseEntity.ok(fullUserDTO);
                 } else {
-                    PublicUserDTO publicUserDTO = publicUserDTOMapper.convertToPublicUserDTO(requestedUser);
+                    PublicUserDTO publicUserDTO = publicUserDTOMapper.convertToPublicUserDTO(targetUser);
                     return ResponseEntity.ok(publicUserDTO);
                 }
             }catch (Exception e) {
@@ -88,10 +90,33 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("status", "error", "message", e.getMessage()));
             }
-}
+    }
             
 
-    
+    /**
+     * Delete a user account
+     * Only the user themselves can delete their account
+     * 
+     * @param userId ID of the user to delete
+     * @param token Authentication token
+     * @return ResponseEntity with status code
+     */
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<?> deleteUser(
+        @PathVariable Long userId,
+        @RequestHeader("Authorization") String token) {
+        
+        try {
+            userService.deleteUser(userId, token);
+            return ResponseEntity.noContent().build();
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getRawStatusCode())
+                .body(Map.of("status", "error", "message", e.getReason()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("status", "error", "message", e.getMessage()));
+        }
+    }
     
     
 }

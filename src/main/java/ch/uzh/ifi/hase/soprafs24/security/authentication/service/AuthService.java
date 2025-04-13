@@ -9,11 +9,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.security.authentication.dto.request.BaseUserLoginDTO;
 import ch.uzh.ifi.hase.soprafs24.security.authorization.service.AuthorizationService;
 import ch.uzh.ifi.hase.soprafs24.security.registration.service.TokenService;
 import ch.uzh.ifi.hase.soprafs24.user.model.User;
+import ch.uzh.ifi.hase.soprafs24.user.repository.UserRepository;
 
 //this file handles login and logout
 @Service

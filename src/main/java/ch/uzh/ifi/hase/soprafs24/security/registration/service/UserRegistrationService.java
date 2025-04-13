@@ -12,11 +12,11 @@ import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.car.dto.CarDTO;
 import ch.uzh.ifi.hase.soprafs24.location.dto.LocationDTO;
-import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.security.registration.dto.BaseUserRegisterDTO;
 import ch.uzh.ifi.hase.soprafs24.security.registration.dto.DriverRegisterDTO;
 import ch.uzh.ifi.hase.soprafs24.security.registration.dto.RequesterRegisterDTO;
 import ch.uzh.ifi.hase.soprafs24.user.model.User;
+import ch.uzh.ifi.hase.soprafs24.user.repository.UserRepository;
 @Service
 public class UserRegistrationService {
     

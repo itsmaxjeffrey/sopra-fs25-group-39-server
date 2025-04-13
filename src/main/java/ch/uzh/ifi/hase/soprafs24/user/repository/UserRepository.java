@@ -1,4 +1,4 @@
-package ch.uzh.ifi.hase.soprafs24.repository;
+package ch.uzh.ifi.hase.soprafs24.user.repository;
 
 import java.util.Optional;
 

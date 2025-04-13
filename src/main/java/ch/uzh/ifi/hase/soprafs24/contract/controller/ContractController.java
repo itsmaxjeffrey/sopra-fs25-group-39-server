@@ -33,9 +33,9 @@ import ch.uzh.ifi.hase.soprafs24.contract.service.ContractService;
 import ch.uzh.ifi.hase.soprafs24.location.mapper.LocationDTOMapper;
 import ch.uzh.ifi.hase.soprafs24.location.model.Location;
 import ch.uzh.ifi.hase.soprafs24.location.service.LocationService;
-import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.user.model.Requester;
 import ch.uzh.ifi.hase.soprafs24.user.model.User;
+import ch.uzh.ifi.hase.soprafs24.user.repository.UserRepository;
 
 @RestController
 public class ContractController {

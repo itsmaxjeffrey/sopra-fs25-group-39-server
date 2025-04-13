@@ -1,4 +1,4 @@
-package ch.uzh.ifi.hase.soprafs24.user.DTO.request.update;
+package ch.uzh.ifi.hase.soprafs24.user.dto.request.update;
 
 import java.time.LocalDate;
 

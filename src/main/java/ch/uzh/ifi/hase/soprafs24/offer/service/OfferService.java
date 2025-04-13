@@ -22,9 +22,9 @@ import ch.uzh.ifi.hase.soprafs24.offer.dto.response.OfferGetDTO;
 import ch.uzh.ifi.hase.soprafs24.offer.mapper.OfferDTOMapper;
 import ch.uzh.ifi.hase.soprafs24.offer.model.Offer;
 import ch.uzh.ifi.hase.soprafs24.offer.repository.OfferRepository;
-import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.user.model.Driver;
 import ch.uzh.ifi.hase.soprafs24.user.model.User;
+import ch.uzh.ifi.hase.soprafs24.user.repository.UserRepository;
 
 /**
  * Offer Service

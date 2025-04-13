@@ -5,66 +5,106 @@
 │           └── ifi/
 │               └── hase/
 │                   └── soprafs24/
-│                       ├── config/
-│                       │   └── GoogleMapsConfig.java
-│                       ├── constant/
-│                       │   ├── ContractStatus.java
-│                       │   ├── OfferStatus.java
-│                       │   └── UserAccountType.java
-│                       ├── controller/
-│                       │   ├── ContractController.java
-│                       │   ├── FileStorageController.java
-│                       │   └── OfferController.java
-│                       ├── entity/
-│                       │   ├── Car.java
-│                       │   ├── Contract.java
-│                       │   ├── Driver.java
-│                       │   ├── Location.java
-│                       │   ├── Offer.java
-│                       │   ├── Rating.java
-│                       │   ├── Requester.java
-│                       │   └── User.java
-│                       ├── exceptions/
-│                       │   ├── GlobalExceptionAdvice.java
-│                       │   └── UserNotFoundException.java
-│                       ├── repository/
-│                       │   ├── CarRepository.java
-│                       │   ├── ContractRepository.java
-│                       │   ├── LocationRepository.java
-│                       │   ├── OfferRepository.java
-│                       │   └── UserRepository.java
-│                       ├── rest/
+│                       ├── car/
 │                       │   ├── dto/
-│                       │   │   ├── contract/
+│                       │   │   └── CarDTO.java
+│                       │   ├── mapper/
+│                       │   │   └── CarDTOMapper.java
+│                       │   ├── model/
+│                       │   │   └── Car.java
+│                       │   ├── repository/
+│                       │   │   └── CarRepository.java
+│                       │   └── service/
+│                       │       ├── CarCreator.java
+│                       │       ├── CarService.java
+│                       │       ├── CarUpdater.java
+│                       │       └── CarValidator.java
+│                       ├── common/
+│                       │   ├── config/
+│                       │   │   └── GoogleMapsConfig.java
+│                       │   ├── constant/
+│                       │   │   ├── ContractStatus.java
+│                       │   │   ├── OfferStatus.java
+│                       │   │   └── UserAccountType.java
+│                       │   ├── exception/
+│                       │   │   ├── GlobalExceptionAdvice.java
+│                       │   │   └── UserNotFoundException.java
+│                       │   └── service/
+│                       │       └── GoogleMapsService.java
+│                       ├── contract/
+│                       │   ├── controller/
+│                       │   │   └── ContractController.java
+│                       │   ├── dto/
+│                       │   │   ├── request/
 │                       │   │   │   ├── ContractCancelDTO.java
 │                       │   │   │   ├── ContractFilterDTO.java
-│                       │   │   │   ├── ContractGetDTO.java
 │                       │   │   │   ├── ContractPostDTO.java
 │                       │   │   │   └── ContractPutDTO.java
-│                       │   │   ├── offer/
-│                       │   │   │   ├── OfferGetDTO.java
+│                       │   │   └── response/
+│                       │   │       └── ContractGetDTO.java
+│                       │   ├── mapper/
+│                       │   │   └── ContractDTOMapper.java
+│                       │   ├── model/
+│                       │   │   └── Contract.java
+│                       │   ├── repository/
+│                       │   │   └── ContractRepository.java
+│                       │   └── service/
+│                       │       ├── ContractPollingService.java
+│                       │       └── ContractService.java
+│                       ├── location/
+│                       │   ├── dto/
+│                       │   │   └── LocationDTO.java
+│                       │   ├── mapper/
+│                       │   │   └── LocationDTOMapper.java
+│                       │   ├── model/
+│                       │   │   └── Location.java
+│                       │   ├── repository/
+│                       │   │   └── LocationRepository.java
+│                       │   └── service/
+│                       │       ├── LocationCreator.java
+│                       │       ├── LocationService.java
+│                       │       ├── LocationUpdater.java
+│                       │       └── LocationValidator.java
+│                       ├── offer/
+│                       │   ├── controller/
+│                       │   │   └── OfferController.java
+│                       │   ├── dto/
+│                       │   │   ├── request/
 │                       │   │   │   ├── OfferPostDTO.java
 │                       │   │   │   └── OfferPutDTO.java
-│                       │   │   ├── CarDTO.java
-│                       │   │   ├── LocationDTO.java
+│                       │   │   └── response/
+│                       │   │       └── OfferGetDTO.java
+│                       │   ├── mapper/
+│                       │   │   └── OfferDTOMapper.java
+│                       │   ├── model/
+│                       │   │   └── Offer.java
+│                       │   ├── repository/
+│                       │   │   └── OfferRepository.java
+│                       │   └── service/
+│                       │       └── OfferService.java
+│                       ├── rating/
+│                       │   ├── dto/
 │                       │   │   └── RatingDTO.java
-│                       │   └── mapper/
-│                       │       ├── CarDTOMapper.java
-│                       │       ├── ContractDTOMapper.java
-│                       │       ├── LocationDTOMapper.java
-│                       │       ├── OfferDTOMapper.java
-│                       │       └── UserDTOMapper.java
+│                       │   └── model/
+│                       │       └── Rating.java
+│                       ├── repository/
+│                       │   └── UserRepository.java
 │                       ├── security/
 │                       │   ├── authentication/
-│                       │   │   ├── responseDTO/
-│                       │   │   │   ├── AuthenticatedDriverDTO.java
-│                       │   │   │   ├── AuthenticatedRequesterDTO.java
-│                       │   │   │   └── AuthenticatedUserDTO.java
-│                       │   │   ├── AuthController.java
-│                       │   │   ├── AuthService.java
-│                       │   │   └── BaseUserLoginDTO.java
+│                       │   │   ├── controller/
+│                       │   │   │   └── AuthController.java
+│                       │   │   ├── dto/
+│                       │   │   │   ├── request/
+│                       │   │   │   │   └── BaseUserLoginDTO.java
+│                       │   │   │   └── response/
+│                       │   │   │       ├── AuthenticatedDriverDTO.java
+│                       │   │   │       ├── AuthenticatedRequesterDTO.java
+│                       │   │   │       └── AuthenticatedUserDTO.java
+│                       │   │   └── service/
+│                       │   │       └── AuthService.java
 │                       │   ├── authorization/
-│                       │   │   └── AuthorizationService.java
+│                       │   │   └── service/
+│                       │   │       └── AuthorizationService.java
 │                       │   ├── registration/
 │                       │   │   ├── controller/
 │                       │   │   │   └── RegistrationController.java
@@ -79,35 +119,32 @@
 │                       │   │       ├── TokenService.java
 │                       │   │       └── UserRegistrationService.java
 │                       │   └── .DS_Store
-│                       ├── service/
-│                       │   ├── car/
-│                       │   │   ├── CarCreator.java
-│                       │   │   ├── CarService.java
-│                       │   │   ├── CarUpdater.java
-│                       │   │   └── CarValidator.java
-│                       │   ├── location/
-│                       │   │   ├── LocationCreator.java
-│                       │   │   ├── LocationService.java
-│                       │   │   ├── LocationUpdater.java
-│                       │   │   └── LocationValidator.java
-│                       │   ├── user/
-│                       │   │   └── UserUpdater.java
-│                       │   ├── ContractPollingService.java
-│                       │   ├── ContractService.java
-│                       │   ├── FileStorageService.java
-│                       │   ├── GoogleMapsService.java
-│                       │   └── OfferService.java
+│                       ├── storage/
+│                       │   ├── controller/
+│                       │   │   └── FileStorageController.java
+│                       │   └── service/
+│                       │       └── FileStorageService.java
 │                       ├── user/
 │                       │   ├── DTO/
-│                       │   │   └── update/
-│                       │   │       ├── BaseUserUpdateDTO.java
-│                       │   │       ├── DriverUpdateDTO.java
-│                       │   │       └── RequesterUpdateDTO.java
-│                       │   ├── PublicUserDTO.java
-│                       │   ├── PublicUserDTOMapper.java
-│                       │   ├── UserController.java
-│                       │   ├── UserService.java
-│                       │   └── UserUpdateDTOMapper.java
+│                       │   │   ├── request/
+│                       │   │   │   └── update/
+│                       │   │   │       ├── BaseUserUpdateDTO.java
+│                       │   │   │       ├── DriverUpdateDTO.java
+│                       │   │   │       └── RequesterUpdateDTO.java
+│                       │   │   └── response/
+│                       │   │       └── PublicUserDTO.java
+│                       │   ├── controller/
+│                       │   │   └── UserController.java
+│                       │   ├── mapper/
+│                       │   │   ├── PublicUserDTOMapper.java
+│                       │   │   ├── UserDTOMapper.java
+│                       │   │   └── UserUpdateDTOMapper.java
+│                       │   ├── model/
+│                       │   │   ├── Driver.java
+│                       │   │   ├── Requester.java
+│                       │   │   └── User.java
+│                       │   └── service/
+│                       │       └── UserService.java
 │                       ├── .DS_Store
 │                       └── Application.java
 ├── resources/
@@ -115,9 +152,9 @@
 ├── dir.txt
 └── pr.sh
 
-34 directories, 82 files
+72 directories, 81 files
 
 Statistics:
-Total files: 82
-Total directories: 34
-Last updated: Sun Apr 13 01:25:22 CEST 2025
+Total files: 81
+Total directories: 72
+Last updated: Sun Apr 13 02:00:09 CEST 2025

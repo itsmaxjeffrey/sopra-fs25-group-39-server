@@ -20,8 +20,8 @@ import ch.uzh.ifi.hase.soprafs24.common.service.GoogleMapsService;
 import ch.uzh.ifi.hase.soprafs24.contract.dto.request.ContractFilterDTO;
 import ch.uzh.ifi.hase.soprafs24.contract.model.Contract;
 import ch.uzh.ifi.hase.soprafs24.contract.repository.ContractRepository;
-import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.user.model.Requester;
+import ch.uzh.ifi.hase.soprafs24.user.repository.UserRepository;
 
 @Service
 @Transactional

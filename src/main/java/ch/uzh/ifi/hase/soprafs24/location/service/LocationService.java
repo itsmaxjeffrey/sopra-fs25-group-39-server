@@ -17,15 +17,18 @@ import ch.uzh.ifi.hase.soprafs24.location.repository.LocationRepository;
 public class LocationService {
     private final LocationRepository locationRepository;
     private final LocationCreator locationCreator;
+    private final LocationUpdater locationUpdater;
 
 
     private final Logger log = LoggerFactory.getLogger(LocationService.class);
 
     public LocationService(
         LocationCreator locationCreator, 
-        LocationRepository locationRepository) {
+        LocationRepository locationRepository,
+        LocationUpdater locationUpdater) {
             this.locationCreator = locationCreator;
             this.locationRepository = locationRepository;
+            this.locationUpdater = locationUpdater;
     }
 
     public Location createLocation(Location location) {
@@ -41,6 +44,21 @@ public class LocationService {
         return locationCreator.createLocationFromDTO(locationDTO);
     }
     
+    /**
+ * Updates an existing location or creates a new one
+ */
+public Location updateLocationFromDTO(Location existingLocation, LocationDTO locationDTO) {
+    // If location doesn't exist, create a new one
+    if (existingLocation == null) {
+        return createLocationFromDTO(locationDTO);
+    }
+    
+    // Update and save the location
+    Location updatedLocation = locationUpdater.updateAndSaveLocation(existingLocation, locationDTO);
+    
+    log.debug("Updated Location: {}", updatedLocation);
+    return updatedLocation;
+}
 
 
     public Location getLocationById(Long locationId){

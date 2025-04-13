@@ -3,8 +3,8 @@ package ch.uzh.ifi.hase.soprafs24.security.authorization.service;
 import org.springframework.stereotype.Service;
 
 import ch.uzh.ifi.hase.soprafs24.common.constant.UserAccountType;
-import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.user.model.User;
+import ch.uzh.ifi.hase.soprafs24.user.repository.UserRepository;
 
 @Service
 public class AuthorizationService {

@@ -11,12 +11,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
 
-import ch.uzh.ifi.hase.soprafs24.entity.Contract;
-import ch.uzh.ifi.hase.soprafs24.service.ContractPollingService;
-import ch.uzh.ifi.hase.soprafs24.service.ContractService;
-import ch.uzh.ifi.hase.soprafs24.repository.ContractRepository;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractFilterDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractGetDTO;
+import ch.uzh.ifi.hase.soprafs24.contract.dto.request.ContractFilterDTO;
+import ch.uzh.ifi.hase.soprafs24.contract.dto.response.ContractGetDTO;
+import ch.uzh.ifi.hase.soprafs24.contract.model.Contract;
+import ch.uzh.ifi.hase.soprafs24.contract.repository.ContractRepository;
+import ch.uzh.ifi.hase.soprafs24.contract.service.ContractPollingService;
+import ch.uzh.ifi.hase.soprafs24.contract.service.ContractService;
 
 class ContractPollingServiceTest {
 

@@ -4,9 +4,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-import ch.uzh.ifi.hase.soprafs24.user.DTO.request.update.BaseUserUpdateDTO;
-import ch.uzh.ifi.hase.soprafs24.user.DTO.request.update.DriverUpdateDTO;
-import ch.uzh.ifi.hase.soprafs24.user.DTO.request.update.RequesterUpdateDTO;
+import ch.uzh.ifi.hase.soprafs24.user.dto.request.update.BaseUserUpdateDTO;
+import ch.uzh.ifi.hase.soprafs24.user.dto.request.update.DriverUpdateDTO;
+import ch.uzh.ifi.hase.soprafs24.user.dto.request.update.RequesterUpdateDTO;
 import ch.uzh.ifi.hase.soprafs24.user.model.Driver;
 import ch.uzh.ifi.hase.soprafs24.user.model.Requester;
 import ch.uzh.ifi.hase.soprafs24.user.model.User;

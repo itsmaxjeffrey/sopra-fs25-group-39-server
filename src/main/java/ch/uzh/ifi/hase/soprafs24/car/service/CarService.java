@@ -10,7 +10,7 @@ import org.springframework.web.server.ResponseStatusException;
 import ch.uzh.ifi.hase.soprafs24.car.dto.CarDTO;
 import ch.uzh.ifi.hase.soprafs24.car.model.Car;
 import ch.uzh.ifi.hase.soprafs24.car.repository.CarRepository;
-import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
+import ch.uzh.ifi.hase.soprafs24.user.repository.UserRepository;
 
 @Service
 @Transactional
