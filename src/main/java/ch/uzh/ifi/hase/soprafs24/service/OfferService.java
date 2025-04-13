@@ -41,7 +41,7 @@ public class OfferService {
     private final OfferRepository offerRepository;
     private final ContractRepository contractRepository;
     private final UserRepository userRepository;
-    private final OfferDTOMapper offerDTOMapper = OfferDTOMapper.INSTANCE;
+    private OfferDTOMapper offerDTOMapper;
 
     @Autowired
     public OfferService(
@@ -51,6 +51,8 @@ public class OfferService {
         this.offerRepository = offerRepository;
         this.contractRepository = contractRepository;
         this.userRepository = userRepository;
+        this.offerDTOMapper = OfferDTOMapper.INSTANCE;
+
     }
 
     /**

@@ -1,33 +1,47 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
+import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.MockitoAnnotations;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.server.ResponseStatusException;
+
+import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
+import ch.uzh.ifi.hase.soprafs24.constant.OfferStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Contract;
 import ch.uzh.ifi.hase.soprafs24.entity.Driver;
 import ch.uzh.ifi.hase.soprafs24.entity.Offer;
 import ch.uzh.ifi.hase.soprafs24.entity.Requester;
-import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
-import ch.uzh.ifi.hase.soprafs24.constant.OfferStatus;
 import ch.uzh.ifi.hase.soprafs24.repository.ContractRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.OfferRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferPostDTO;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import ch.uzh.ifi.hase.soprafs24.rest.mapper.ContractDTOMapper;
+import ch.uzh.ifi.hase.soprafs24.rest.mapper.OfferDTOMapper;
+import ch.uzh.ifi.hase.soprafs24.rest.mapper.OfferDTOMapperImpl;
 
 public class OfferServiceTest {
+    @Mock
+    private ContractDTOMapper contractDTOMapper;
 
+    @Mock
+    private OfferDTOMapper offerDTOMapper;
+    
     @Mock
     private OfferRepository offerRepository;
 
@@ -44,32 +58,57 @@ public class OfferServiceTest {
     private Driver testDriver;
     private Offer testOffer;
     private OfferPostDTO testOfferPostDTO;
-
+    private OfferGetDTO testOfferGetDTO;
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
-
+        
         // Create test contract
         testContract = new Contract();
         testContract.setContractId(1L);
         testContract.setContractStatus(ContractStatus.REQUESTED);
-
+        
         // Create test driver
         testDriver = new Driver();
         testDriver.setUserId(1L);
         testDriver.setUsername("testdriver");
-
+        
         // Create test offer
         testOffer = new Offer();
         testOffer.setOfferId(1L);
         testOffer.setContract(testContract);
         testOffer.setDriver(testDriver);
         testOffer.setOfferStatus(OfferStatus.CREATED);
-
+        
         // Create test DTO
         testOfferPostDTO = new OfferPostDTO();
         testOfferPostDTO.setContractId(1L);
         testOfferPostDTO.setDriverId(1L);
+        
+        // Create test offer get DTO for mapper mock responses
+        testOfferGetDTO = new OfferGetDTO();
+        testOfferGetDTO.setOfferId(1L);
+        testOfferGetDTO.setOfferStatus(OfferStatus.CREATED);
+        
+        // IMPORTANT: Instead of mocking, use the real mapper but set its contractDTOMapper field
+        // This is the key fix
+        OfferDTOMapperImpl offerMapper = new OfferDTOMapperImpl();
+        
+        // Use reflection to set the contractDTOMapper field
+        try {
+            Field contractDTOMapperField = OfferDTOMapperImpl.class.getDeclaredField("contractDTOMapper");
+            contractDTOMapperField.setAccessible(true);
+            contractDTOMapperField.set(offerMapper, contractDTOMapper);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to set contractDTOMapper field", e);
+        }
+        
+        // Set this as our offerDTOMapper in the service
+        ReflectionTestUtils.setField(offerService, "offerDTOMapper", offerMapper);
+        
+        // Configure the contractDTOMapper mock
+        when(contractDTOMapper.convertContractEntityToContractGetDTO(any(Contract.class)))
+            .thenReturn(null); // or return a properly constructed ContractGetDTO if needed
     }
 
     @Test

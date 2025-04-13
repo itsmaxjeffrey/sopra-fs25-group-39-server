@@ -6,10 +6,11 @@ import org.mapstruct.factory.Mappers;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Driver;
 import ch.uzh.ifi.hase.soprafs24.entity.Offer;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.response.AuthenticatedDriverDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferPutDTO;
+import ch.uzh.ifi.hase.soprafs24.security.authentication.dto.response.AuthenticatedDriverDTO;
+import ch.uzh.ifi.hase.soprafs24.user.mapper.UserDTOMapperImpl;
 
 /**
  * OfferDTOMapper
@@ -51,6 +52,6 @@ public interface OfferDTOMapper {
         if (driver == null) {
             return null;
         }
-        return (AuthenticatedDriverDTO) new UserDTOMapper().convertToDTO(driver);
+        return (AuthenticatedDriverDTO) new UserDTOMapperImpl().convertToDTO(driver);
     }
 } 
