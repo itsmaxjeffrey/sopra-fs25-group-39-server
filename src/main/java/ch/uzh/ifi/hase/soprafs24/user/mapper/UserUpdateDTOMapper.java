@@ -44,6 +44,7 @@ public interface UserUpdateDTOMapper {
     @Mapping(target = "walletBalance", ignore = true)
     @Mapping(target = "ratingsGiven", ignore = true)
     @Mapping(target = "ratingsReceived", ignore = true)
+    @Mapping(target = "userBio", ignore = true)
     User convertToBaseUserEntity(BaseUserUpdateDTO updateDTO);
     
     // Driver mapping
@@ -67,6 +68,7 @@ public interface UserUpdateDTOMapper {
     @Mapping(target = "walletBalance", ignore = true)
     @Mapping(target = "ratingsGiven", ignore = true)
     @Mapping(target = "ratingsReceived", ignore = true)
+    @Mapping(target = "userBio", ignore = true)
     Driver convertToDriverEntity(DriverUpdateDTO updateDTO);
     
     // Requester mapping
@@ -85,6 +87,8 @@ public interface UserUpdateDTOMapper {
     @Mapping(target = "walletBalance", ignore = true)
     @Mapping(target = "ratingsGiven", ignore = true)
     @Mapping(target = "ratingsReceived", ignore = true)
+    @Mapping(target = "userBio", ignore = true)
+    @Mapping(target = "contracts", ignore = true)
     // Add any requester-specific mappings here if needed
     Requester convertToRequesterEntity(RequesterUpdateDTO updateDTO);
 }

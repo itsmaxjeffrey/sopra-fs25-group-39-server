@@ -163,7 +163,9 @@ public class OfferServiceTest {
             offerService.createOffer(testOfferPostDTO);
         });
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
-        assertEquals("Contract not found", exception.getReason());
+        String reason = exception.getReason();
+        assertNotNull(reason);
+        assertEquals("Contract not found", reason);
     }
 
     @Test
@@ -176,7 +178,9 @@ public class OfferServiceTest {
             offerService.createOffer(testOfferPostDTO);
         });
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
-        assertEquals("User not found", exception.getReason());
+        String reason = exception.getReason();
+        assertNotNull(reason);
+        assertEquals("User not found", reason);
     }
 
     @Test
@@ -189,7 +193,9 @@ public class OfferServiceTest {
             offerService.createOffer(testOfferPostDTO);
         });
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
-        assertEquals("User is not a driver", exception.getReason());
+        String reason = exception.getReason();
+        assertNotNull(reason);
+        assertEquals("User is not a driver", reason);
     }
 
     @Test
@@ -203,7 +209,9 @@ public class OfferServiceTest {
             offerService.createOffer(testOfferPostDTO);
         });
         assertEquals(HttpStatus.CONFLICT, exception.getStatus());
-        assertEquals("An offer already exists for this contract and driver", exception.getReason());
+        String reason = exception.getReason();
+        assertNotNull(reason);
+        assertEquals("An offer already exists for this contract and driver", reason);
     }
 
     @Test
@@ -217,7 +225,9 @@ public class OfferServiceTest {
             offerService.createOffer(testOfferPostDTO);
         });
         assertEquals(HttpStatus.CONFLICT, exception.getStatus());
-        assertTrue(exception.getReason().contains("Cannot create offer for a contract that is"));
+        String reason = exception.getReason();
+        assertNotNull(reason);
+        assertTrue(reason.contains("Cannot create offer for a contract that is"));
     }
 
     @Test

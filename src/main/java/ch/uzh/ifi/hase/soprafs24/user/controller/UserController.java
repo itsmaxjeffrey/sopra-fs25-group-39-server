@@ -29,9 +29,7 @@ import ch.uzh.ifi.hase.soprafs24.user.service.UserService;
 @RequestMapping("/api/v1/users")
 public class UserController {
 
-    private final Application application;
 
-    private final AuthorizationService authorizationService;
     private final PublicUserDTOMapper publicUserDTOMapper;
     private final UserService userService;
 
@@ -40,10 +38,8 @@ public class UserController {
         PublicUserDTOMapper publicUserDTOMapper,
         UserService userService
     , Application application){
-        this.authorizationService = authorizationService;
         this.publicUserDTOMapper = publicUserDTOMapper;
         this.userService = userService;
-        this.application = application;
 
     }
 

@@ -21,7 +21,6 @@ import ch.uzh.ifi.hase.soprafs24.user.mapper.UserUpdateDTOMapper;
 @Service
 public class UserService extends AbstractUserService {
 
-    private final UserUpdateDTOMapper userUpdateDTOMapper;
     private final UserValidationService validationService;
     private final DriverService driverService;
     private final RequesterService requesterService;
@@ -34,7 +33,6 @@ public class UserService extends AbstractUserService {
             DriverService driverService,
             RequesterService requesterService) {
         super(userRepository, authorizationService);
-        this.userUpdateDTOMapper = userUpdateDTOMapper;
         this.validationService = validationService;
         this.driverService = driverService;
         this.requesterService = requesterService;
