@@ -336,30 +336,37 @@ public class ContractService {
      * @throws ResponseStatusException if the update is not allowed
      */
     private void validateContractUpdate(Contract existingContract, Contract contractUpdates) {
-        // Validate collateral updates
-        if (contractUpdates.getCollateral() >= 0 && contractUpdates.getCollateral() != existingContract.getCollateral()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Collateral cannot be changed after contract creation");
+        // If contract is in REQUESTED state, allow all changes
+        if (existingContract.getContractStatus() != ContractStatus.REQUESTED) {
+            // Validate price and collateral updates
+            if (contractUpdates.getPrice() > 0 && contractUpdates.getPrice() != existingContract.getPrice()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price cannot be changed after contract is offered");
+            }
+            if (contractUpdates.getCollateral() >= 0 && contractUpdates.getCollateral() != existingContract.getCollateral()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Collateral cannot be changed after contract is offered");
+            }
+
+            // Validate mass and volume updates
+            if (contractUpdates.getMass() > 0 && contractUpdates.getMass() != existingContract.getMass()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mass cannot be changed after contract is offered");
+            }
+            if (contractUpdates.getVolume() > 0 && contractUpdates.getVolume() != existingContract.getVolume()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Volume cannot be changed after contract is offered");
+            }
+
+            // Validate manpower update
+            if (contractUpdates.getManPower() > 0 && contractUpdates.getManPower() != existingContract.getManPower()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Manpower cannot be changed after contract is offered");
+            }
         }
 
-        // Validate mass and volume updates
-        if (contractUpdates.getMass() > 0 && contractUpdates.getMass() != existingContract.getMass()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mass cannot be changed after contract creation");
-        }
-        if (contractUpdates.getVolume() > 0 && contractUpdates.getVolume() != existingContract.getVolume()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Volume cannot be changed after contract creation");
-        }
-
-        // Validate manpower update
-        if (contractUpdates.getManPower() > 0 && contractUpdates.getManPower() != existingContract.getManPower()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Manpower cannot be changed after contract creation");
-        }
-
-        // Validate move date time update
+        // Always validate that move date time is in the future
         if (contractUpdates.getMoveDateTime() != null && 
             !contractUpdates.getMoveDateTime().equals(existingContract.getMoveDateTime())) {
             if (contractUpdates.getMoveDateTime().isBefore(LocalDateTime.now())) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Move date time must be in the future");
             }
+            // Only allow date changes in REQUESTED state
             if (existingContract.getContractStatus() != ContractStatus.REQUESTED) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
                     "Move date time can only be changed for REQUESTED contracts");
