@@ -112,6 +112,15 @@ public class OfferService {
         Contract contract = contractRepository.findById(offerPostDTO.getContractId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Contract not found"));
 
+        // Check if contract is in a valid state for new offers
+        if (contract.getContractStatus() == ContractStatus.ACCEPTED ||
+            contract.getContractStatus() == ContractStatus.COMPLETED ||
+            contract.getContractStatus() == ContractStatus.CANCELED ||
+            contract.getContractStatus() == ContractStatus.DELETED) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, 
+                "Cannot create offer for a contract that is " + contract.getContractStatus());
+        }
+
         // Check if user exists and is a driver
         User user = userRepository.findById(offerPostDTO.getDriverId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
@@ -125,7 +134,13 @@ public class OfferService {
         // Check if offer already exists for this contract and driver
         List<Offer> existingOffers = offerRepository.findByContract_ContractIdAndDriver_UserId(offerPostDTO.getContractId(), offerPostDTO.getDriverId());
         if (!existingOffers.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "An offer already exists for this contract and driver");
+            Offer existingOffer = existingOffers.get(0);
+            if (existingOffer.getOfferStatus() == OfferStatus.ACCEPTED) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, 
+                    "Cannot create new offer when an accepted offer exists for this contract");
+            }
+            throw new ResponseStatusException(HttpStatus.CONFLICT, 
+                "An offer already exists for this contract and driver");
         }
 
         // Create new offer
