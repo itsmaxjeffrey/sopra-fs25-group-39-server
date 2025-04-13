@@ -1,4 +1,4 @@
-package ch.uzh.ifi.hase.soprafs24.security.authorization;
+package ch.uzh.ifi.hase.soprafs24.security.authorization.service;
 
 import org.springframework.stereotype.Service;
 

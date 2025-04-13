@@ -1,9 +1,8 @@
-package ch.uzh.ifi.hase.soprafs24.security.authentication;
+package ch.uzh.ifi.hase.soprafs24.security.authentication.controller;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,10 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.login.BaseUserLoginDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.response.AuthenticatedUserDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.mapper.UserDTOMapper;
-import ch.uzh.ifi.hase.soprafs24.security.registration.UserRegistrationService;
+import ch.uzh.ifi.hase.soprafs24.security.authentication.dto.request.BaseUserLoginDTO;
+import ch.uzh.ifi.hase.soprafs24.security.authentication.dto.response.AuthenticatedUserDTO;
+import ch.uzh.ifi.hase.soprafs24.security.authentication.service.AuthService;
+import ch.uzh.ifi.hase.soprafs24.security.registration.service.UserRegistrationService;
+import ch.uzh.ifi.hase.soprafs24.user.mapper.UserDTOMapper;
 
 /**
  * Auth Controller
@@ -29,7 +29,7 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @Autowired
+    
     private UserDTOMapper userDTOMapper;
 
     public AuthController(
@@ -62,8 +62,8 @@ public class AuthController {
      * POST /api/v1/auth/logout
      */
     @PostMapping("/logout")
-    public ResponseEntity<Object> logoutUser(@RequestHeader("Authorization") String token) {
-        authService.logoutUser(token);
+    public ResponseEntity<Object> logoutUser(@RequestHeader("UserId") Long userId, @RequestHeader("Authorization") String token) {
+        authService.logoutUser(userId, token);
         
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Successfully logged out");
