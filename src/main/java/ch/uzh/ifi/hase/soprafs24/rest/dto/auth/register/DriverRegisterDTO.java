@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.rest.dto.auth.register;
 
+import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,5 +16,10 @@ public class DriverRegisterDTO extends BaseUserRegisterDTO {
     private boolean electric;
     private String licensePlate;
     private float preferredRange; 
+
+    // Add this constructor
+    public DriverRegisterDTO() {
+        this.setUserAccountType(UserAccountType.DRIVER);
+    }
 }
 

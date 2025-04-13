@@ -1,6 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
-
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,11 +26,11 @@ import ch.uzh.ifi.hase.soprafs24.entity.Location;
 import ch.uzh.ifi.hase.soprafs24.entity.Requester;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractCancelDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractFilterDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractGetDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractPostDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractPutDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractCancelDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractFilterDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractGetDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractPutDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.ContractDTOMapper;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.LocationDTOMapper;
 import ch.uzh.ifi.hase.soprafs24.service.ContractPollingService;
@@ -58,10 +58,10 @@ public class ContractController {
      * Get all contracts with optional filtering
      * 
      * Example request with filters:
-     * GET /api/v1/contracts?lat=47.3769&lng=8.5417&filters={"radius": 10, "price": 100, "weight": 50, "height": 2, "length": 3, "width": 1.5, "requiredPeople": 2, "fragile": true, "coolingRequired": false, "rideAlong": true, "fromAddress": "Zurich", "toAddress": "Bern", "moveDateTime": "2024-04-15T10:00:00"}
+     * GET /api/v1/contracts?lat=47.3769&lng=8.5417&filters={"radius": 10, "price": 100, "weight": 50, "height": 2, "length": 3, "width": 1.5, "requiredPeople": 2, "fragile": true, "coolingRequired": false, "rideAlong": true, "fromAddress": "Zurich", "toAddress": "Bern", "moveDate": "2024-04-15"}
      * 
-     * @param lat Latitude for location-based search (placeholder for future implementation)
-     * @param lng Longitude for location-based search (placeholder for future implementation)
+     * @param lat Latitude for location-based search
+     * @param lng Longitude for location-based search
      * @param filters JSON string containing filter criteria
      * @return List of contracts matching the criteria
      */
@@ -78,6 +78,16 @@ public class ContractController {
         if (filters != null && !filters.isEmpty()) {
             try {
                 filterDTO = new ObjectMapper().readValue(filters, ContractFilterDTO.class);
+                
+                // Validate moveDate format if provided
+                if (filterDTO.getMoveDate() != null) {
+                    try {
+                        LocalDate.parse(filterDTO.getMoveDate().toString());
+                    } catch (Exception e) {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                            "Invalid moveDate format. Expected format: yyyy-MM-dd");
+                    }
+                }
             } catch (Exception e) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid filters format");
             }
@@ -88,8 +98,8 @@ public class ContractController {
         
         // Convert to DTOs
         return contracts.stream()
-            .map(ContractDTOMapper.INSTANCE::convertContractEntityToContractGetDTO)
-            .collect(Collectors.toList());
+                .map(ContractDTOMapper.INSTANCE::convertContractEntityToContractGetDTO)
+                .collect(Collectors.toList());
     }
 
     /**

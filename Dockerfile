@@ -10,7 +10,9 @@ RUN chmod +x ./gradlew
 COPY build.gradle settings.gradle /app/
 COPY src /app/src
 # Build the server
-RUN ./gradlew clean build --no-daemon
+RUN --mount=type=secret,id=GOOGLE_MAPS_API_KEY \
+    export GOOGLE_MAPS_API_KEY=$(cat /run/secrets/GOOGLE_MAPS_API_KEY) && \
+    ./gradlew clean build --no-daemon
 
 # make image smaller by using multi stage build
 FROM openjdk:17-slim
@@ -24,5 +26,5 @@ WORKDIR /app
 COPY --from=build /app/build/libs/*.jar /app/soprafs24.jar
 # Expose the port on which the server will be running (based on application.properties)
 EXPOSE 8080
-# start server
-CMD ["java", "-jar", "/app/soprafs25.jar"]
+# start server with environment variable
+CMD ["java", "-jar", "/app/soprafs24.jar"]

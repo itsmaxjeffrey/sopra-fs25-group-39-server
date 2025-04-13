@@ -1,3 +1,4 @@
+package ch.uzh.ifi.hase.soprafs24.security.authentication;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +19,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.login.BaseUserLoginDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.response.AuthenticatedUserDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.UserDTOMapper;
+import ch.uzh.ifi.hase.soprafs24.security.registration.UserRegistrationService;
 import ch.uzh.ifi.hase.soprafs24.security.registration.UserRegistrationService;
 
 /**

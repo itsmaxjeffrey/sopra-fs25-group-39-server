@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
 import ch.uzh.ifi.hase.soprafs24.constant.OfferStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Contract;
 import ch.uzh.ifi.hase.soprafs24.entity.Driver;
@@ -20,9 +22,8 @@ import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.ContractRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.OfferRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.OfferGetDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.OfferPostDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.OfferPutDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferGetDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.OfferDTOMapper;
 
 /**
@@ -137,6 +138,13 @@ public class OfferService {
         offer = offerRepository.save(offer);
         offerRepository.flush();
 
+        // Update contract status to OFFERED if this is the first offer
+        if (contract.getContractStatus() == ContractStatus.REQUESTED) {
+            contract.setContractStatus(ContractStatus.OFFERED);
+            contractRepository.save(contract);
+            contractRepository.flush();
+        }
+
         log.debug("Created offer: {}", offer);
 
         return offerDTOMapper.convertEntityToOfferGetDTO(offer);
@@ -153,15 +161,35 @@ public class OfferService {
         Offer offer = offerRepository.findById(offerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Offer not found"));
 
-        // Check if offer can be deleted (only CREATED status can be deleted)
-        if (offer.getOfferStatus() != OfferStatus.CREATED) {
+        Contract contract = offer.getContract();
+
+        // Check if offer can be deleted
+        if (offer.getOfferStatus() == OfferStatus.ACCEPTED) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, 
-                "Only offers with CREATED status can be deleted");
+                "Cannot delete an accepted offer");
+        }
+
+        if (offer.getOfferStatus() == OfferStatus.REJECTED) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, 
+                "Cannot delete a rejected offer");
+        }
+
+        if (contract.getContractStatus() == ContractStatus.ACCEPTED) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, 
+                "Cannot delete an offer for an accepted contract");
         }
 
         // Delete the offer
         offerRepository.delete(offer);
         offerRepository.flush();
+
+        // If this was the last offer and contract is in OFFERED state, revert to REQUESTED
+        List<Offer> remainingOffers = offerRepository.findByContract_ContractId(contract.getContractId());
+        if (contract.getContractStatus() == ContractStatus.OFFERED && remainingOffers.isEmpty()) {
+            contract.setContractStatus(ContractStatus.REQUESTED);
+            contractRepository.save(contract);
+            contractRepository.flush();
+        }
 
         log.debug("Deleted offer: {}", offer);
     }
@@ -196,6 +224,86 @@ public class OfferService {
         offer = offerRepository.save(offer);
         log.debug("Updated status of offer {} to {}", offerId, status);
 
+        return offerDTOMapper.convertEntityToOfferGetDTO(offer);
+    }
+
+    /**
+     * Accepts an offer
+     * 
+     * @param offerId The ID of the offer to accept
+     * @return The updated offer DTO
+     */
+    public OfferGetDTO acceptOffer(Long offerId) {
+        Offer offer = offerRepository.findById(offerId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Offer not found"));
+        
+        Contract contract = offer.getContract();
+        
+        // Validate contract status
+        if (contract.getContractStatus() != ContractStatus.OFFERED) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                "Offers can only be accepted for OFFERED contracts");
+        }
+        
+        // Set the accepted offer and update contract status
+        contract.setAcceptedOffer(offer);
+        contract.setContractStatus(ContractStatus.ACCEPTED);
+        contract.setAcceptedDateTime(LocalDateTime.now());
+        
+        // Update offer status
+        offer.setOfferStatus(OfferStatus.ACCEPTED);
+        
+        // Reject all other offers for this contract
+        List<Offer> otherOffers = offerRepository.findByContract_ContractIdAndOfferStatus(
+            contract.getContractId(), OfferStatus.CREATED);
+        for (Offer otherOffer : otherOffers) {
+            if (!otherOffer.getOfferId().equals(offerId)) {
+                otherOffer.setOfferStatus(OfferStatus.REJECTED);
+                offerRepository.save(otherOffer);
+            }
+        }
+        
+        // Save changes
+        contractRepository.save(contract);
+        offer = offerRepository.save(offer);
+        
+        return offerDTOMapper.convertEntityToOfferGetDTO(offer);
+    }
+
+    /**
+     * Rejects an offer
+     * 
+     * @param offerId The ID of the offer to reject
+     * @return The updated offer DTO
+     */
+    public OfferGetDTO rejectOffer(Long offerId) {
+        Offer offer = offerRepository.findById(offerId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Offer not found"));
+        
+        Contract contract = offer.getContract();
+        
+        // Validate contract status
+        if (contract.getContractStatus() != ContractStatus.REQUESTED && 
+            contract.getContractStatus() != ContractStatus.OFFERED) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                "Offers can only be rejected for REQUESTED or OFFERED contracts");
+        }
+        
+        // Update offer status
+        offer.setOfferStatus(OfferStatus.REJECTED);
+        
+        // If this was the last offer and contract is in OFFERED state, revert to REQUESTED
+        List<Offer> remainingOffers = offerRepository.findByContract_ContractIdAndOfferStatus(
+            contract.getContractId(), OfferStatus.CREATED);
+        if (contract.getContractStatus() == ContractStatus.OFFERED && remainingOffers.isEmpty()) {
+            contract.setContractStatus(ContractStatus.REQUESTED);
+            contractRepository.save(contract);
+            contractRepository.flush();
+        }
+        
+        // Save changes
+        offer = offerRepository.save(offer);
+        
         return offerDTOMapper.convertEntityToOfferGetDTO(offer);
     }
 } 

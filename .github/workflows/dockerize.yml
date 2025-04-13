@@ -44,6 +44,10 @@ jobs:
         platforms: linux/amd64
         cache-from: type=registry,ref=${{secrets.dockerhub_username}}/${{secrets.dockerhub_repo_name}}:cache
         cache-to: type=inline,mode=max
+        secrets: |
+          GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }}
+        build-args: |
+          GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }}
 
     # docker build & push arm64
     - name: Build and push for arm64 (Apple M-series) processor architecture
@@ -56,3 +60,7 @@ jobs:
         platforms: linux/arm64/v8
         cache-from: type=registry,ref=${{secrets.dockerhub_username}}/${{secrets.dockerhub_repo_name}}:cache
         cache-to: type=inline,mode=max
+        secrets: |
+          GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }}
+        build-args: |
+          GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }}

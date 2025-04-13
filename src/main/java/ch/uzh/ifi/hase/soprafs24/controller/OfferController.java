@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.constant.OfferStatus;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.OfferGetDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.OfferPostDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.OfferPutDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferGetDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferPutDTO;
 import ch.uzh.ifi.hase.soprafs24.service.OfferService;
 
 /**

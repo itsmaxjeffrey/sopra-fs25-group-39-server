@@ -11,11 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Contract;
-import ch.uzh.ifi.hase.soprafs24.repository.ContractRepository;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractFilterDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.ContractGetDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractFilterDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.ContractDTOMapper;
-import ch.uzh.ifi.hase.soprafs24.service.ContractPollingService.WaitingClient;
 
 /*
  * ContractPollingService is responsible for handling long polling requests from drivers
@@ -39,14 +37,11 @@ public class ContractPollingService {
     @Autowired
     private final ContractService contractService;
 
-    private final ContractRepository contractRepository;
-
     // A thread-safe list to hold waiting clients and their filters
     private final List<WaitingClient> waitingClients = new CopyOnWriteArrayList<>();
 
-    public ContractPollingService(ContractService contractService, ContractRepository contractRepository) {
+    public ContractPollingService(ContractService contractService) {
         this.contractService = contractService;
-        this.contractRepository = contractRepository;
     }
 
     // Store all waiting Drivers and their filters 
