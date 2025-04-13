@@ -188,4 +188,84 @@ public class OfferControllerTest {
         assertEquals(1, response.size());
         assertEquals(testOfferGetDTO.getOfferId(), response.get(0).getOfferId());
     }
+
+    @Test
+    public void updateOfferStatus_missingStatus_throwsException() {
+        // given
+        testOfferPutDTO.setStatus(null);
+
+        // when/then
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            offerController.updateOfferStatus(1L, testOfferPutDTO);
+        });
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals("Status is required", exception.getReason());
+    }
+
+    @Test
+    public void getOffersByContract_notFound_throwsException() {
+        // given
+        when(offerService.getOffers(any(), any(), any()))
+            .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Contract not found"));
+
+        // when/then
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            offerController.getOffersByContract(1L);
+        });
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
+    }
+
+    @Test
+    public void getOffersByDriver_withStatusFilter_success() {
+        // given
+        List<OfferGetDTO> offers = Collections.singletonList(testOfferGetDTO);
+        when(offerService.getOffers(any(), any(), any())).thenReturn(offers);
+
+        // when
+        List<OfferGetDTO> response = offerController.getOffersByDriver(1L, OfferStatus.CREATED);
+
+        // then
+        assertEquals(1, response.size());
+        assertEquals(testOfferGetDTO.getOfferId(), response.get(0).getOfferId());
+        verify(offerService, times(1)).getOffers(null, 1L, OfferStatus.CREATED);
+    }
+
+    @Test
+    public void getOffersByDriver_notFound_throwsException() {
+        // given
+        when(offerService.getOffers(any(), any(), any()))
+            .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Driver not found"));
+
+        // when/then
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            offerController.getOffersByDriver(1L, null);
+        });
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
+    }
+
+    @Test
+    public void createOffer_conflict_throwsException() {
+        // given
+        when(offerService.createOffer(any()))
+            .thenThrow(new ResponseStatusException(HttpStatus.CONFLICT, "Offer already exists"));
+
+        // when/then
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            offerController.createOffer(testOfferPostDTO);
+        });
+        assertEquals(HttpStatus.CONFLICT, exception.getStatus());
+    }
+
+    @Test
+    public void deleteOffer_forbidden_throwsException() {
+        // given
+        doThrow(new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot delete accepted offer"))
+            .when(offerService).deleteOffer(any());
+
+        // when/then
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            offerController.deleteOffer(1L);
+        });
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+    }
 } 

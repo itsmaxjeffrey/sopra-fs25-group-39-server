@@ -5,6 +5,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Contract;
+import ch.uzh.ifi.hase.soprafs24.entity.Requester;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractPutDTO;
@@ -32,14 +33,14 @@ public interface ContractDTOMapper {
     @Mapping(source = "price", target = "price")
     @Mapping(source = "collateral", target = "collateral")
     @Mapping(source = "moveDateTime", target = "moveDateTime")
+    @Mapping(source = "requesterId", target = "requester")
+    @Mapping(source = "contractPhotos", target = "contractPhotos")
     @Mapping(target = "contractId", ignore = true)
     @Mapping(target = "contractStatus", ignore = true)
     @Mapping(target = "creationDateTime", ignore = true)
     @Mapping(target = "acceptedDateTime", ignore = true)
-    @Mapping(target = "contractPhotos", ignore = true)
     @Mapping(target = "offers", ignore = true)
     @Mapping(target = "acceptedOffer", ignore = true)
-    @Mapping(target = "requester", ignore = true)
     @Mapping(target = "fromAddress", ignore = true)
     @Mapping(target = "toAddress", ignore = true)
     @Mapping(target = "cancelReason", ignore = true)
@@ -91,4 +92,13 @@ public interface ContractDTOMapper {
     @Mapping(target = "cancelReason", ignore = true)
     @Mapping(target = "driver", ignore = true)
     Contract convertContractPutDTOtoEntity(ContractPutDTO contractPutDTO);
+
+    default Requester map(Long requesterId) {
+        if (requesterId == null) {
+            return null;
+        }
+        Requester requester = new Requester();
+        requester.setUserId(requesterId);
+        return requester;
+    }
 } 

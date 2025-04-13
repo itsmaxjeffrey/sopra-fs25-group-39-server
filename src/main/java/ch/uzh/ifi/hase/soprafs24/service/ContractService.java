@@ -58,20 +58,18 @@ public class ContractService {
      * @return The created contract entity
      */
     public Contract createContract(Contract contract) {
-        // Validate requester exists
+        // First validate and set up the requester
         final Long requesterId = contract.getRequester().getUserId();
         Requester requester = (Requester) userRepository.findById(requesterId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
                 "Requester with ID " + requesterId + " not found"));
+        contract.setRequester(requester);
 
-        // Validate contract data
+        // Then validate the rest of the contract data
         validateContractData(contract);
 
         // Set initial contract status
         contract.setContractStatus(ContractStatus.REQUESTED);
-        
-        // Set requester
-        contract.setRequester(requester);
         
         // Save contract to database
         contract = contractRepository.save(contract);
@@ -338,33 +336,37 @@ public class ContractService {
      * @throws ResponseStatusException if the update is not allowed
      */
     private void validateContractUpdate(Contract existingContract, Contract contractUpdates) {
-        // Validate price and collateral updates
-        if (contractUpdates.getPrice() > 0 && contractUpdates.getPrice() != existingContract.getPrice()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price cannot be changed after contract creation");
-        }
-        if (contractUpdates.getCollateral() >= 0 && contractUpdates.getCollateral() != existingContract.getCollateral()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Collateral cannot be changed after contract creation");
+        // If contract is in REQUESTED state, allow all changes
+        if (existingContract.getContractStatus() != ContractStatus.REQUESTED) {
+            // Validate price and collateral updates
+            if (contractUpdates.getPrice() > 0 && contractUpdates.getPrice() != existingContract.getPrice()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price cannot be changed after contract is offered");
+            }
+            if (contractUpdates.getCollateral() >= 0 && contractUpdates.getCollateral() != existingContract.getCollateral()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Collateral cannot be changed after contract is offered");
+            }
+
+            // Validate mass and volume updates
+            if (contractUpdates.getMass() > 0 && contractUpdates.getMass() != existingContract.getMass()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mass cannot be changed after contract is offered");
+            }
+            if (contractUpdates.getVolume() > 0 && contractUpdates.getVolume() != existingContract.getVolume()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Volume cannot be changed after contract is offered");
+            }
+
+            // Validate manpower update
+            if (contractUpdates.getManPower() > 0 && contractUpdates.getManPower() != existingContract.getManPower()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Manpower cannot be changed after contract is offered");
+            }
         }
 
-        // Validate mass and volume updates
-        if (contractUpdates.getMass() > 0 && contractUpdates.getMass() != existingContract.getMass()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mass cannot be changed after contract creation");
-        }
-        if (contractUpdates.getVolume() > 0 && contractUpdates.getVolume() != existingContract.getVolume()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Volume cannot be changed after contract creation");
-        }
-
-        // Validate manpower update
-        if (contractUpdates.getManPower() > 0 && contractUpdates.getManPower() != existingContract.getManPower()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Manpower cannot be changed after contract creation");
-        }
-
-        // Validate move date time update
+        // Always validate that move date time is in the future
         if (contractUpdates.getMoveDateTime() != null && 
             !contractUpdates.getMoveDateTime().equals(existingContract.getMoveDateTime())) {
             if (contractUpdates.getMoveDateTime().isBefore(LocalDateTime.now())) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Move date time must be in the future");
             }
+            // Only allow date changes in REQUESTED state
             if (existingContract.getContractStatus() != ContractStatus.REQUESTED) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
                     "Move date time can only be changed for REQUESTED contracts");
@@ -453,14 +455,14 @@ public class ContractService {
         Contract contract = getContractById(contractId);
         
         // Check if contract can be fulfilled
-        if (contract.getContractStatus() != ContractStatus.ACCEPTED) {
+        if (contract.getContractStatus() != ContractStatus.COMPLETED) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, 
-                "Only accepted contracts can be fulfilled");
+                "Only completed contracts can be fulfilled");
         }
         
-        if (contract.getContractStatus() == ContractStatus.COMPLETED) {
+        if (contract.getContractStatus() == ContractStatus.FINALIZED) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, 
-                "Contract is already completed");
+                "Contract is already finalized");
         }
         
         if (contract.getContractStatus() == ContractStatus.CANCELED) {
@@ -469,7 +471,7 @@ public class ContractService {
         }
         
         // Update contract status
-        contract.setContractStatus(ContractStatus.COMPLETED);
+        contract.setContractStatus(ContractStatus.FINALIZED);
         
         // Save the updated contract
         return contractRepository.save(contract);
