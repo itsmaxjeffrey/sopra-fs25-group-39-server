@@ -24,16 +24,15 @@ import org.springframework.web.server.ResponseStatusException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import ch.uzh.ifi.hase.soprafs24.common.constant.ContractStatus;
-import ch.uzh.ifi.hase.soprafs24.contract.controller.ContractController;
-import ch.uzh.ifi.hase.soprafs24.contract.dto.request.ContractCancelDTO;
-import ch.uzh.ifi.hase.soprafs24.contract.dto.request.ContractPutDTO;
-import ch.uzh.ifi.hase.soprafs24.contract.model.Contract;
-import ch.uzh.ifi.hase.soprafs24.contract.service.ContractPollingService;
-import ch.uzh.ifi.hase.soprafs24.contract.service.ContractService;
-import ch.uzh.ifi.hase.soprafs24.location.service.LocationService;
-import ch.uzh.ifi.hase.soprafs24.user.model.Requester;
-import ch.uzh.ifi.hase.soprafs24.user.repository.UserRepository;
+import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
+import ch.uzh.ifi.hase.soprafs24.entity.Contract;
+import ch.uzh.ifi.hase.soprafs24.entity.Requester;
+import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractCancelDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractPutDTO;
+import ch.uzh.ifi.hase.soprafs24.service.ContractPollingService;
+import ch.uzh.ifi.hase.soprafs24.service.ContractService;
+import ch.uzh.ifi.hase.soprafs24.service.LocationService;
 
 /**
  * ContractControllerTest

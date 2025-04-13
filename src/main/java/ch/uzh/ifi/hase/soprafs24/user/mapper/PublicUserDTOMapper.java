@@ -4,8 +4,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
+import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.user.dto.response.PublicUserDTO;
-import ch.uzh.ifi.hase.soprafs24.user.model.User;
 
 @Mapper(componentModel = "spring")
 public interface PublicUserDTOMapper {

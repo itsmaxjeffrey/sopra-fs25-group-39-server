@@ -2,7 +2,7 @@ package ch.uzh.ifi.hase.soprafs24.security.authentication.dto.response;
 
 import java.time.LocalDate;
 
-import ch.uzh.ifi.hase.soprafs24.common.constant.UserAccountType;
+import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
 import lombok.Getter;
 import lombok.Setter;
 

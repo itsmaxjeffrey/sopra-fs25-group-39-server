@@ -2,8 +2,8 @@ package ch.uzh.ifi.hase.soprafs24.util;
 
 import java.time.LocalDate;
 
-import ch.uzh.ifi.hase.soprafs24.common.constant.UserAccountType;
-import ch.uzh.ifi.hase.soprafs24.user.model.User;
+import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
+import ch.uzh.ifi.hase.soprafs24.entity.User;
 
 /*
  * 

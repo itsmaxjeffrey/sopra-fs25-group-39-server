@@ -14,13 +14,12 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.web.server.ResponseStatusException;
 
-import ch.uzh.ifi.hase.soprafs24.common.constant.ContractStatus;
-import ch.uzh.ifi.hase.soprafs24.contract.model.Contract;
-import ch.uzh.ifi.hase.soprafs24.contract.repository.ContractRepository;
-import ch.uzh.ifi.hase.soprafs24.contract.service.ContractService;
-import ch.uzh.ifi.hase.soprafs24.location.model.Location;
-import ch.uzh.ifi.hase.soprafs24.user.model.Requester;
-import ch.uzh.ifi.hase.soprafs24.user.repository.UserRepository;
+import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
+import ch.uzh.ifi.hase.soprafs24.entity.Contract;
+import ch.uzh.ifi.hase.soprafs24.entity.Location;
+import ch.uzh.ifi.hase.soprafs24.entity.Requester;
+import ch.uzh.ifi.hase.soprafs24.repository.ContractRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 
 public class ContractServiceTest {
 

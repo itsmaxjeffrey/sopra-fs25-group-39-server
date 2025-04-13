@@ -1,23 +1,25 @@
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyDouble;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+package ch.uzh.ifi.hase.soprafs24.service;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.eq;
+import org.mockito.Mock;
+import static org.mockito.Mockito.when;
+import org.mockito.MockitoAnnotations;
 
-import ch.uzh.ifi.hase.soprafs24.contract.dto.request.ContractFilterDTO;
-import ch.uzh.ifi.hase.soprafs24.contract.dto.response.ContractGetDTO;
-import ch.uzh.ifi.hase.soprafs24.contract.model.Contract;
-import ch.uzh.ifi.hase.soprafs24.contract.repository.ContractRepository;
-import ch.uzh.ifi.hase.soprafs24.contract.service.ContractPollingService;
-import ch.uzh.ifi.hase.soprafs24.contract.service.ContractService;
-
+import ch.uzh.ifi.hase.soprafs24.entity.Contract;
+import ch.uzh.ifi.hase.soprafs24.repository.ContractRepository;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractFilterDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractGetDTO;
 class ContractPollingServiceTest {
 
     @Mock

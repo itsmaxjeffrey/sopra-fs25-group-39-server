@@ -7,11 +7,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.security.authentication.dto.response.AuthenticatedUserDTO;
 import ch.uzh.ifi.hase.soprafs24.security.registration.dto.UserRegistrationRequestDTO;
 import ch.uzh.ifi.hase.soprafs24.security.registration.service.UserRegistrationService;
 import ch.uzh.ifi.hase.soprafs24.user.mapper.UserDTOMapper;
-import ch.uzh.ifi.hase.soprafs24.user.model.User;
 
 @RestController
 @RequestMapping("/api/v1/auth")

@@ -2,8 +2,8 @@ package ch.uzh.ifi.hase.soprafs24.security.registration.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import ch.uzh.ifi.hase.soprafs24.car.dto.CarDTO;
-import ch.uzh.ifi.hase.soprafs24.location.dto.LocationDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.CarDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
 import lombok.Getter;
 import lombok.Setter;
 

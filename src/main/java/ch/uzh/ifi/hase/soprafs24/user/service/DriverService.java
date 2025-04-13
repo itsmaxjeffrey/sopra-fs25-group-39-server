@@ -2,14 +2,14 @@ package ch.uzh.ifi.hase.soprafs24.user.service;
 
 import org.springframework.stereotype.Service;
 
-import ch.uzh.ifi.hase.soprafs24.car.model.Car;
-import ch.uzh.ifi.hase.soprafs24.car.service.CarService;
-import ch.uzh.ifi.hase.soprafs24.location.model.Location;
-import ch.uzh.ifi.hase.soprafs24.location.service.LocationService;
+import ch.uzh.ifi.hase.soprafs24.entity.Car;
+import ch.uzh.ifi.hase.soprafs24.entity.Driver;
+import ch.uzh.ifi.hase.soprafs24.entity.Location;
+import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.security.authorization.service.AuthorizationService;
+import ch.uzh.ifi.hase.soprafs24.service.CarService;
+import ch.uzh.ifi.hase.soprafs24.service.LocationService;
 import ch.uzh.ifi.hase.soprafs24.user.dto.request.update.DriverUpdateDTO;
-import ch.uzh.ifi.hase.soprafs24.user.model.Driver;
-import ch.uzh.ifi.hase.soprafs24.user.repository.UserRepository;
 
 /**
  * Service for driver-specific operations

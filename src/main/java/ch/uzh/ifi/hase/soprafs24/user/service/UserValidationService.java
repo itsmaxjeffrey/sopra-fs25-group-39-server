@@ -4,9 +4,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.user.dto.request.update.BaseUserUpdateDTO;
-import ch.uzh.ifi.hase.soprafs24.user.model.User;
-import ch.uzh.ifi.hase.soprafs24.user.repository.UserRepository;
 
 /**
  * Service for validating user data

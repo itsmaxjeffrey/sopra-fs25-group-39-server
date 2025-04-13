@@ -15,13 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.Application;
+import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.security.authentication.dto.response.AuthenticatedUserDTO;
 import ch.uzh.ifi.hase.soprafs24.security.authorization.service.AuthorizationService;
 import ch.uzh.ifi.hase.soprafs24.user.dto.request.update.BaseUserUpdateDTO;
 import ch.uzh.ifi.hase.soprafs24.user.dto.response.PublicUserDTO;
 import ch.uzh.ifi.hase.soprafs24.user.mapper.PublicUserDTOMapper;
 import ch.uzh.ifi.hase.soprafs24.user.mapper.UserDTOMapper;
-import ch.uzh.ifi.hase.soprafs24.user.model.User;
 import ch.uzh.ifi.hase.soprafs24.user.service.UserService;
 
 

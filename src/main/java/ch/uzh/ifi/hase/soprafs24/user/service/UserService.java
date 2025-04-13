@@ -4,15 +4,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import ch.uzh.ifi.hase.soprafs24.entity.Driver;
+import ch.uzh.ifi.hase.soprafs24.entity.Requester;
+import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.security.authorization.service.AuthorizationService;
 import ch.uzh.ifi.hase.soprafs24.user.dto.request.update.BaseUserUpdateDTO;
 import ch.uzh.ifi.hase.soprafs24.user.dto.request.update.DriverUpdateDTO;
 import ch.uzh.ifi.hase.soprafs24.user.dto.request.update.RequesterUpdateDTO;
 import ch.uzh.ifi.hase.soprafs24.user.mapper.UserUpdateDTOMapper;
-import ch.uzh.ifi.hase.soprafs24.user.model.Driver;
-import ch.uzh.ifi.hase.soprafs24.user.model.Requester;
-import ch.uzh.ifi.hase.soprafs24.user.model.User;
-import ch.uzh.ifi.hase.soprafs24.user.repository.UserRepository;
 
 /**
  * Main service for user operations

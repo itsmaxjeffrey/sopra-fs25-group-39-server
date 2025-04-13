@@ -2,10 +2,10 @@ package ch.uzh.ifi.hase.soprafs24.user.service;
 
 import org.springframework.stereotype.Service;
 
+import ch.uzh.ifi.hase.soprafs24.entity.Requester;
+import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.security.authorization.service.AuthorizationService;
 import ch.uzh.ifi.hase.soprafs24.user.dto.request.update.RequesterUpdateDTO;
-import ch.uzh.ifi.hase.soprafs24.user.model.Requester;
-import ch.uzh.ifi.hase.soprafs24.user.repository.UserRepository;
 
 /**
  * Service for requester-specific operations

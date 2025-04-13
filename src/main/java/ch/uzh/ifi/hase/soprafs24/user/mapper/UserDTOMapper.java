@@ -5,16 +5,16 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 
-import ch.uzh.ifi.hase.soprafs24.car.dto.CarDTO;
-import ch.uzh.ifi.hase.soprafs24.car.mapper.CarDTOMapper;
-import ch.uzh.ifi.hase.soprafs24.location.dto.LocationDTO;
-import ch.uzh.ifi.hase.soprafs24.location.mapper.LocationDTOMapper;
+import ch.uzh.ifi.hase.soprafs24.entity.Driver;
+import ch.uzh.ifi.hase.soprafs24.entity.Requester;
+import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.CarDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.mapper.CarDTOMapper;
+import ch.uzh.ifi.hase.soprafs24.rest.mapper.LocationDTOMapper;
 import ch.uzh.ifi.hase.soprafs24.security.authentication.dto.response.AuthenticatedDriverDTO;
 import ch.uzh.ifi.hase.soprafs24.security.authentication.dto.response.AuthenticatedRequesterDTO;
 import ch.uzh.ifi.hase.soprafs24.security.authentication.dto.response.AuthenticatedUserDTO;
-import ch.uzh.ifi.hase.soprafs24.user.model.Driver;
-import ch.uzh.ifi.hase.soprafs24.user.model.Requester;
-import ch.uzh.ifi.hase.soprafs24.user.model.User;
 
 @Mapper(
     componentModel = "spring", 
@@ -84,7 +84,7 @@ import ch.uzh.ifi.hase.soprafs24.user.model.User;
     
     // Custom mappers for nested objects
     @Named("mapCar")
-    default CarDTO mapCar(ch.uzh.ifi.hase.soprafs24.car.model.Car car) {
+    default CarDTO mapCar(ch.uzh.ifi.hase.soprafs24.entity.Car car) {
         if (car == null) {
             return null;
         }
@@ -92,7 +92,7 @@ import ch.uzh.ifi.hase.soprafs24.user.model.User;
     }
     
     @Named("mapLocation")
-    default LocationDTO mapLocation(ch.uzh.ifi.hase.soprafs24.location.model.Location location) {
+    default LocationDTO mapLocation(ch.uzh.ifi.hase.soprafs24.entity.Location location) {
         if (location == null) {
             return null;
         }
