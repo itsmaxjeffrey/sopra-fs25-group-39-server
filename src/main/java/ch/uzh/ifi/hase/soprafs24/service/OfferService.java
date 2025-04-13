@@ -198,7 +198,7 @@ public class OfferService {
      * Updates the status of an offer
      * 
      * @param offerId The ID of the offer to update
-     * @param status The new status to set
+     * @param status The new status to set (valid values: CREATED, ACCEPTED, REJECTED, DELETED)
      * @return The updated offer
      * @throws ResponseStatusException if the offer is not found or the status update is invalid
      */
@@ -219,8 +219,45 @@ public class OfferService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Cannot change status of a rejected offer");
         }
 
-        // Update the status directly
+        // Additional validations for status transitions
+        if (status == OfferStatus.ACCEPTED && offer.getOfferStatus() != OfferStatus.CREATED) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                "Only CREATED offers can be accepted");
+        }
+
+        // Update the status
         offer.setOfferStatus(status);
+        
+        // If the offer is being accepted, update the contract status and reject other offers
+        if (status == OfferStatus.ACCEPTED) {
+            Contract contract = offer.getContract();
+            
+            // Validate contract status
+            if (contract.getContractStatus() != ContractStatus.OFFERED) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                    "Offers can only be accepted for OFFERED contracts");
+            }
+            
+            // Set the accepted offer and update contract status
+            contract.setAcceptedOffer(offer);
+            contract.setContractStatus(ContractStatus.ACCEPTED);
+            contract.setAcceptedDateTime(LocalDateTime.now());
+            
+            // Reject all other offers for this contract
+            List<Offer> otherOffers = offerRepository.findByContract_ContractIdAndOfferStatus(
+                contract.getContractId(), OfferStatus.CREATED);
+            for (Offer otherOffer : otherOffers) {
+                if (!otherOffer.getOfferId().equals(offerId)) {
+                    otherOffer.setOfferStatus(OfferStatus.REJECTED);
+                    offerRepository.save(otherOffer);
+                }
+            }
+            
+            // Save contract changes
+            contractRepository.save(contract);
+        }
+        
+        // Save offer changes
         offer = offerRepository.save(offer);
         log.debug("Updated status of offer {} to {}", offerId, status);
 
