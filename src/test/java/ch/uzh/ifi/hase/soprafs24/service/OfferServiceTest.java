@@ -16,8 +16,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -53,11 +55,25 @@ public class OfferServiceTest {
         testContract = new Contract();
         testContract.setContractId(1L);
         testContract.setContractStatus(ContractStatus.REQUESTED);
+        testContract.setTitle("Test Contract");
+        testContract.setPrice(100.0f);
+        testContract.setCollateral(150.0f);
+        testContract.setMass(50.0f);
+        testContract.setVolume(2.0f);
+        testContract.setFragile(false);
+        testContract.setCoolingRequired(false);
+        testContract.setRideAlong(false);
+        testContract.setManPower(1);
+        testContract.setContractDescription("Test Description");
+        testContract.setMoveDateTime(LocalDateTime.now().plusDays(1));
 
         // Create test driver
         testDriver = new Driver();
         testDriver.setUserId(1L);
         testDriver.setUsername("testdriver");
+        testDriver.setEmail("driver@test.com");
+        testDriver.setPassword("password");
+        testDriver.setToken("1");
 
         // Create test offer
         testOffer = new Offer();
@@ -70,6 +86,12 @@ public class OfferServiceTest {
         testOfferPostDTO = new OfferPostDTO();
         testOfferPostDTO.setContractId(1L);
         testOfferPostDTO.setDriverId(1L);
+
+        // Mock repository responses
+        when(contractRepository.findById(any())).thenReturn(Optional.of(testContract));
+        when(userRepository.findById(any())).thenReturn(Optional.of(testDriver));
+        when(offerRepository.save(any())).thenReturn(testOffer);
+        when(offerRepository.findByContract_ContractIdAndDriver_UserId(any(), any())).thenReturn(Collections.emptyList());
     }
 
     @Test
@@ -98,39 +120,65 @@ public class OfferServiceTest {
         when(contractRepository.findById(any())).thenReturn(Optional.empty());
 
         // when/then
-        assertThrows(ResponseStatusException.class, () -> offerService.createOffer(testOfferPostDTO));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            offerService.createOffer(testOfferPostDTO);
+        });
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
+        assertEquals("Contract not found", exception.getReason());
     }
 
     @Test
     public void createOffer_driverNotFound_throwsException() {
         // given
-        when(contractRepository.findById(any())).thenReturn(Optional.of(testContract));
         when(userRepository.findById(any())).thenReturn(Optional.empty());
 
         // when/then
-        assertThrows(ResponseStatusException.class, () -> offerService.createOffer(testOfferPostDTO));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            offerService.createOffer(testOfferPostDTO);
+        });
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
+        assertEquals("User not found", exception.getReason());
     }
 
     @Test
     public void createOffer_userNotDriver_throwsException() {
         // given
-        when(contractRepository.findById(any())).thenReturn(Optional.of(testContract));
         when(userRepository.findById(any())).thenReturn(Optional.of(new Requester()));
 
         // when/then
-        assertThrows(ResponseStatusException.class, () -> offerService.createOffer(testOfferPostDTO));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            offerService.createOffer(testOfferPostDTO);
+        });
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals("User is not a driver", exception.getReason());
     }
 
     @Test
     public void createOffer_offerAlreadyExists_throwsException() {
         // given
-        when(contractRepository.findById(any())).thenReturn(Optional.of(testContract));
-        when(userRepository.findById(any())).thenReturn(Optional.of(testDriver));
         when(offerRepository.findByContract_ContractIdAndDriver_UserId(any(), any()))
             .thenReturn(Collections.singletonList(testOffer));
 
         // when/then
-        assertThrows(ResponseStatusException.class, () -> offerService.createOffer(testOfferPostDTO));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            offerService.createOffer(testOfferPostDTO);
+        });
+        assertEquals(HttpStatus.CONFLICT, exception.getStatus());
+        assertEquals("An offer already exists for this contract and driver", exception.getReason());
+    }
+
+    @Test
+    public void createOffer_contractInInvalidState_throwsException() {
+        // given
+        testContract.setContractStatus(ContractStatus.ACCEPTED);
+        when(contractRepository.findById(any())).thenReturn(Optional.of(testContract));
+
+        // when/then
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            offerService.createOffer(testOfferPostDTO);
+        });
+        assertEquals(HttpStatus.CONFLICT, exception.getStatus());
+        assertTrue(exception.getReason().contains("Cannot create offer for a contract that is"));
     }
 
     @Test
@@ -152,8 +200,23 @@ public class OfferServiceTest {
         assertNotNull(acceptedOffer);
         assertEquals(OfferStatus.ACCEPTED, acceptedOffer.getOfferStatus());
         assertEquals(ContractStatus.ACCEPTED, testContract.getContractStatus());
+        assertNotNull(testContract.getAcceptedOffer());
+        assertNotNull(testContract.getAcceptedDateTime());
         verify(contractRepository, times(1)).save(any());
         verify(offerRepository, times(1)).save(any());
+    }
+
+    @Test
+    public void acceptOffer_offerNotFound_throwsException() {
+        // given
+        when(offerRepository.findById(any())).thenReturn(Optional.empty());
+
+        // when/then
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            offerService.acceptOffer(1L);
+        });
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
+        assertEquals("Offer not found", exception.getReason());
     }
 
     @Test
@@ -163,7 +226,11 @@ public class OfferServiceTest {
         when(offerRepository.findById(any())).thenReturn(Optional.of(testOffer));
 
         // when/then
-        assertThrows(ResponseStatusException.class, () -> offerService.acceptOffer(1L));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            offerService.acceptOffer(1L);
+        });
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals("Offers can only be accepted for OFFERED contracts", exception.getReason());
     }
 
     @Test
@@ -187,19 +254,36 @@ public class OfferServiceTest {
     }
 
     @Test
+    public void rejectOffer_offerNotFound_throwsException() {
+        // given
+        when(offerRepository.findById(any())).thenReturn(Optional.empty());
+
+        // when/then
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            offerService.rejectOffer(1L);
+        });
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
+        assertEquals("Offer not found", exception.getReason());
+    }
+
+    @Test
     public void rejectOffer_contractNotRequestedOrOffered_throwsException() {
         // given
         testContract.setContractStatus(ContractStatus.ACCEPTED);
         when(offerRepository.findById(any())).thenReturn(Optional.of(testOffer));
 
         // when/then
-        assertThrows(ResponseStatusException.class, () -> offerService.rejectOffer(1L));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            offerService.rejectOffer(1L);
+        });
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals("Offers can only be rejected for REQUESTED or OFFERED contracts", exception.getReason());
     }
 
     @Test
     public void deleteOffer_success() {
         // given
-        testOffer.setOfferStatus(OfferStatus.CREATED);
+        testContract.setContractStatus(ContractStatus.OFFERED);
         when(offerRepository.findById(any())).thenReturn(Optional.of(testOffer));
         when(offerRepository.findByContract_ContractId(any())).thenReturn(Collections.emptyList());
 
@@ -208,6 +292,21 @@ public class OfferServiceTest {
 
         // then
         verify(offerRepository, times(1)).delete(any());
+        verify(contractRepository, times(1)).save(any());
+        assertEquals(ContractStatus.REQUESTED, testContract.getContractStatus());
+    }
+
+    @Test
+    public void deleteOffer_offerNotFound_throwsException() {
+        // given
+        when(offerRepository.findById(any())).thenReturn(Optional.empty());
+
+        // when/then
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            offerService.deleteOffer(1L);
+        });
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
+        assertEquals("Offer not found", exception.getReason());
     }
 
     @Test
@@ -217,7 +316,11 @@ public class OfferServiceTest {
         when(offerRepository.findById(any())).thenReturn(Optional.of(testOffer));
 
         // when/then
-        assertThrows(ResponseStatusException.class, () -> offerService.deleteOffer(1L));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            offerService.deleteOffer(1L);
+        });
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+        assertEquals("Cannot delete an accepted offer", exception.getReason());
     }
 
     @Test
@@ -227,18 +330,25 @@ public class OfferServiceTest {
         when(offerRepository.findById(any())).thenReturn(Optional.of(testOffer));
 
         // when/then
-        assertThrows(ResponseStatusException.class, () -> offerService.deleteOffer(1L));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            offerService.deleteOffer(1L);
+        });
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+        assertEquals("Cannot delete a rejected offer", exception.getReason());
     }
 
     @Test
     public void deleteOffer_acceptedContract_throwsException() {
         // given
         testContract.setContractStatus(ContractStatus.ACCEPTED);
-        testOffer.setOfferStatus(OfferStatus.CREATED);
         when(offerRepository.findById(any())).thenReturn(Optional.of(testOffer));
 
         // when/then
-        assertThrows(ResponseStatusException.class, () -> offerService.deleteOffer(1L));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            offerService.deleteOffer(1L);
+        });
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+        assertEquals("Cannot delete an offer for an accepted contract", exception.getReason());
     }
 
     @Test
@@ -289,6 +399,10 @@ public class OfferServiceTest {
         when(offerRepository.findById(any())).thenReturn(Optional.empty());
 
         // when/then
-        assertThrows(ResponseStatusException.class, () -> offerService.getOffer(1L));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            offerService.getOffer(1L);
+        });
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
+        assertEquals("Offer not found", exception.getReason());
     }
 } 
