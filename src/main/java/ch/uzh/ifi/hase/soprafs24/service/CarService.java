@@ -2,17 +2,15 @@ package ch.uzh.ifi.hase.soprafs24.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Car;
-import ch.uzh.ifi.hase.soprafs24.entity.Driver;
 import ch.uzh.ifi.hase.soprafs24.repository.CarRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.CarDTO;
 
 @Service
 @Transactional
@@ -21,77 +19,58 @@ public class CarService {
     private final Logger log = LoggerFactory.getLogger(CarService.class);
     
     private final CarRepository carRepository;
-    private final UserRepository userRepository;
+    private final CarCreator carCreator;
+    private final CarUpdater carUpdater;
     
-    @Autowired
-    public CarService(@Qualifier("carRepository") CarRepository carRepository,
-                      @Qualifier("userRepository") UserRepository userRepository) {
+    public CarService(CarRepository carRepository,
+                      UserRepository userRepository,
+                      CarCreator carCreator,
+                      CarUpdater carUpdater) {
         this.carRepository = carRepository;
-        this.userRepository = userRepository;
+        this.carCreator = carCreator;
+        this.carUpdater = carUpdater;
     }
     
     /**
      * Creates a new car entity
-     * 
-     * @param car The car entity to create
-     * @return The created car entity
      */
     public Car createCar(Car car) {
-        // Check if car with license plate already exists
-        if (car.getLicensePlate() != null && !car.getLicensePlate().isBlank()) {
-            Car existingCar = carRepository.findByLicensePlate(car.getLicensePlate());
-            if (existingCar != null) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
-                    "A car with this license plate already exists");
-            }
+        Car createdCar = carCreator.createCar(car);
+        log.debug("Created Car: {}", createdCar);
+        return createdCar;
+    }
+    
+    /**
+     * Creates a new car from DTO
+     */
+    public Car createCarFromDTO(CarDTO carDTO) {
+        Car createdCar = carCreator.createCarFromDTO(carDTO);
+        log.debug("Created Car from DTO: {}", createdCar);
+        return createdCar;
+    }
+    
+    /**
+     * Updates an existing car or creates a new one
+     */
+    public Car updateCarFromDTO(Car existingCar, CarDTO carDTO) {
+        // If car doesn't exist, create a new one
+        if (existingCar == null) {
+            return createCarFromDTO(carDTO);
         }
         
-        // Save car to database
-        car = carRepository.save(car);
-        carRepository.flush();
+        // Update and save the car
+        Car updatedCar = carUpdater.updateAndSave(existingCar, carDTO);
         
-        log.debug("Created Car: {}", car);
-        return car;
+        log.debug("Updated Car: {}", updatedCar);
+        return updatedCar;
     }
     
     /**
      * Retrieves a car by ID
-     * 
-     * @param carId The ID of the car to retrieve
-     * @return The car entity
      */
     public Car getCarById(Long carId) {
         return carRepository.findById(carId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
                 "Car with ID " + carId + " not found"));
-    }
-    
-    /**
-     * Associates a car with a driver
-     * 
-     * @param carId The ID of the car
-     * @param driverId The ID of the driver
-     * @return The updated car entity
-     */
-    public Car associateCarWithDriver(Long carId, Long driverId) {
-        Car car = getCarById(carId);
-        
-        // Find driver
-        Driver driver = userRepository.findById(driverId)
-            .filter(user -> user instanceof Driver)
-            .map(user -> (Driver) user)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
-                "Driver with ID " + driverId + " not found"));
-        
-        // Set bidirectional relationship
-        car.setDriver(driver);
-        driver.setCar(car);
-        
-        // Save entities
-        car = carRepository.save(car);
-        carRepository.flush();
-        
-        log.debug("Associated Car: {} with Driver: {}", car.getCarId(), driver.getUserId());
-        return car;
     }
 }

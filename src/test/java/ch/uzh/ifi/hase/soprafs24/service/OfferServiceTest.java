@@ -11,6 +11,10 @@ import ch.uzh.ifi.hase.soprafs24.repository.OfferRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.mapper.ContractDTOMapper;
+import ch.uzh.ifi.hase.soprafs24.rest.mapper.OfferDTOMapper;
+import org.springframework.test.util.ReflectionTestUtils;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -26,10 +30,18 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
 public class OfferServiceTest {
 
+    @Mock
+    private OfferDTOMapper offerDTOMapper;
+
+    @Mock 
+    private ContractDTOMapper contractDTOMapper;
+
+    private OfferGetDTO testOfferGetDTO;
     @Mock
     private OfferRepository offerRepository;
 
@@ -87,33 +99,60 @@ public class OfferServiceTest {
         testOfferPostDTO.setContractId(1L);
         testOfferPostDTO.setDriverId(1L);
 
+        testOfferGetDTO = new OfferGetDTO();
+        testOfferGetDTO.setOfferId(1L);
+        testOfferGetDTO.setOfferStatus(OfferStatus.CREATED);
+        
+        // Configure the mappers to return expected DTOs
+        when(offerDTOMapper.convertEntityToOfferGetDTO(any(Offer.class)))
+            .thenReturn(testOfferGetDTO);
+            
+        // Set the mapper in your service using reflection
+        ReflectionTestUtils.setField(offerService, "offerDTOMapper", offerDTOMapper);
+
         // Mock repository responses
         when(contractRepository.findById(any())).thenReturn(Optional.of(testContract));
         when(userRepository.findById(any())).thenReturn(Optional.of(testDriver));
-        when(offerRepository.save(any())).thenReturn(testOffer);
         when(offerRepository.findByContract_ContractIdAndDriver_UserId(any(), any())).thenReturn(Collections.emptyList());
     }
 
     @Test
     public void createOffer_success() {
         // given
-        when(contractRepository.findById(any())).thenReturn(Optional.of(testContract));
-        when(userRepository.findById(any())).thenReturn(Optional.of(testDriver));
-        when(offerRepository.findByContract_ContractIdAndDriver_UserId(any(), any()))
-            .thenReturn(Collections.emptyList());
-        when(offerRepository.save(any())).thenReturn(testOffer);
+        // Create a complete offer to be returned by the repository
+        Offer savedOffer = new Offer();
+        savedOffer.setOfferId(1L);
+        savedOffer.setContract(testContract);
+        savedOffer.setDriver(testDriver);
+        savedOffer.setOfferStatus(OfferStatus.CREATED);
+        
+        // Create a new offer that will be returned by the mapper
+        Offer newOffer = new Offer();
+        
+        // Mock the convertOfferPostDTOtoEntity method
+        when(offerDTOMapper.convertOfferPostDTOtoEntity(any(OfferPostDTO.class)))
+            .thenReturn(newOffer);
+        
+        when(offerRepository.save(any())).thenReturn(savedOffer);
+        
+        // For the mapper, make sure to always return a valid DTO
+        OfferGetDTO offerDTO = new OfferGetDTO();
+        offerDTO.setOfferId(1L);
+        offerDTO.setOfferStatus(OfferStatus.CREATED);
+        
+        // Use this mock configuration instead of the one in setup()
+        when(offerDTOMapper.convertEntityToOfferGetDTO(any(Offer.class))).thenReturn(offerDTO);
 
         // when
         OfferGetDTO createdOffer = offerService.createOffer(testOfferPostDTO);
 
         // then
         assertNotNull(createdOffer);
-        assertEquals(testOffer.getOfferId(), createdOffer.getOfferId());
-        assertEquals(testOffer.getOfferStatus(), createdOffer.getOfferStatus());
+        assertEquals(offerDTO.getOfferId(), createdOffer.getOfferId());
+        assertEquals(offerDTO.getOfferStatus(), createdOffer.getOfferStatus());
         verify(contractRepository, times(1)).save(any());
         verify(offerRepository, times(1)).save(any());
     }
-
     @Test
     public void createOffer_contractNotFound_throwsException() {
         // given
@@ -190,8 +229,22 @@ public class OfferServiceTest {
         when(offerRepository.findById(any())).thenReturn(Optional.of(testOffer));
         when(offerRepository.findByContract_ContractIdAndOfferStatus(any(), any()))
             .thenReturn(Collections.emptyList());
-        when(contractRepository.save(any())).thenReturn(testContract);
-        when(offerRepository.save(any())).thenReturn(testOffer);
+        
+        // Configure the save behavior to update the offer status
+        when(offerRepository.save(any())).thenAnswer(invocation -> {
+            Offer savedOffer = invocation.getArgument(0);
+            testOffer.setOfferStatus(savedOffer.getOfferStatus());
+            return testOffer;
+        });
+        
+        // Create a DTO that will be returned when offer is ACCEPTED
+        OfferGetDTO acceptedDTO = new OfferGetDTO();
+        acceptedDTO.setOfferId(1L);
+        acceptedDTO.setOfferStatus(OfferStatus.ACCEPTED);
+        
+        // Override the original mapper configuration
+        when(offerDTOMapper.convertEntityToOfferGetDTO(argThat(offer -> 
+            offer.getOfferStatus() == OfferStatus.ACCEPTED))).thenReturn(acceptedDTO);
 
         // when
         OfferGetDTO acceptedOffer = offerService.acceptOffer(1L);
@@ -242,7 +295,22 @@ public class OfferServiceTest {
         when(offerRepository.findById(any())).thenReturn(Optional.of(testOffer));
         when(offerRepository.findByContract_ContractIdAndOfferStatus(any(), any()))
             .thenReturn(Collections.emptyList());
-        when(offerRepository.save(any())).thenReturn(testOffer);
+        
+        // Configure the save behavior to update the offer status
+        when(offerRepository.save(any())).thenAnswer(invocation -> {
+            Offer savedOffer = invocation.getArgument(0);
+            testOffer.setOfferStatus(savedOffer.getOfferStatus());
+            return testOffer;
+        });
+        
+        // Create a DTO that will be returned when offer is REJECTED
+        OfferGetDTO rejectedDTO = new OfferGetDTO();
+        rejectedDTO.setOfferId(1L);
+        rejectedDTO.setOfferStatus(OfferStatus.REJECTED);
+        
+        // Override the original mapper configuration
+        when(offerDTOMapper.convertEntityToOfferGetDTO(argThat(offer -> 
+            offer.getOfferStatus() == OfferStatus.REJECTED))).thenReturn(rejectedDTO);
 
         // when
         OfferGetDTO rejectedOffer = offerService.rejectOffer(1L);
@@ -405,4 +473,4 @@ public class OfferServiceTest {
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
         assertEquals("Offer not found", exception.getReason());
     }
-} 
+}

@@ -17,7 +17,7 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractPutDTO;
  * representation (ContractGetDTO for getting, ContractPostDTO for creating)
  * and vice versa.
  */
-@Mapper
+@Mapper(componentModel = "spring")
 public interface ContractDTOMapper {
 
     ContractDTOMapper INSTANCE = Mappers.getMapper(ContractDTOMapper.class);

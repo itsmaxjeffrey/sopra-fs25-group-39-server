@@ -1,6 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.rest.mapper;
 
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Driver;
 import ch.uzh.ifi.hase.soprafs24.entity.Requester;
@@ -11,7 +11,7 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.response.AuthenticatedDriverDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.response.AuthenticatedRequesterDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.response.AuthenticatedUserDTO;
 
-@Service
+@Component
 public class UserDTOMapper {
     
     public AuthenticatedUserDTO convertToDTO(User user) {
