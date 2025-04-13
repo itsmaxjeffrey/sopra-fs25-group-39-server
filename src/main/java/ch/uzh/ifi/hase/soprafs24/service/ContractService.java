@@ -58,20 +58,18 @@ public class ContractService {
      * @return The created contract entity
      */
     public Contract createContract(Contract contract) {
-        // Validate requester exists
+        // First validate and set up the requester
         final Long requesterId = contract.getRequester().getUserId();
         Requester requester = (Requester) userRepository.findById(requesterId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
                 "Requester with ID " + requesterId + " not found"));
+        contract.setRequester(requester);
 
-        // Validate contract data
+        // Then validate the rest of the contract data
         validateContractData(contract);
 
         // Set initial contract status
         contract.setContractStatus(ContractStatus.REQUESTED);
-        
-        // Set requester
-        contract.setRequester(requester);
         
         // Save contract to database
         contract = contractRepository.save(contract);
