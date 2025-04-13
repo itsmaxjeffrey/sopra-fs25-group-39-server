@@ -455,14 +455,14 @@ public class ContractService {
         Contract contract = getContractById(contractId);
         
         // Check if contract can be fulfilled
-        if (contract.getContractStatus() != ContractStatus.ACCEPTED) {
+        if (contract.getContractStatus() != ContractStatus.COMPLETED) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, 
-                "Only accepted contracts can be fulfilled");
+                "Only completed contracts can be fulfilled");
         }
         
-        if (contract.getContractStatus() == ContractStatus.COMPLETED) {
+        if (contract.getContractStatus() == ContractStatus.FINALIZED) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, 
-                "Contract is already completed");
+                "Contract is already finalized");
         }
         
         if (contract.getContractStatus() == ContractStatus.CANCELED) {
@@ -471,7 +471,7 @@ public class ContractService {
         }
         
         // Update contract status
-        contract.setContractStatus(ContractStatus.COMPLETED);
+        contract.setContractStatus(ContractStatus.FINALIZED);
         
         // Save the updated contract
         return contractRepository.save(contract);
