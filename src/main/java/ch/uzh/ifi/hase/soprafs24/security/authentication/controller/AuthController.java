@@ -28,14 +28,14 @@ import ch.uzh.ifi.hase.soprafs24.user.mapper.UserDTOMapper;
 public class AuthController {
 
     private final AuthService authService;
-
-    
-    private UserDTOMapper userDTOMapper;
+    private final UserDTOMapper userDTOMapper;
 
     public AuthController(
         AuthService authService,
-        UserRegistrationService userRegistrationService) {
+        UserRegistrationService userRegistrationService,
+        UserDTOMapper userDTOMapper) {
             this.authService = authService;
+            this.userDTOMapper = userDTOMapper;
     }
 
     

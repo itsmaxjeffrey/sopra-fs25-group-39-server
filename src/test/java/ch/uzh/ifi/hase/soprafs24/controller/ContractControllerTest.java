@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs24.controller;
 import ch.uzh.ifi.hase.soprafs24.entity.Contract;
 import ch.uzh.ifi.hase.soprafs24.entity.Requester;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.entity.Driver;
 import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
 import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
 import ch.uzh.ifi.hase.soprafs24.service.ContractService;
@@ -121,6 +122,11 @@ public class ContractControllerTest {
         contract.setContractId(1L);
         contract.setTitle("Test Contract");
         contract.setContractStatus(ContractStatus.REQUESTED);
+        
+        // Set up the requester
+        Requester requester = new Requester();
+        requester.setUserId(TEST_USER_ID);
+        contract.setRequester(requester);
 
         given(contractService.getContractById(1L)).willReturn(contract);
         given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(new User());
@@ -131,9 +137,169 @@ public class ContractControllerTest {
                 .header("Authorization", TEST_TOKEN)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.contractId", is(contract.getContractId().intValue())))
-                .andExpect(jsonPath("$.title", is(contract.getTitle())))
-                .andExpect(jsonPath("$.contractStatus", is("REQUESTED")));
+                .andExpect(jsonPath("$.contract.contractId", is(contract.getContractId().intValue())))
+                .andExpect(jsonPath("$.contract.title", is(contract.getTitle())))
+                .andExpect(jsonPath("$.contract.contractStatus", is("REQUESTED")))
+                .andExpect(jsonPath("$.timestamp", notNullValue()));
+    }
+
+    @Test
+    public void getContractById_requesterAccessOwnContract_success() throws Exception {
+        // given
+        Contract contract = new Contract();
+        contract.setContractId(1L);
+        contract.setTitle("Test Contract");
+        contract.setContractStatus(ContractStatus.REQUESTED);
+        
+        // Set up the requester
+        Requester requester = new Requester();
+        requester.setUserId(TEST_USER_ID);
+        contract.setRequester(requester);
+
+        // Set up authenticated user as requester
+        User authenticatedUser = new User();
+        authenticatedUser.setUserId(TEST_USER_ID);
+        authenticatedUser.setUserAccountType(UserAccountType.REQUESTER);
+
+        given(contractService.getContractById(1L)).willReturn(contract);
+        given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(authenticatedUser);
+
+        // when/then
+        mockMvc.perform(get("/api/v1/contracts/1")
+                .header("UserId", TEST_USER_ID)
+                .header("Authorization", TEST_TOKEN)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.contract.contractId", is(contract.getContractId().intValue())))
+                .andExpect(jsonPath("$.contract.title", is(contract.getTitle())))
+                .andExpect(jsonPath("$.contract.contractStatus", is("REQUESTED")))
+                .andExpect(jsonPath("$.timestamp", notNullValue()));
+    }
+
+    @Test
+    public void getContractById_requesterAccessOtherContract_throwsException() throws Exception {
+        // given
+        Contract contract = new Contract();
+        contract.setContractId(1L);
+        contract.setTitle("Test Contract");
+        contract.setContractStatus(ContractStatus.REQUESTED);
+        
+        // Set up a different requester
+        Requester requester = new Requester();
+        requester.setUserId(999L); // Different user ID
+        contract.setRequester(requester);
+
+        // Set up authenticated user as requester
+        User authenticatedUser = new User();
+        authenticatedUser.setUserId(TEST_USER_ID);
+        authenticatedUser.setUserAccountType(UserAccountType.REQUESTER);
+
+        given(contractService.getContractById(1L)).willReturn(contract);
+        given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(authenticatedUser);
+
+        // when/then
+        mockMvc.perform(get("/api/v1/contracts/1")
+                .header("UserId", TEST_USER_ID)
+                .header("Authorization", TEST_TOKEN)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message", is("You are not authorized to view this contract")))
+                .andExpect(jsonPath("$.timestamp", notNullValue()));
+    }
+
+    @Test
+    public void getContractById_driverAccessUnassignedContract_success() throws Exception {
+        // given
+        Contract contract = new Contract();
+        contract.setContractId(1L);
+        contract.setTitle("Test Contract");
+        contract.setContractStatus(ContractStatus.REQUESTED);
+        
+        // Contract has no driver assigned
+        contract.setDriver(null);
+
+        // Set up authenticated user as driver
+        User authenticatedUser = new User();
+        authenticatedUser.setUserId(TEST_USER_ID);
+        authenticatedUser.setUserAccountType(UserAccountType.DRIVER);
+
+        given(contractService.getContractById(1L)).willReturn(contract);
+        given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(authenticatedUser);
+
+        // when/then
+        mockMvc.perform(get("/api/v1/contracts/1")
+                .header("UserId", TEST_USER_ID)
+                .header("Authorization", TEST_TOKEN)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.contract.contractId", is(contract.getContractId().intValue())))
+                .andExpect(jsonPath("$.contract.title", is(contract.getTitle())))
+                .andExpect(jsonPath("$.contract.contractStatus", is("REQUESTED")))
+                .andExpect(jsonPath("$.timestamp", notNullValue()));
+    }
+
+    @Test
+    public void getContractById_driverAccessAssignedContract_success() throws Exception {
+        // given
+        Contract contract = new Contract();
+        contract.setContractId(1L);
+        contract.setTitle("Test Contract");
+        contract.setContractStatus(ContractStatus.ACCEPTED);
+        
+        // Set up the driver
+        Driver driver = new Driver();
+        driver.setUserId(TEST_USER_ID);
+        contract.setDriver(driver);
+
+        // Set up authenticated user as driver
+        User authenticatedUser = new User();
+        authenticatedUser.setUserId(TEST_USER_ID);
+        authenticatedUser.setUserAccountType(UserAccountType.DRIVER);
+
+        given(contractService.getContractById(1L)).willReturn(contract);
+        given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(authenticatedUser);
+
+        // when/then
+        mockMvc.perform(get("/api/v1/contracts/1")
+                .header("UserId", TEST_USER_ID)
+                .header("Authorization", TEST_TOKEN)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.contract.contractId", is(contract.getContractId().intValue())))
+                .andExpect(jsonPath("$.contract.title", is(contract.getTitle())))
+                .andExpect(jsonPath("$.contract.contractStatus", is("ACCEPTED")))
+                .andExpect(jsonPath("$.timestamp", notNullValue()));
+    }
+
+    @Test
+    public void getContractById_driverAccessOtherDriverContract_throwsException() throws Exception {
+        // given
+        Contract contract = new Contract();
+        contract.setContractId(1L);
+        contract.setTitle("Test Contract");
+        contract.setContractStatus(ContractStatus.ACCEPTED);
+        
+        // Set up a different driver
+        Driver driver = new Driver();
+        driver.setUserId(999L); // Different user ID
+        contract.setDriver(driver);
+
+        // Set up authenticated user as driver
+        User authenticatedUser = new User();
+        authenticatedUser.setUserId(TEST_USER_ID);
+        authenticatedUser.setUserAccountType(UserAccountType.DRIVER);
+
+        given(contractService.getContractById(1L)).willReturn(contract);
+        given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(authenticatedUser);
+
+        // when/then
+        mockMvc.perform(get("/api/v1/contracts/1")
+                .header("UserId", TEST_USER_ID)
+                .header("Authorization", TEST_TOKEN)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message", is("You are not authorized to view this contract")))
+                .andExpect(jsonPath("$.timestamp", notNullValue()));
     }
 
     @Test

@@ -283,12 +283,47 @@ public class ContractController {
     @GetMapping("/api/v1/contracts/{contractId}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public ContractGetDTO getContractById(@PathVariable Long contractId) {
+    public ResponseEntity<Object> getContractById(
+            @PathVariable Long contractId,
+            @RequestHeader("UserId") Long userId,
+            @RequestHeader("Authorization") String token) {
+        
+        // Authenticate user
+        User authenticatedUser = authorizationService.authenticateUser(userId, token);
+        if (authenticatedUser == null) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Invalid credentials");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
+
         // Get contract from service
         Contract contract = contractService.getContractById(contractId);
         
+        // Check if user is authorized to view the contract
+        if (authenticatedUser.getUserAccountType() == UserAccountType.DRIVER) {
+            // Drivers can access unassigned contracts or contracts assigned to them
+            if (contract.getDriver() != null && !contract.getDriver().getUserId().equals(userId)) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "You are not authorized to view this contract");
+                response.put("timestamp", System.currentTimeMillis());
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            }
+        } else if (authenticatedUser.getUserAccountType() == UserAccountType.REQUESTER) {
+            // Requesters can only access their own contracts
+            if (!contract.getRequester().getUserId().equals(userId)) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "You are not authorized to view this contract");
+                response.put("timestamp", System.currentTimeMillis());
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            }
+        }
+        
         // Convert to DTO and return
-        return ContractDTOMapper.INSTANCE.convertContractEntityToContractGetDTO(contract);
+        Map<String, Object> response = new HashMap<>();
+        response.put("contract", ContractDTOMapper.INSTANCE.convertContractEntityToContractGetDTO(contract));
+        response.put("timestamp", System.currentTimeMillis());
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     /**
