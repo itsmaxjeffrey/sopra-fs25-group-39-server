@@ -466,21 +466,57 @@ public class ContractController {
     @PutMapping("/api/v1/contracts/{id}/cancel")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public ContractGetDTO cancelContract(
+    public ResponseEntity<Object> cancelContract(
             @PathVariable("id") Long contractId,
+            @RequestHeader("UserId") Long userId,
+            @RequestHeader("Authorization") String token,
             @RequestBody ContractCancelDTO contractCancelDTO) {
+        
+        // Authenticate user
+        User authenticatedUser = authorizationService.authenticateUser(userId, token);
+        if (authenticatedUser == null) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Invalid credentials");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
+
+        // Verify user is a requester
+        if (!authenticatedUser.getUserAccountType().equals(UserAccountType.REQUESTER)) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Only requesters can cancel contracts");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+        }
+
+        // Get contract from service
+        Contract contract = contractService.getContractById(contractId);
+        
+        // Check if user is authorized to cancel the contract
+        if (!contract.getRequester().getUserId().equals(userId)) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "You are not authorized to cancel this contract");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+        }
         
         // Validate cancellation reason
         if (contractCancelDTO.getReason() == null || contractCancelDTO.getReason().trim().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
-                "Cancellation reason is required");
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Cancellation reason is required");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
         
         // Cancel the contract
         Contract cancelledContract = contractService.cancelContract(contractId, contractCancelDTO.getReason());
         
-        // Convert to DTO and return
-        return ContractDTOMapper.INSTANCE.convertContractEntityToContractGetDTO(cancelledContract);
+        // Create response with standard format
+        Map<String, Object> response = new HashMap<>();
+        response.put("contract", ContractDTOMapper.INSTANCE.convertContractEntityToContractGetDTO(cancelledContract));
+        response.put("timestamp", System.currentTimeMillis());
+        
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     /**

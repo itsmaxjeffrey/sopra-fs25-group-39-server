@@ -389,20 +389,159 @@ public class ContractControllerTest {
         ContractCancelDTO contractCancelDTO = new ContractCancelDTO();
         contractCancelDTO.setReason("Test cancellation reason");
 
+        // Set up the contract
+        Contract contract = new Contract();
+        contract.setContractId(1L);
+        contract.setContractStatus(ContractStatus.REQUESTED);
+        
+        // Set up the requester
+        Requester requester = new Requester();
+        requester.setUserId(TEST_USER_ID);
+        contract.setRequester(requester);
+
+        // Set up authenticated user as requester
+        User authenticatedUser = new User();
+        authenticatedUser.setUserId(TEST_USER_ID);
+        authenticatedUser.setUserAccountType(UserAccountType.REQUESTER);
+
+        // Set up cancelled contract
         Contract cancelledContract = new Contract();
         cancelledContract.setContractId(1L);
         cancelledContract.setContractStatus(ContractStatus.CANCELED);
         cancelledContract.setCancelReason(contractCancelDTO.getReason());
+        cancelledContract.setRequester(requester);
 
+        // Mock service responses
+        given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(authenticatedUser);
+        given(contractService.getContractById(1L)).willReturn(contract);
         given(contractService.cancelContract(Mockito.any(), Mockito.any())).willReturn(cancelledContract);
 
         // when/then
         mockMvc.perform(put("/api/v1/contracts/1/cancel")
+                .header("UserId", TEST_USER_ID)
+                .header("Authorization", TEST_TOKEN)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(contractCancelDTO)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.contractId", is(cancelledContract.getContractId().intValue())))
-                .andExpect(jsonPath("$.contractStatus", is("CANCELED")));
+                .andExpect(jsonPath("$.contract.contractId", is(cancelledContract.getContractId().intValue())))
+                .andExpect(jsonPath("$.contract.contractStatus", is("CANCELED")))
+                .andExpect(jsonPath("$.timestamp", notNullValue()));
+    }
+
+    @Test
+    public void cancelContract_unauthorized() throws Exception {
+        // given
+        ContractCancelDTO contractCancelDTO = new ContractCancelDTO();
+        contractCancelDTO.setReason("Test cancellation reason");
+
+        // Mock authentication failure
+        given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(null);
+
+        // when/then
+        mockMvc.perform(put("/api/v1/contracts/1/cancel")
+                .header("UserId", TEST_USER_ID)
+                .header("Authorization", TEST_TOKEN)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(contractCancelDTO)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message", is("Invalid credentials")))
+                .andExpect(jsonPath("$.timestamp", notNullValue()));
+    }
+
+    @Test
+    public void cancelContract_forbidden_driver() throws Exception {
+        // given
+        ContractCancelDTO contractCancelDTO = new ContractCancelDTO();
+        contractCancelDTO.setReason("Test cancellation reason");
+
+        // Set up authenticated user as driver
+        User authenticatedUser = new User();
+        authenticatedUser.setUserId(TEST_USER_ID);
+        authenticatedUser.setUserAccountType(UserAccountType.DRIVER);
+
+        // Mock service responses
+        given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(authenticatedUser);
+
+        // when/then
+        mockMvc.perform(put("/api/v1/contracts/1/cancel")
+                .header("UserId", TEST_USER_ID)
+                .header("Authorization", TEST_TOKEN)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(contractCancelDTO)))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message", is("Only requesters can cancel contracts")))
+                .andExpect(jsonPath("$.timestamp", notNullValue()));
+    }
+
+    @Test
+    public void cancelContract_forbidden_otherRequester() throws Exception {
+        // given
+        ContractCancelDTO contractCancelDTO = new ContractCancelDTO();
+        contractCancelDTO.setReason("Test cancellation reason");
+
+        // Set up the contract with a different requester
+        Contract contract = new Contract();
+        contract.setContractId(1L);
+        contract.setContractStatus(ContractStatus.REQUESTED);
+        
+        Requester requester = new Requester();
+        requester.setUserId(999L); // Different user ID
+        contract.setRequester(requester);
+
+        // Set up authenticated user as requester
+        User authenticatedUser = new User();
+        authenticatedUser.setUserId(TEST_USER_ID);
+        authenticatedUser.setUserAccountType(UserAccountType.REQUESTER);
+
+        // Mock service responses
+        given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(authenticatedUser);
+        given(contractService.getContractById(1L)).willReturn(contract);
+
+        // when/then
+        mockMvc.perform(put("/api/v1/contracts/1/cancel")
+                .header("UserId", TEST_USER_ID)
+                .header("Authorization", TEST_TOKEN)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(contractCancelDTO)))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message", is("You are not authorized to cancel this contract")))
+                .andExpect(jsonPath("$.timestamp", notNullValue()));
+    }
+
+    @Test
+    public void cancelContract_badRequest_missingReason() throws Exception {
+        // given
+        ContractCancelDTO contractCancelDTO = new ContractCancelDTO();
+        contractCancelDTO.setReason(""); // Empty reason
+
+        // Set up the contract
+        Contract contract = new Contract();
+        contract.setContractId(1L);
+        contract.setContractStatus(ContractStatus.REQUESTED);
+        
+        // Set up the requester
+        Requester requester = new Requester();
+        requester.setUserId(TEST_USER_ID);
+        contract.setRequester(requester);
+
+        // Set up authenticated user as requester
+        User authenticatedUser = new User();
+        authenticatedUser.setUserId(TEST_USER_ID);
+        authenticatedUser.setUserAccountType(UserAccountType.REQUESTER);
+
+        // Mock service responses
+        given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(authenticatedUser);
+        given(contractService.getContractById(1L)).willReturn(contract);
+
+        // when/then
+        mockMvc.perform(put("/api/v1/contracts/1/cancel")
+                .header("UserId", TEST_USER_ID)
+                .header("Authorization", TEST_TOKEN)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(contractCancelDTO)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is("Cancellation reason is required")))
+                .andExpect(jsonPath("$.timestamp", notNullValue()));
     }
 
     @Test
