@@ -4,16 +4,22 @@ import ch.uzh.ifi.hase.soprafs24.entity.Contract;
 import ch.uzh.ifi.hase.soprafs24.entity.Requester;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
+import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
 import ch.uzh.ifi.hase.soprafs24.service.ContractService;
 import ch.uzh.ifi.hase.soprafs24.service.LocationService;
 import ch.uzh.ifi.hase.soprafs24.service.ContractPollingService;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractCancelDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractPutDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
 import ch.uzh.ifi.hase.soprafs24.security.authorization.service.AuthorizationService;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +30,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Arrays;
+import java.text.SimpleDateFormat;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -527,6 +535,89 @@ public class ContractControllerTest {
                 .andExpect(jsonPath("$.contracts[0].title", is(contract.getTitle())))
                 .andExpect(jsonPath("$.contracts[0].contractStatus", is("REQUESTED")))
                 .andExpect(jsonPath("$.timestamp", notNullValue()));
+    }
+
+    @Test
+    public void createContract_unauthorized() throws Exception {
+        // Setup test data
+        ContractPostDTO contractPostDTO = new ContractPostDTO();
+        contractPostDTO.setTitle("Test Contract");
+
+        // Mock authentication failure
+        given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(null);
+
+        // Perform request
+        mockMvc.perform(post("/api/v1/contracts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("UserId", TEST_USER_ID)
+                .header("Authorization", TEST_TOKEN)
+                .content(asJsonString(contractPostDTO)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message", is("Invalid credentials")))
+                .andExpect(jsonPath("$.timestamp", notNullValue()));
+    }
+
+    @Test
+    public void createContract_forbidden() throws Exception {
+        // Setup test data
+        ContractPostDTO contractPostDTO = new ContractPostDTO();
+        contractPostDTO.setTitle("Test Contract");
+
+        // Mock authentication for non-requester
+        User authenticatedUser = new User();
+        authenticatedUser.setUserId(TEST_USER_ID);
+        authenticatedUser.setUserAccountType(UserAccountType.DRIVER);
+        given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(authenticatedUser);
+
+        // Perform request
+        mockMvc.perform(post("/api/v1/contracts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("UserId", TEST_USER_ID)
+                .header("Authorization", TEST_TOKEN)
+                .content(asJsonString(contractPostDTO)))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message", is("Only requesters can create contracts")))
+                .andExpect(jsonPath("$.timestamp", notNullValue()));
+    }
+
+    @Test
+    public void createContract_missingHeaders() throws Exception {
+        // Setup test data
+        ContractPostDTO contractPostDTO = new ContractPostDTO();
+        contractPostDTO.setTitle("Test Contract");
+
+        // Perform request without headers
+        mockMvc.perform(post("/api/v1/contracts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(contractPostDTO)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void createContract_invalidData() throws Exception {
+        // Setup test data with invalid values
+        ContractPostDTO contractPostDTO = new ContractPostDTO();
+        contractPostDTO.setTitle(""); // Empty title
+        contractPostDTO.setMass(-1.0f); // Negative mass
+        contractPostDTO.setVolume(-1.0f); // Negative volume
+        contractPostDTO.setManPower(-1); // Negative man power
+        contractPostDTO.setPrice(-1.0f); // Negative price
+        contractPostDTO.setCollateral(-1.0f); // Negative collateral
+        contractPostDTO.setMoveDateTime(LocalDateTime.now().minusDays(1)); // Past date
+
+        // Mock authentication
+        User authenticatedUser = new User();
+        authenticatedUser.setUserId(TEST_USER_ID);
+        authenticatedUser.setUserAccountType(UserAccountType.REQUESTER);
+        given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(authenticatedUser);
+
+        // Perform request
+        mockMvc.perform(post("/api/v1/contracts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("UserId", TEST_USER_ID)
+                .header("Authorization", TEST_TOKEN)
+                .content(asJsonString(contractPostDTO)))
+                .andExpect(status().isBadRequest());
     }
 
     /**

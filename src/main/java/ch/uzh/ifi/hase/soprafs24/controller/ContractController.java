@@ -42,6 +42,7 @@ import ch.uzh.ifi.hase.soprafs24.security.authorization.service.AuthorizationSer
 import ch.uzh.ifi.hase.soprafs24.service.ContractPollingService;
 import ch.uzh.ifi.hase.soprafs24.service.ContractService;
 import ch.uzh.ifi.hase.soprafs24.service.LocationService;
+import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
 
 @RestController
 public class ContractController {
@@ -137,13 +138,36 @@ public class ContractController {
 
     /**
      * Create a new contract
+     * @param userId User ID from header
+     * @param token Authentication token from header
      * @param contractPostDTO the contract data
      * @return the created contract
      */
     @PostMapping("/api/v1/contracts")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public ContractGetDTO createContract(@RequestBody ContractPostDTO contractPostDTO) {
+    public ResponseEntity<Object> createContract(
+            @RequestHeader("UserId") Long userId,
+            @RequestHeader("Authorization") String token,
+            @RequestBody ContractPostDTO contractPostDTO) {
+        
+        // Authenticate user
+        User authenticatedUser = authorizationService.authenticateUser(userId, token);
+        if (authenticatedUser == null) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Invalid credentials");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
+
+        // Verify user is a requester
+        if (!authenticatedUser.getUserAccountType().equals(UserAccountType.REQUESTER)) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Only requesters can create contracts");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+        }
+
         validateContractPostDTO(contractPostDTO);
 
         // Create locations first
@@ -157,6 +181,7 @@ public class ContractController {
         Contract contractInput = ContractDTOMapper.INSTANCE.convertContractPostDTOtoEntity(contractPostDTO);
         contractInput.setFromAddress(fromLocation);
         contractInput.setToAddress(toLocation);
+        contractInput.setRequester(ContractDTOMapper.INSTANCE.map(userId)); // Set the requester using the mapper
 
         // Initialize contract photos if not provided
         if (contractInput.getContractPhotos() == null) {
@@ -169,7 +194,12 @@ public class ContractController {
         // Notify waiting clients via ContractPollingService
         contractPollingService.updateFutures(createdContract, fromLocation.getLatitude(), fromLocation.getLongitude());
 
-        return ContractDTOMapper.INSTANCE.convertContractEntityToContractGetDTO(createdContract);
+        // Create response with standard format
+        Map<String, Object> response = new HashMap<>();
+        response.put("contract", ContractDTOMapper.INSTANCE.convertContractEntityToContractGetDTO(createdContract));
+        response.put("timestamp", System.currentTimeMillis());
+
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     /**
