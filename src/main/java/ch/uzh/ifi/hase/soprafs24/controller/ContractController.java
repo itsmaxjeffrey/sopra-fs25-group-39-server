@@ -302,13 +302,30 @@ public class ContractController {
         
         // Check if user is authorized to view the contract
         if (authenticatedUser.getUserAccountType() == UserAccountType.DRIVER) {
-            // Drivers can access unassigned contracts or contracts assigned to them
-            if (contract.getDriver() != null && !contract.getDriver().getUserId().equals(userId)) {
-                Map<String, Object> response = new HashMap<>();
-                response.put("message", "You are not authorized to view this contract");
-                response.put("timestamp", System.currentTimeMillis());
-                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            // Drivers can only access contracts that are:
+            // 1. In REQUESTED state (available for offers)
+            // 2. In OFFERED state and they have made an offer
+            // 3. Assigned to them (ACCEPTED state)
+            if (contract.getContractStatus() == ContractStatus.REQUESTED) {
+                // All drivers can see REQUESTED contracts
+                return createContractResponse(contract);
+            } else if (contract.getContractStatus() == ContractStatus.OFFERED) {
+                // Only drivers who have made an offer can see OFFERED contracts
+                if (contract.getDriver() != null && contract.getDriver().getUserId().equals(userId)) {
+                    return createContractResponse(contract);
+                }
+            } else if (contract.getContractStatus() == ContractStatus.ACCEPTED) {
+                // Only the assigned driver can see ACCEPTED contracts
+                if (contract.getDriver() != null && contract.getDriver().getUserId().equals(userId)) {
+                    return createContractResponse(contract);
+                }
             }
+            
+            // If none of the above conditions are met, the driver is not authorized
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "You are not authorized to view this contract");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
         } else if (authenticatedUser.getUserAccountType() == UserAccountType.REQUESTER) {
             // Requesters can only access their own contracts
             if (!contract.getRequester().getUserId().equals(userId)) {
@@ -317,9 +334,17 @@ public class ContractController {
                 response.put("timestamp", System.currentTimeMillis());
                 return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
             }
+            return createContractResponse(contract);
         }
         
-        // Convert to DTO and return
+        // This should never happen, but just in case
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Invalid user account type");
+        response.put("timestamp", System.currentTimeMillis());
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    }
+
+    private ResponseEntity<Object> createContractResponse(Contract contract) {
         Map<String, Object> response = new HashMap<>();
         response.put("contract", ContractDTOMapper.INSTANCE.convertContractEntityToContractGetDTO(contract));
         response.put("timestamp", System.currentTimeMillis());

@@ -41,16 +41,18 @@ public class OfferService {
     private final OfferRepository offerRepository;
     private final ContractRepository contractRepository;
     private final UserRepository userRepository;
-    private final OfferDTOMapper offerDTOMapper = OfferDTOMapper.INSTANCE;
+    private final OfferDTOMapper offerDTOMapper;
 
     @Autowired
     public OfferService(
             @Qualifier("offerRepository") OfferRepository offerRepository,
             @Qualifier("contractRepository") ContractRepository contractRepository,
-            @Qualifier("userRepository") UserRepository userRepository) {
+            @Qualifier("userRepository") UserRepository userRepository,
+            OfferDTOMapper offerDTOMapper) {
         this.offerRepository = offerRepository;
         this.contractRepository = contractRepository;
         this.userRepository = userRepository;
+        this.offerDTOMapper = offerDTOMapper;
     }
 
     /**

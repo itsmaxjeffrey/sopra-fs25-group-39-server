@@ -128,8 +128,13 @@ public class ContractControllerTest {
         requester.setUserId(TEST_USER_ID);
         contract.setRequester(requester);
 
+        // Set up authenticated user as requester
+        User authenticatedUser = new User();
+        authenticatedUser.setUserId(TEST_USER_ID);
+        authenticatedUser.setUserAccountType(UserAccountType.REQUESTER);
+
         given(contractService.getContractById(1L)).willReturn(contract);
-        given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(new User());
+        given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(authenticatedUser);
 
         // when/then
         mockMvc.perform(get("/api/v1/contracts/1")
