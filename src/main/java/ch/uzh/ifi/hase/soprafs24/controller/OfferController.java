@@ -1,14 +1,18 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -20,6 +24,9 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferPutDTO;
 import ch.uzh.ifi.hase.soprafs24.service.OfferService;
+import ch.uzh.ifi.hase.soprafs24.security.authorization.service.AuthorizationService;
+import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
 
 /**
  * Offer Controller
@@ -30,9 +37,11 @@ import ch.uzh.ifi.hase.soprafs24.service.OfferService;
 public class OfferController {
 
     private final OfferService offerService;
+    private final AuthorizationService authorizationService;
 
-    OfferController(OfferService offerService) {
+    OfferController(OfferService offerService, AuthorizationService authorizationService) {
         this.offerService = offerService;
+        this.authorizationService = authorizationService;
     }
 
     /**
@@ -64,8 +73,54 @@ public class OfferController {
     @GetMapping("/api/v1/offers/{offerId}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public OfferGetDTO getOffer(@PathVariable Long offerId) {
-        return offerService.getOffer(offerId);
+    public ResponseEntity<Object> getOffer(
+            @PathVariable Long offerId,
+            @RequestHeader("UserId") Long userId,
+            @RequestHeader("Authorization") String token) {
+        
+        // Authenticate user
+        User authenticatedUser = authorizationService.authenticateUser(userId, token);
+        if (authenticatedUser == null) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Invalid credentials");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
+
+        // Get the offer
+        OfferGetDTO offer = offerService.getOffer(offerId);
+        
+        // Check if user is authorized to view the offer
+        if (authenticatedUser.getUserAccountType() == UserAccountType.DRIVER) {
+            // Driver can only view their own offers
+            if (!offer.getDriver().getUserId().equals(userId)) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "You are not authorized to view this offer");
+                response.put("timestamp", System.currentTimeMillis());
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            }
+        } else if (authenticatedUser.getUserAccountType() == UserAccountType.REQUESTER) {
+            // Requester can only view offers for their contracts
+            if (!offer.getContract().getRequesterId().equals(userId)) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "You are not authorized to view this offer");
+                response.put("timestamp", System.currentTimeMillis());
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            }
+        } else {
+            // Invalid user type
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Invalid user account type");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+        }
+
+        // Create response with standard format
+        Map<String, Object> response = new HashMap<>();
+        response.put("offer", offer);
+        response.put("timestamp", System.currentTimeMillis());
+        
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     /**

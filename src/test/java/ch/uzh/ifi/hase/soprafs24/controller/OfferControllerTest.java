@@ -1,9 +1,14 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
 import ch.uzh.ifi.hase.soprafs24.constant.OfferStatus;
+import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
+import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.response.AuthenticatedDriverDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferPutDTO;
+import ch.uzh.ifi.hase.soprafs24.security.authorization.service.AuthorizationService;
 import ch.uzh.ifi.hase.soprafs24.service.OfferService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,10 +16,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -25,21 +32,51 @@ public class OfferControllerTest {
     @Mock
     private OfferService offerService;
 
+    @Mock
+    private AuthorizationService authorizationService;
+
     @InjectMocks
     private OfferController offerController;
 
     private OfferGetDTO testOfferGetDTO;
     private OfferPostDTO testOfferPostDTO;
     private OfferPutDTO testOfferPutDTO;
+    private User testDriver;
+    private User testRequester;
+    private ContractGetDTO testContractGetDTO;
+    private AuthenticatedDriverDTO testDriverDTO;
 
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
 
-        // Create test DTOs
+        // Create test driver
+        testDriver = new User();
+        testDriver.setUserId(2L);
+        testDriver.setUserAccountType(UserAccountType.DRIVER);
+        testDriver.setToken("test-token");
+
+        // Create test requester
+        testRequester = new User();
+        testRequester.setUserId(1L);
+        testRequester.setUserAccountType(UserAccountType.REQUESTER);
+        testRequester.setToken("test-token");
+
+        // Create test contract DTO
+        testContractGetDTO = new ContractGetDTO();
+        testContractGetDTO.setContractId(1L);
+        testContractGetDTO.setRequesterId(1L);
+
+        // Create test driver DTO
+        testDriverDTO = new AuthenticatedDriverDTO();
+        testDriverDTO.setUserId(2L);
+
+        // Create test offer DTO
         testOfferGetDTO = new OfferGetDTO();
         testOfferGetDTO.setOfferId(1L);
         testOfferGetDTO.setOfferStatus(OfferStatus.CREATED);
+        testOfferGetDTO.setContract(testContractGetDTO);
+        testOfferGetDTO.setDriver(testDriverDTO);
 
         testOfferPostDTO = new OfferPostDTO();
         testOfferPostDTO.setContractId(1L);
@@ -78,24 +115,99 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void getOffer_success() {
+    public void getOffer_asDriver_success() {
         // given
-        when(offerService.getOffer(any())).thenReturn(testOfferGetDTO);
+        when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(testDriver);
+        when(offerService.getOffer(1L)).thenReturn(testOfferGetDTO);
 
         // when
-        OfferGetDTO response = offerController.getOffer(1L);
+        ResponseEntity<Object> response = offerController.getOffer(1L, 2L, "test-token");
 
         // then
-        assertEquals(testOfferGetDTO.getOfferId(), response.getOfferId());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertEquals(testOfferGetDTO, responseBody.get("offer"));
+        assertNotNull(responseBody.get("timestamp"));
     }
 
     @Test
-    public void getOffer_notFound_throwsException() {
+    public void getOffer_asRequester_success() {
         // given
-        when(offerService.getOffer(any())).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
+        when(authorizationService.authenticateUser(1L, "test-token")).thenReturn(testRequester);
+        when(offerService.getOffer(1L)).thenReturn(testOfferGetDTO);
+
+        // when
+        ResponseEntity<Object> response = offerController.getOffer(1L, 1L, "test-token");
+
+        // then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertEquals(testOfferGetDTO, responseBody.get("offer"));
+        assertNotNull(responseBody.get("timestamp"));
+    }
+
+    @Test
+    public void getOffer_unauthorized() {
+        // given
+        when(authorizationService.authenticateUser(any(), any())).thenReturn(null);
+
+        // when
+        ResponseEntity<Object> response = offerController.getOffer(1L, 1L, "invalid-token");
+
+        // then
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertEquals("Invalid credentials", responseBody.get("message"));
+        assertNotNull(responseBody.get("timestamp"));
+    }
+
+    @Test
+    public void getOffer_forbidden_wrongDriver() {
+        // given
+        testDriver.setUserId(3L); // Different driver ID than the offer's driver
+        when(authorizationService.authenticateUser(3L, "test-token")).thenReturn(testDriver);
+        when(offerService.getOffer(1L)).thenReturn(testOfferGetDTO);
+
+        // when
+        ResponseEntity<Object> response = offerController.getOffer(1L, 3L, "test-token");
+
+        // then
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertEquals("You are not authorized to view this offer", responseBody.get("message"));
+        assertNotNull(responseBody.get("timestamp"));
+    }
+
+    @Test
+    public void getOffer_forbidden_wrongRequester() {
+        // given
+        testRequester.setUserId(3L); // Different requester ID than the contract's requester
+        when(authorizationService.authenticateUser(3L, "test-token")).thenReturn(testRequester);
+        when(offerService.getOffer(1L)).thenReturn(testOfferGetDTO);
+
+        // when
+        ResponseEntity<Object> response = offerController.getOffer(1L, 3L, "test-token");
+
+        // then
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertEquals("You are not authorized to view this offer", responseBody.get("message"));
+        assertNotNull(responseBody.get("timestamp"));
+    }
+
+    @Test
+    public void getOffer_notFound() {
+        // given
+        when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(testDriver);
+        when(offerService.getOffer(1L)).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Offer not found"));
 
         // when/then
-        assertThrows(ResponseStatusException.class, () -> offerController.getOffer(1L));
+        assertThrows(ResponseStatusException.class, () -> offerController.getOffer(1L, 2L, "test-token"));
     }
 
     @Test
