@@ -518,10 +518,27 @@ public class ContractControllerTest {
     @Test
     public void deleteContract_success() throws Exception {
         // given
+        Contract contract = new Contract();
+        contract.setContractId(1L);
+        
+        // Set up the requester
+        Requester requester = new Requester();
+        requester.setUserId(TEST_USER_ID);
+        contract.setRequester(requester);
+
+        // Set up authenticated user as requester
+        User authenticatedUser = new User();
+        authenticatedUser.setUserId(TEST_USER_ID);
+        authenticatedUser.setUserAccountType(UserAccountType.REQUESTER);
+
+        given(contractService.getContractById(1L)).willReturn(contract);
+        given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(authenticatedUser);
         Mockito.doNothing().when(contractService).deleteContract(1L);
 
         // when/then
         mockMvc.perform(delete("/api/v1/contracts/1")
+                .header("UserId", TEST_USER_ID)
+                .header("Authorization", TEST_TOKEN)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
     }

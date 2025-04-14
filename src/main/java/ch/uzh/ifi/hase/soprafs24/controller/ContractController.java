@@ -504,10 +504,37 @@ public class ContractController {
      * Delete a contract
      * 
      * @param contractId The ID of the contract to delete
+     * @param userId User ID from header
+     * @param token Authentication token from header
      */
     @DeleteMapping("/api/v1/contracts/{contractId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteContract(@PathVariable Long contractId) {
+    public void deleteContract(
+            @PathVariable Long contractId,
+            @RequestHeader("UserId") Long userId,
+            @RequestHeader("Authorization") String token) {
+        
+        // Authenticate user
+        User authenticatedUser = authorizationService.authenticateUser(userId, token);
+        if (authenticatedUser == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
+        }
+
+        // Get contract from service
+        Contract contract = contractService.getContractById(contractId);
+        
+        // Check if user is authorized to delete the contract
+        if (authenticatedUser.getUserAccountType() == UserAccountType.REQUESTER) {
+            // Only the requester who created the contract can delete it
+            if (!contract.getRequester().getUserId().equals(userId)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not authorized to delete this contract");
+            }
+        } else {
+            // Drivers cannot delete contracts
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only requesters can delete contracts");
+        }
+
+        // If authorized, delete the contract
         contractService.deleteContract(contractId);
     }
 }
