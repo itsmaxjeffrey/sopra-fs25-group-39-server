@@ -259,6 +259,7 @@ public class OfferService {
             contract.setAcceptedOffer(offer);
             contract.setContractStatus(ContractStatus.ACCEPTED);
             contract.setAcceptedDateTime(LocalDateTime.now());
+            contract.setDriver(offer.getDriver());
             
             // Reject all other offers for this contract
             List<Offer> otherOffers = offerRepository.findByContract_ContractIdAndOfferStatus(
