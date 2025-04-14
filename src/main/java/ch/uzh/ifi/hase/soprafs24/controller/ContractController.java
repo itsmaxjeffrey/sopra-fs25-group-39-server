@@ -499,6 +499,14 @@ public class ContractController {
             response.put("timestamp", System.currentTimeMillis());
             return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
         }
+
+        // Check contract status - only ACCEPTED contracts can be cancelled
+        if (contract.getContractStatus() != ContractStatus.ACCEPTED) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Only ACCEPTED contracts can be cancelled. Use delete for REQUESTED or OFFERED contracts.");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
         
         // Validate cancellation reason
         if (contractCancelDTO.getReason() == null || contractCancelDTO.getReason().trim().isEmpty()) {

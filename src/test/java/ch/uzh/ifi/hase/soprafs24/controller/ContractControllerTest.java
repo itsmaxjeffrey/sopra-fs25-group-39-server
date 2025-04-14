@@ -392,7 +392,8 @@ public class ContractControllerTest {
         // Set up the contract
         Contract contract = new Contract();
         contract.setContractId(1L);
-        contract.setContractStatus(ContractStatus.REQUESTED);
+        contract.setContractStatus(ContractStatus.ACCEPTED);
+        contract.setMoveDateTime(LocalDateTime.now().plusDays(5)); // Set move date more than 72 hours in future
         
         // Set up the requester
         Requester requester = new Requester();
@@ -425,6 +426,42 @@ public class ContractControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.contract.contractId", is(cancelledContract.getContractId().intValue())))
                 .andExpect(jsonPath("$.contract.contractStatus", is("CANCELED")))
+                .andExpect(jsonPath("$.timestamp", notNullValue()));
+    }
+
+    @Test
+    public void cancelContract_badRequest_notAccepted() throws Exception {
+        // given
+        ContractCancelDTO contractCancelDTO = new ContractCancelDTO();
+        contractCancelDTO.setReason("Test cancellation reason");
+
+        // Set up the contract in REQUESTED state
+        Contract contract = new Contract();
+        contract.setContractId(1L);
+        contract.setContractStatus(ContractStatus.REQUESTED);
+        
+        // Set up the requester
+        Requester requester = new Requester();
+        requester.setUserId(TEST_USER_ID);
+        contract.setRequester(requester);
+
+        // Set up authenticated user as requester
+        User authenticatedUser = new User();
+        authenticatedUser.setUserId(TEST_USER_ID);
+        authenticatedUser.setUserAccountType(UserAccountType.REQUESTER);
+
+        // Mock service responses
+        given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(authenticatedUser);
+        given(contractService.getContractById(1L)).willReturn(contract);
+
+        // when/then
+        mockMvc.perform(put("/api/v1/contracts/1/cancel")
+                .header("UserId", TEST_USER_ID)
+                .header("Authorization", TEST_TOKEN)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(contractCancelDTO)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is("Only ACCEPTED contracts can be cancelled. Use delete for REQUESTED or OFFERED contracts.")))
                 .andExpect(jsonPath("$.timestamp", notNullValue()));
     }
 
@@ -514,10 +551,11 @@ public class ContractControllerTest {
         ContractCancelDTO contractCancelDTO = new ContractCancelDTO();
         contractCancelDTO.setReason(""); // Empty reason
 
-        // Set up the contract
+        // Set up the contract in ACCEPTED state
         Contract contract = new Contract();
         contract.setContractId(1L);
-        contract.setContractStatus(ContractStatus.REQUESTED);
+        contract.setContractStatus(ContractStatus.ACCEPTED);
+        contract.setMoveDateTime(LocalDateTime.now().plusDays(5)); // Set move date more than 72 hours in future
         
         // Set up the requester
         Requester requester = new Requester();
