@@ -389,28 +389,26 @@ public class ContractService {
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
                 "Contract with ID " + contractId + " not found"));
         
-        // Check if contract can be canceled
-        if (contract.getContractStatus() == ContractStatus.COMPLETED || 
-            contract.getContractStatus() == ContractStatus.FINALIZED) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, 
-                "Cannot cancel a completed or finalized contract");
+        // Check if contract is in ACCEPTED state
+        if (contract.getContractStatus() != ContractStatus.ACCEPTED) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                "Only ACCEPTED contracts can be cancelled. Use delete for REQUESTED or OFFERED contracts.");
         }
         
+        // Check if contract is already canceled
         if (contract.getContractStatus() == ContractStatus.CANCELED) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, 
                 "Contract is already canceled");
         }
         
-        // Check if the move date is within 72 hours for ACCEPTED contracts
-        if (contract.getContractStatus() == ContractStatus.ACCEPTED) {
-            LocalDateTime now = LocalDateTime.now();
-            LocalDateTime moveDateTime = contract.getMoveDateTime();
-            long hoursUntilMove = ChronoUnit.HOURS.between(now, moveDateTime);
-            
-            if (hoursUntilMove < 72) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, 
-                    "Cannot cancel an accepted contract less than 72 hours before move date");
-            }
+        // Check if the move date is within 72 hours
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime moveDateTime = contract.getMoveDateTime();
+        long hoursUntilMove = ChronoUnit.HOURS.between(now, moveDateTime);
+        
+        if (hoursUntilMove < 72) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, 
+                "Cannot cancel an accepted contract less than 72 hours before move date");
         }
         
         try {
