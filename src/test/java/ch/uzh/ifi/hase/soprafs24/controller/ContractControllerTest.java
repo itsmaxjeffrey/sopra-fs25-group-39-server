@@ -308,6 +308,37 @@ public class ContractControllerTest {
     }
 
     @Test
+    public void getContractById_driverAccessOfferedContract_success() throws Exception {
+        // given
+        Contract contract = new Contract();
+        contract.setContractId(1L);
+        contract.setTitle("Test Contract");
+        contract.setContractStatus(ContractStatus.OFFERED);
+        
+        // Contract has no driver assigned yet
+        contract.setDriver(null);
+
+        // Set up authenticated user as driver
+        User authenticatedUser = new User();
+        authenticatedUser.setUserId(TEST_USER_ID);
+        authenticatedUser.setUserAccountType(UserAccountType.DRIVER);
+
+        given(contractService.getContractById(1L)).willReturn(contract);
+        given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(authenticatedUser);
+
+        // when/then
+        mockMvc.perform(get("/api/v1/contracts/1")
+                .header("UserId", TEST_USER_ID)
+                .header("Authorization", TEST_TOKEN)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.contract.contractId", is(contract.getContractId().intValue())))
+                .andExpect(jsonPath("$.contract.title", is(contract.getTitle())))
+                .andExpect(jsonPath("$.contract.contractStatus", is("OFFERED")))
+                .andExpect(jsonPath("$.timestamp", notNullValue()));
+    }
+
+    @Test
     public void updateContract_success() throws Exception {
         // given
         ContractPutDTO contractPutDTO = new ContractPutDTO();

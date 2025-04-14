@@ -304,16 +304,12 @@ public class ContractController {
         if (authenticatedUser.getUserAccountType() == UserAccountType.DRIVER) {
             // Drivers can only access contracts that are:
             // 1. In REQUESTED state (available for offers)
-            // 2. In OFFERED state and they have made an offer
+            // 2. In OFFERED state (available for offers)
             // 3. Assigned to them (ACCEPTED state)
-            if (contract.getContractStatus() == ContractStatus.REQUESTED) {
-                // All drivers can see REQUESTED contracts
+            if (contract.getContractStatus() == ContractStatus.REQUESTED || 
+                contract.getContractStatus() == ContractStatus.OFFERED) {
+                // All drivers can see REQUESTED and OFFERED contracts
                 return createContractResponse(contract);
-            } else if (contract.getContractStatus() == ContractStatus.OFFERED) {
-                // Only drivers who have made an offer can see OFFERED contracts
-                if (contract.getDriver() != null && contract.getDriver().getUserId().equals(userId)) {
-                    return createContractResponse(contract);
-                }
             } else if (contract.getContractStatus() == ContractStatus.ACCEPTED) {
                 // Only the assigned driver can see ACCEPTED contracts
                 if (contract.getDriver() != null && contract.getDriver().getUserId().equals(userId)) {
