@@ -536,12 +536,57 @@ public class ContractController {
     @PutMapping("/api/v1/contracts/{id}/fulfill")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public ContractGetDTO fulfillContract(@PathVariable("id") Long contractId) {
+    public ResponseEntity<Object> fulfillContract(
+            @PathVariable("id") Long contractId,
+            @RequestHeader("UserId") Long userId,
+            @RequestHeader("Authorization") String token) {
+        
+        // Authenticate user
+        User authenticatedUser = authorizationService.authenticateUser(userId, token);
+        if (authenticatedUser == null) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Invalid credentials");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
+
+        // Get contract from service
+        Contract contract = contractService.getContractById(contractId);
+        
+        // Check if user is authorized to fulfill the contract
+        if (authenticatedUser.getUserAccountType() == UserAccountType.REQUESTER) {
+            // Only the requester who created the contract can fulfill it
+            if (!contract.getRequester().getUserId().equals(userId)) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "You are not authorized to fulfill this contract");
+                response.put("timestamp", System.currentTimeMillis());
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            }
+        } else if (authenticatedUser.getUserAccountType() == UserAccountType.DRIVER) {
+            // Only the driver assigned to the contract can fulfill it
+            if (contract.getDriver() == null || !contract.getDriver().getUserId().equals(userId)) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "You are not authorized to fulfill this contract");
+                response.put("timestamp", System.currentTimeMillis());
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            }
+        } else {
+            // Invalid user type
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Invalid user account type");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+        }
+
         // Fulfill the contract
         Contract fulfilledContract = contractService.fulfillContract(contractId);
         
-        // Convert to DTO and return
-        return ContractDTOMapper.INSTANCE.convertContractEntityToContractGetDTO(fulfilledContract);
+        // Create response with standard format
+        Map<String, Object> response = new HashMap<>();
+        response.put("contract", ContractDTOMapper.INSTANCE.convertContractEntityToContractGetDTO(fulfilledContract));
+        response.put("timestamp", System.currentTimeMillis());
+        
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     /**
@@ -557,9 +602,28 @@ public class ContractController {
     @GetMapping("/api/v1/users/{userId}/contracts")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<ContractGetDTO> getUserContracts(
+    public ResponseEntity<Object> getUserContracts(
             @PathVariable Long userId,
+            @RequestHeader("UserId") Long requestUserId,
+            @RequestHeader("Authorization") String token,
             @RequestParam(required = false) ContractStatus status) {
+        
+        // Authenticate user
+        User authenticatedUser = authorizationService.authenticateUser(requestUserId, token);
+        if (authenticatedUser == null) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Invalid credentials");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
+
+        // Check if user is authorized to view these contracts
+        if (!authenticatedUser.getUserId().equals(userId)) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "You are not authorized to view these contracts");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+        }
         
         // Check if user is a Requester
         List<Contract> contracts;
@@ -576,9 +640,16 @@ public class ContractController {
         }
         
         // Convert to DTOs
-        return contracts.stream()
+        List<ContractGetDTO> contractDTOs = contracts.stream()
             .map(ContractDTOMapper.INSTANCE::convertContractEntityToContractGetDTO)
             .collect(Collectors.toList());
+
+        // Create response with standard format
+        Map<String, Object> response = new HashMap<>();
+        response.put("contracts", contractDTOs);
+        response.put("timestamp", System.currentTimeMillis());
+        
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     /**

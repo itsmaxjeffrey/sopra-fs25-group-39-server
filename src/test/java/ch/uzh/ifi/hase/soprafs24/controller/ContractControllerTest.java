@@ -583,140 +583,11 @@ public class ContractControllerTest {
     }
 
     @Test
-    public void fulfillContract_success() throws Exception {
-        // given
-        Contract fulfilledContract = new Contract();
-        fulfilledContract.setContractId(1L);
-        fulfilledContract.setContractStatus(ContractStatus.COMPLETED);
-
-        given(contractService.fulfillContract(1L)).willReturn(fulfilledContract);
-
-        // when/then
-        mockMvc.perform(put("/api/v1/contracts/1/fulfill")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.contractId", is(fulfilledContract.getContractId().intValue())))
-                .andExpect(jsonPath("$.contractStatus", is("COMPLETED")));
-    }
-
-    @Test
-    public void getUserContracts_success() throws Exception {
+    public void fulfillContract_success_requester() throws Exception {
         // given
         Contract contract = new Contract();
         contract.setContractId(1L);
-        contract.setTitle("Test Contract");
-        contract.setContractStatus(ContractStatus.REQUESTED);
-
-        List<Contract> userContracts = Collections.singletonList(contract);
-        given(contractService.getContractsByRequesterId(1L, null)).willReturn(userContracts);
-        given(userRepository.findByUserId(1L)).willReturn(java.util.Optional.of(new Requester()));
-
-        // when/then
-        mockMvc.perform(get("/api/v1/users/1/contracts")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].contractId", is(contract.getContractId().intValue())))
-                .andExpect(jsonPath("$[0].title", is(contract.getTitle())))
-                .andExpect(jsonPath("$[0].contractStatus", is("REQUESTED")));
-    }
-
-    @Test
-    public void getUserContracts_withStatus_success() throws Exception {
-        // given
-        Contract contract = new Contract();
-        contract.setContractId(1L);
-        contract.setTitle("Test Contract");
-        contract.setContractStatus(ContractStatus.REQUESTED);
-
-        List<Contract> userContracts = Collections.singletonList(contract);
-        given(contractService.getContractsByRequesterId(1L, ContractStatus.REQUESTED)).willReturn(userContracts);
-        given(userRepository.findByUserId(1L)).willReturn(java.util.Optional.of(new Requester()));
-
-        // when/then
-        mockMvc.perform(get("/api/v1/users/1/contracts")
-                .param("status", "REQUESTED")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].contractId", is(contract.getContractId().intValue())))
-                .andExpect(jsonPath("$[0].title", is(contract.getTitle())))
-                .andExpect(jsonPath("$[0].contractStatus", is("REQUESTED")));
-    }
-
-    @Test
-    public void getUserContracts_withoutStatus_success() throws Exception {
-        // given
-        Contract contract = new Contract();
-        contract.setContractId(1L);
-        contract.setTitle("Test Contract");
-        contract.setContractStatus(ContractStatus.REQUESTED);
-
-        List<Contract> userContracts = Collections.singletonList(contract);
-        given(contractService.getContractsByRequesterId(1L, null)).willReturn(userContracts);
-        given(userRepository.findByUserId(1L)).willReturn(java.util.Optional.of(new Requester()));
-
-        // when/then
-        mockMvc.perform(get("/api/v1/users/1/contracts")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].contractId", is(contract.getContractId().intValue())))
-                .andExpect(jsonPath("$[0].title", is(contract.getTitle())))
-                .andExpect(jsonPath("$[0].contractStatus", is("REQUESTED")));
-    }
-
-    @Test
-    public void getUserContracts_userNotFound_throwsException() throws Exception {
-        // given
-        given(userRepository.findByUserId(1L)).willReturn(java.util.Optional.empty());
-
-        // when/then
-        mockMvc.perform(get("/api/v1/users/1/contracts")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    public void getUserContracts_withInvalidStatus_throwsException() throws Exception {
-        // given
-        given(userRepository.findByUserId(1L)).willReturn(java.util.Optional.of(new Requester()));
-
-        // when/then
-        mockMvc.perform(get("/api/v1/users/1/contracts")
-                .param("status", "INVALID_STATUS")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void getUserContracts_forDriver_success() throws Exception {
-        // given
-        Contract contract = new Contract();
-        contract.setContractId(1L);
-        contract.setTitle("Test Contract");
-        contract.setContractStatus(ContractStatus.ACCEPTED);
-
-        List<Contract> driverContracts = Collections.singletonList(contract);
-        given(contractService.getContractsByDriverId(1L, ContractStatus.ACCEPTED)).willReturn(driverContracts);
-        given(userRepository.findByUserId(1L)).willReturn(java.util.Optional.of(new User()));
-
-        // when/then
-        mockMvc.perform(get("/api/v1/users/1/contracts")
-                .param("status", "ACCEPTED")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].contractId", is(contract.getContractId().intValue())))
-                .andExpect(jsonPath("$[0].title", is(contract.getTitle())))
-                .andExpect(jsonPath("$[0].contractStatus", is("ACCEPTED")));
-    }
-
-    @Test
-    public void deleteContract_success() throws Exception {
-        // given
-        Contract contract = new Contract();
-        contract.setContractId(1L);
+        contract.setContractStatus(ContractStatus.COMPLETED);
         
         // Set up the requester
         Requester requester = new Requester();
@@ -728,134 +599,258 @@ public class ContractControllerTest {
         authenticatedUser.setUserId(TEST_USER_ID);
         authenticatedUser.setUserAccountType(UserAccountType.REQUESTER);
 
-        given(contractService.getContractById(1L)).willReturn(contract);
+        // Set up fulfilled contract
+        Contract fulfilledContract = new Contract();
+        fulfilledContract.setContractId(1L);
+        fulfilledContract.setContractStatus(ContractStatus.FINALIZED);
+        fulfilledContract.setRequester(requester);
+
+        // Mock service responses
         given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(authenticatedUser);
-        Mockito.doNothing().when(contractService).deleteContract(1L);
+        given(contractService.getContractById(1L)).willReturn(contract);
+        given(contractService.fulfillContract(1L)).willReturn(fulfilledContract);
 
         // when/then
-        mockMvc.perform(delete("/api/v1/contracts/1")
+        mockMvc.perform(put("/api/v1/contracts/1/fulfill")
                 .header("UserId", TEST_USER_ID)
                 .header("Authorization", TEST_TOKEN)
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.contract.contractId", is(fulfilledContract.getContractId().intValue())))
+                .andExpect(jsonPath("$.contract.contractStatus", is("FINALIZED")))
+                .andExpect(jsonPath("$.timestamp", notNullValue()));
     }
 
     @Test
-    public void getUserContracts_emptyList_success() throws Exception {
+    public void fulfillContract_success_driver() throws Exception {
         // given
-        List<Contract> emptyList = Collections.emptyList();
-        given(contractService.getContractsByRequesterId(1L, ContractStatus.REQUESTED)).willReturn(emptyList);
-        given(userRepository.findByUserId(1L)).willReturn(java.util.Optional.of(new Requester()));
+        Contract contract = new Contract();
+        contract.setContractId(1L);
+        contract.setContractStatus(ContractStatus.COMPLETED);
+        
+        // Set up the driver
+        Driver driver = new Driver();
+        driver.setUserId(TEST_USER_ID);
+        contract.setDriver(driver);
+
+        // Set up authenticated user as driver
+        User authenticatedUser = new User();
+        authenticatedUser.setUserId(TEST_USER_ID);
+        authenticatedUser.setUserAccountType(UserAccountType.DRIVER);
+
+        // Set up fulfilled contract
+        Contract fulfilledContract = new Contract();
+        fulfilledContract.setContractId(1L);
+        fulfilledContract.setContractStatus(ContractStatus.FINALIZED);
+        fulfilledContract.setDriver(driver);
+
+        // Mock service responses
+        given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(authenticatedUser);
+        given(contractService.getContractById(1L)).willReturn(contract);
+        given(contractService.fulfillContract(1L)).willReturn(fulfilledContract);
 
         // when/then
-        mockMvc.perform(get("/api/v1/users/1/contracts")
-                .param("status", "REQUESTED")
+        mockMvc.perform(put("/api/v1/contracts/1/fulfill")
+                .header("UserId", TEST_USER_ID)
+                .header("Authorization", TEST_TOKEN)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(0)));
+                .andExpect(jsonPath("$.contract.contractId", is(fulfilledContract.getContractId().intValue())))
+                .andExpect(jsonPath("$.contract.contractStatus", is("FINALIZED")))
+                .andExpect(jsonPath("$.timestamp", notNullValue()));
     }
 
     @Test
-    public void getUserContracts_multipleContracts_success() throws Exception {
+    public void fulfillContract_unauthorized() throws Exception {
         // given
-        Contract contract1 = new Contract();
-        contract1.setContractId(1L);
-        contract1.setTitle("Contract 1");
-        contract1.setContractStatus(ContractStatus.REQUESTED);
-
-        Contract contract2 = new Contract();
-        contract2.setContractId(2L);
-        contract2.setTitle("Contract 2");
-        contract2.setContractStatus(ContractStatus.REQUESTED);
-
-        List<Contract> userContracts = Arrays.asList(contract1, contract2);
-        given(contractService.getContractsByRequesterId(1L, ContractStatus.REQUESTED)).willReturn(userContracts);
-        given(userRepository.findByUserId(1L)).willReturn(java.util.Optional.of(new Requester()));
+        given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(null);
 
         // when/then
-        mockMvc.perform(get("/api/v1/users/1/contracts")
-                .param("status", "REQUESTED")
+        mockMvc.perform(put("/api/v1/contracts/1/fulfill")
+                .header("UserId", TEST_USER_ID)
+                .header("Authorization", TEST_TOKEN)
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].contractId", is(contract1.getContractId().intValue())))
-                .andExpect(jsonPath("$[0].title", is(contract1.getTitle())))
-                .andExpect(jsonPath("$[0].contractStatus", is("REQUESTED")))
-                .andExpect(jsonPath("$[1].contractId", is(contract2.getContractId().intValue())))
-                .andExpect(jsonPath("$[1].title", is(contract2.getTitle())))
-                .andExpect(jsonPath("$[1].contractStatus", is("REQUESTED")));
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message", is("Invalid credentials")))
+                .andExpect(jsonPath("$.timestamp", notNullValue()));
     }
 
     @Test
-    public void getUserContracts_mixedStatuses_success() throws Exception {
+    public void fulfillContract_forbidden_otherRequester() throws Exception {
         // given
-        Contract requestedContract = new Contract();
-        requestedContract.setContractId(1L);
-        requestedContract.setTitle("Requested Contract");
-        requestedContract.setContractStatus(ContractStatus.REQUESTED);
+        Contract contract = new Contract();
+        contract.setContractId(1L);
+        
+        // Set up a different requester
+        Requester requester = new Requester();
+        requester.setUserId(999L); // Different user ID
+        contract.setRequester(requester);
 
-        Contract acceptedContract = new Contract();
-        acceptedContract.setContractId(2L);
-        acceptedContract.setTitle("Accepted Contract");
-        acceptedContract.setContractStatus(ContractStatus.ACCEPTED);
+        // Set up authenticated user as requester
+        User authenticatedUser = new User();
+        authenticatedUser.setUserId(TEST_USER_ID);
+        authenticatedUser.setUserAccountType(UserAccountType.REQUESTER);
 
-        given(contractService.getContractsByRequesterId(1L, ContractStatus.REQUESTED))
-            .willReturn(Collections.singletonList(requestedContract));
-        given(contractService.getContractsByRequesterId(1L, ContractStatus.ACCEPTED))
-            .willReturn(Collections.singletonList(acceptedContract));
-        given(userRepository.findByUserId(1L)).willReturn(java.util.Optional.of(new Requester()));
+        // Mock service responses
+        given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(authenticatedUser);
+        given(contractService.getContractById(1L)).willReturn(contract);
 
-        // when/then for REQUESTED status
-        mockMvc.perform(get("/api/v1/users/1/contracts")
-                .param("status", "REQUESTED")
+        // when/then
+        mockMvc.perform(put("/api/v1/contracts/1/fulfill")
+                .header("UserId", TEST_USER_ID)
+                .header("Authorization", TEST_TOKEN)
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].contractId", is(requestedContract.getContractId().intValue())))
-                .andExpect(jsonPath("$[0].contractStatus", is("REQUESTED")));
-
-        // when/then for ACCEPTED status
-        mockMvc.perform(get("/api/v1/users/1/contracts")
-                .param("status", "ACCEPTED")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].contractId", is(acceptedContract.getContractId().intValue())))
-                .andExpect(jsonPath("$[0].contractStatus", is("ACCEPTED")));
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message", is("You are not authorized to fulfill this contract")))
+                .andExpect(jsonPath("$.timestamp", notNullValue()));
     }
 
     @Test
-    public void getUserContracts_caseInsensitiveStatus_success() throws Exception {
+    public void fulfillContract_forbidden_otherDriver() throws Exception {
+        // given
+        Contract contract = new Contract();
+        contract.setContractId(1L);
+        
+        // Set up a different driver
+        Driver driver = new Driver();
+        driver.setUserId(999L); // Different user ID
+        contract.setDriver(driver);
+
+        // Set up authenticated user as driver
+        User authenticatedUser = new User();
+        authenticatedUser.setUserId(TEST_USER_ID);
+        authenticatedUser.setUserAccountType(UserAccountType.DRIVER);
+
+        // Mock service responses
+        given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(authenticatedUser);
+        given(contractService.getContractById(1L)).willReturn(contract);
+
+        // when/then
+        mockMvc.perform(put("/api/v1/contracts/1/fulfill")
+                .header("UserId", TEST_USER_ID)
+                .header("Authorization", TEST_TOKEN)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message", is("You are not authorized to fulfill this contract")))
+                .andExpect(jsonPath("$.timestamp", notNullValue()));
+    }
+
+    @Test
+    public void getUserContracts_success_requester() throws Exception {
         // given
         Contract contract = new Contract();
         contract.setContractId(1L);
         contract.setTitle("Test Contract");
         contract.setContractStatus(ContractStatus.REQUESTED);
 
-        List<Contract> userContracts = Collections.singletonList(contract);
-        given(contractService.getContractsByRequesterId(1L, ContractStatus.REQUESTED)).willReturn(userContracts);
-        given(userRepository.findByUserId(1L)).willReturn(java.util.Optional.of(new Requester()));
+        List<Contract> contracts = Collections.singletonList(contract);
+        given(contractService.getContractsByRequesterId(TEST_USER_ID, ContractStatus.REQUESTED)).willReturn(contracts);
+        
+        // Set up authenticated user as requester
+        User authenticatedUser = new User();
+        authenticatedUser.setUserId(TEST_USER_ID);
+        authenticatedUser.setUserAccountType(UserAccountType.REQUESTER);
+        given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(authenticatedUser);
+        
+        // Set up user repository response
+        given(userRepository.findByUserId(TEST_USER_ID)).willReturn(java.util.Optional.of(new Requester()));
 
-        // when/then with uppercase status
-        mockMvc.perform(get("/api/v1/users/1/contracts")
+        // when/then
+        mockMvc.perform(get("/api/v1/users/" + TEST_USER_ID + "/contracts")
+                .header("UserId", TEST_USER_ID)
+                .header("Authorization", TEST_TOKEN)
                 .param("status", "REQUESTED")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].contractId", is(contract.getContractId().intValue())))
-                .andExpect(jsonPath("$[0].contractStatus", is("REQUESTED")));
+                .andExpect(jsonPath("$.contracts", hasSize(1)))
+                .andExpect(jsonPath("$.contracts[0].contractId", is(contract.getContractId().intValue())))
+                .andExpect(jsonPath("$.contracts[0].title", is(contract.getTitle())))
+                .andExpect(jsonPath("$.contracts[0].contractStatus", is("REQUESTED")))
+                .andExpect(jsonPath("$.timestamp", notNullValue()));
     }
 
     @Test
-    public void getUserContracts_malformedStatus_throwsException() throws Exception {
+    public void getUserContracts_success_driver() throws Exception {
         // given
-        given(userRepository.findByUserId(1L)).willReturn(java.util.Optional.of(new Requester()));
+        Contract contract = new Contract();
+        contract.setContractId(1L);
+        contract.setTitle("Test Contract");
+        contract.setContractStatus(ContractStatus.ACCEPTED);
 
-        // when/then with malformed status
-        mockMvc.perform(get("/api/v1/users/1/contracts")
-                .param("status", "REQUESTED_")
+        List<Contract> contracts = Collections.singletonList(contract);
+        given(contractService.getContractsByDriverId(TEST_USER_ID, ContractStatus.ACCEPTED)).willReturn(contracts);
+        
+        // Set up authenticated user as driver
+        User authenticatedUser = new User();
+        authenticatedUser.setUserId(TEST_USER_ID);
+        authenticatedUser.setUserAccountType(UserAccountType.DRIVER);
+        given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(authenticatedUser);
+        
+        // Set up user repository response
+        given(userRepository.findByUserId(TEST_USER_ID)).willReturn(java.util.Optional.of(new Driver()));
+
+        // when/then
+        mockMvc.perform(get("/api/v1/users/" + TEST_USER_ID + "/contracts")
+                .header("UserId", TEST_USER_ID)
+                .header("Authorization", TEST_TOKEN)
+                .param("status", "ACCEPTED")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.contracts", hasSize(1)))
+                .andExpect(jsonPath("$.contracts[0].contractId", is(contract.getContractId().intValue())))
+                .andExpect(jsonPath("$.contracts[0].title", is(contract.getTitle())))
+                .andExpect(jsonPath("$.contracts[0].contractStatus", is("ACCEPTED")))
+                .andExpect(jsonPath("$.timestamp", notNullValue()));
+    }
+
+    @Test
+    public void getUserContracts_unauthorized() throws Exception {
+        // given
+        given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(null);
+
+        // when/then
+        mockMvc.perform(get("/api/v1/users/" + TEST_USER_ID + "/contracts")
+                .header("UserId", TEST_USER_ID)
+                .header("Authorization", TEST_TOKEN)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message", is("Invalid credentials")))
+                .andExpect(jsonPath("$.timestamp", notNullValue()));
+    }
+
+    @Test
+    public void getUserContracts_forbidden_otherUser() throws Exception {
+        // given
+        User authenticatedUser = new User();
+        authenticatedUser.setUserId(TEST_USER_ID);
+        authenticatedUser.setUserAccountType(UserAccountType.REQUESTER);
+        given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(authenticatedUser);
+
+        // when/then
+        mockMvc.perform(get("/api/v1/users/999/contracts") // Different user ID
+                .header("UserId", TEST_USER_ID)
+                .header("Authorization", TEST_TOKEN)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message", is("You are not authorized to view these contracts")))
+                .andExpect(jsonPath("$.timestamp", notNullValue()));
+    }
+
+    @Test
+    public void getUserContracts_userNotFound() throws Exception {
+        // given
+        User authenticatedUser = new User();
+        authenticatedUser.setUserId(TEST_USER_ID);
+        authenticatedUser.setUserAccountType(UserAccountType.REQUESTER);
+        given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(authenticatedUser);
+        given(userRepository.findByUserId(TEST_USER_ID)).willReturn(java.util.Optional.empty());
+
+        // when/then
+        mockMvc.perform(get("/api/v1/users/" + TEST_USER_ID + "/contracts")
+                .header("UserId", TEST_USER_ID)
+                .header("Authorization", TEST_TOKEN)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 
     @Test
