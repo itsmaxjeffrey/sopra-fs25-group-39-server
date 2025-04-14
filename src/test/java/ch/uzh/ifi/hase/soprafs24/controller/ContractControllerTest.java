@@ -345,22 +345,42 @@ public class ContractControllerTest {
         contractPutDTO.setTitle("Updated Contract");
         contractPutDTO.setContractDescription("Updated description");
 
+        // Set up authenticated user
+        User authenticatedUser = new User();
+        authenticatedUser.setUserId(TEST_USER_ID);
+        authenticatedUser.setUserAccountType(UserAccountType.REQUESTER);
+
+        // Set up existing contract
+        Contract existingContract = new Contract();
+        existingContract.setContractId(1L);
+        Requester requester = new Requester();
+        requester.setUserId(TEST_USER_ID);
+        existingContract.setRequester(requester);
+
+        // Set up updated contract
         Contract updatedContract = new Contract();
         updatedContract.setContractId(1L);
         updatedContract.setTitle(contractPutDTO.getTitle());
         updatedContract.setContractDescription(contractPutDTO.getContractDescription());
         updatedContract.setContractStatus(ContractStatus.REQUESTED);
+        updatedContract.setRequester(requester);
 
+        // Mock service responses
+        given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(authenticatedUser);
+        given(contractService.getContractById(1L)).willReturn(existingContract);
         given(contractService.updateContract(Mockito.any(), Mockito.any())).willReturn(updatedContract);
 
         // when/then
         mockMvc.perform(put("/api/v1/contracts/1")
+                .header("UserId", TEST_USER_ID)
+                .header("Authorization", TEST_TOKEN)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(contractPutDTO)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.contractId", is(updatedContract.getContractId().intValue())))
-                .andExpect(jsonPath("$.title", is(updatedContract.getTitle())))
-                .andExpect(jsonPath("$.contractDescription", is(updatedContract.getContractDescription())));
+                .andExpect(jsonPath("$.contract.contractId", is(updatedContract.getContractId().intValue())))
+                .andExpect(jsonPath("$.contract.title", is(updatedContract.getTitle())))
+                .andExpect(jsonPath("$.contract.contractDescription", is(updatedContract.getContractDescription())))
+                .andExpect(jsonPath("$.timestamp").exists());
     }
 
     @Test

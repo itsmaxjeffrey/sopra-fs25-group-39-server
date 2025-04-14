@@ -365,7 +365,40 @@ public class ContractController {
     @PutMapping("/api/v1/contracts/{contractId}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public ContractGetDTO updateContract(@PathVariable Long contractId, @RequestBody ContractPutDTO contractPutDTO) {
+    public ResponseEntity<Object> updateContract(
+            @PathVariable Long contractId,
+            @RequestHeader("UserId") Long userId,
+            @RequestHeader("Authorization") String token,
+            @RequestBody ContractPutDTO contractPutDTO) {
+        
+        // Authenticate user
+        User authenticatedUser = authorizationService.authenticateUser(userId, token);
+        if (authenticatedUser == null) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Invalid credentials");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
+
+        // Verify user is a requester
+        if (!authenticatedUser.getUserAccountType().equals(UserAccountType.REQUESTER)) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Only requesters can update contracts");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+        }
+
+        // Get contract from service
+        Contract contract = contractService.getContractById(contractId);
+        
+        // Check if user is authorized to update the contract
+        if (!contract.getRequester().getUserId().equals(userId)) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "You are not authorized to update this contract");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+        }
+
         // Validate required fields
         validateContractPutDTO(contractPutDTO);
 
@@ -375,8 +408,12 @@ public class ContractController {
         // Update contract
         Contract updatedContract = contractService.updateContract(contractId, contractUpdates);
 
-        // Convert to DTO and return
-        return ContractDTOMapper.INSTANCE.convertContractEntityToContractGetDTO(updatedContract);
+        // Create response with standard format
+        Map<String, Object> response = new HashMap<>();
+        response.put("contract", ContractDTOMapper.INSTANCE.convertContractEntityToContractGetDTO(updatedContract));
+        response.put("timestamp", System.currentTimeMillis());
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     /**
