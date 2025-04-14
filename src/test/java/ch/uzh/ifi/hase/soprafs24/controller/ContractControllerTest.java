@@ -10,6 +10,7 @@ import ch.uzh.ifi.hase.soprafs24.service.ContractPollingService;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractCancelDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractPutDTO;
+import ch.uzh.ifi.hase.soprafs24.security.authorization.service.AuthorizationService;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,6 +30,7 @@ import java.util.Arrays;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -58,6 +60,12 @@ public class ContractControllerTest {
     @MockBean
     private ContractPollingService contractPollingService;
 
+    @MockBean
+    private AuthorizationService authorizationService;
+
+    private static final Long TEST_USER_ID = 1L;
+    private static final String TEST_TOKEN = "test-token";
+
     @Test
     public void getAllContracts_success() throws Exception {
         // given
@@ -68,15 +76,34 @@ public class ContractControllerTest {
 
         List<Contract> allContracts = Collections.singletonList(contract);
         given(contractService.getContracts(null, null, null)).willReturn(allContracts);
+        given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(new User());
 
         // when/then
         mockMvc.perform(get("/api/v1/contracts")
+                .header("UserId", TEST_USER_ID)
+                .header("Authorization", TEST_TOKEN)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].contractId", is(contract.getContractId().intValue())))
-                .andExpect(jsonPath("$[0].title", is(contract.getTitle())))
-                .andExpect(jsonPath("$[0].contractStatus", is("REQUESTED")));
+                .andExpect(jsonPath("$.contracts", hasSize(1)))
+                .andExpect(jsonPath("$.contracts[0].contractId", is(contract.getContractId().intValue())))
+                .andExpect(jsonPath("$.contracts[0].title", is(contract.getTitle())))
+                .andExpect(jsonPath("$.contracts[0].contractStatus", is("REQUESTED")))
+                .andExpect(jsonPath("$.timestamp", notNullValue()));
+    }
+
+    @Test
+    public void getAllContracts_unauthorized() throws Exception {
+        // given
+        given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(null);
+
+        // when/then
+        mockMvc.perform(get("/api/v1/contracts")
+                .header("UserId", TEST_USER_ID)
+                .header("Authorization", TEST_TOKEN)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message", is("Invalid credentials")))
+                .andExpect(jsonPath("$.timestamp", notNullValue()));
     }
 
     @Test
@@ -88,9 +115,12 @@ public class ContractControllerTest {
         contract.setContractStatus(ContractStatus.REQUESTED);
 
         given(contractService.getContractById(1L)).willReturn(contract);
+        given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(new User());
 
         // when/then
         mockMvc.perform(get("/api/v1/contracts/1")
+                .header("UserId", TEST_USER_ID)
+                .header("Authorization", TEST_TOKEN)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.contractId", is(contract.getContractId().intValue())))
@@ -402,6 +432,101 @@ public class ContractControllerTest {
                 .param("status", "REQUESTED_")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void getAllContracts_missingUserIdHeader_throwsException() throws Exception {
+        // when/then
+        mockMvc.perform(get("/api/v1/contracts")
+                .header("Authorization", TEST_TOKEN)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void getAllContracts_missingTokenHeader_throwsException() throws Exception {
+        // when/then
+        mockMvc.perform(get("/api/v1/contracts")
+                .header("UserId", TEST_USER_ID)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void getAllContracts_invalidUserId_throwsException() throws Exception {
+        // given
+        given(authorizationService.authenticateUser(999L, TEST_TOKEN)).willReturn(null);
+
+        // when/then
+        mockMvc.perform(get("/api/v1/contracts")
+                .header("UserId", 999L)
+                .header("Authorization", TEST_TOKEN)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message", is("Invalid credentials")))
+                .andExpect(jsonPath("$.timestamp", notNullValue()));
+    }
+
+    @Test
+    public void getAllContracts_invalidToken_throwsException() throws Exception {
+        // given
+        given(authorizationService.authenticateUser(TEST_USER_ID, "invalid-token")).willReturn(null);
+
+        // when/then
+        mockMvc.perform(get("/api/v1/contracts")
+                .header("UserId", TEST_USER_ID)
+                .header("Authorization", "invalid-token")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message", is("Invalid credentials")))
+                .andExpect(jsonPath("$.timestamp", notNullValue()));
+    }
+
+    @Test
+    public void getAllContracts_tokenMismatch_throwsException() throws Exception {
+        // given
+        User user = new User();
+        user.setUserId(TEST_USER_ID);
+        user.setToken("different-token");
+        given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(null);
+
+        // when/then
+        mockMvc.perform(get("/api/v1/contracts")
+                .header("UserId", TEST_USER_ID)
+                .header("Authorization", TEST_TOKEN)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message", is("Invalid credentials")))
+                .andExpect(jsonPath("$.timestamp", notNullValue()));
+    }
+
+    @Test
+    public void getAllContracts_authenticatedUser_success() throws Exception {
+        // given
+        Contract contract = new Contract();
+        contract.setContractId(1L);
+        contract.setTitle("Test Contract");
+        contract.setContractStatus(ContractStatus.REQUESTED);
+
+        User authenticatedUser = new User();
+        authenticatedUser.setUserId(TEST_USER_ID);
+        authenticatedUser.setToken(TEST_TOKEN);
+
+        List<Contract> allContracts = Collections.singletonList(contract);
+        given(contractService.getContracts(null, null, null)).willReturn(allContracts);
+        given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(authenticatedUser);
+
+        // when/then
+        mockMvc.perform(get("/api/v1/contracts")
+                .header("UserId", TEST_USER_ID)
+                .header("Authorization", TEST_TOKEN)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.contracts", hasSize(1)))
+                .andExpect(jsonPath("$.contracts[0].contractId", is(contract.getContractId().intValue())))
+                .andExpect(jsonPath("$.contracts[0].title", is(contract.getTitle())))
+                .andExpect(jsonPath("$.contracts[0].contractStatus", is("REQUESTED")))
+                .andExpect(jsonPath("$.timestamp", notNullValue()));
     }
 
     /**

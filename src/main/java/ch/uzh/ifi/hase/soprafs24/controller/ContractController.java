@@ -3,16 +3,20 @@ package ch.uzh.ifi.hase.soprafs24.controller;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -34,6 +38,7 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractPutDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.ContractDTOMapper;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.LocationDTOMapper;
+import ch.uzh.ifi.hase.soprafs24.security.authorization.service.AuthorizationService;
 import ch.uzh.ifi.hase.soprafs24.service.ContractPollingService;
 import ch.uzh.ifi.hase.soprafs24.service.ContractService;
 import ch.uzh.ifi.hase.soprafs24.service.LocationService;
@@ -45,13 +50,19 @@ public class ContractController {
     private final ContractService contractService;
     private final LocationService locationService;
     private final ContractPollingService contractPollingService;
+    private final AuthorizationService authorizationService;
 
-
-    public ContractController(ContractService contractService, LocationService locationService, ContractPollingService contractPollingService, UserRepository userRepository) {
+    public ContractController(
+            ContractService contractService, 
+            LocationService locationService, 
+            ContractPollingService contractPollingService, 
+            UserRepository userRepository,
+            AuthorizationService authorizationService) {
         this.contractService = contractService;
         this.locationService = locationService;
         this.contractPollingService = contractPollingService;
         this.userRepository = userRepository;
+        this.authorizationService = authorizationService;
     }
 
     /**
@@ -60,18 +71,29 @@ public class ContractController {
      * Example request with filters:
      * GET /api/v1/contracts?lat=47.3769&lng=8.5417&filters={"radius": 10, "price": 100, "weight": 50, "height": 2, "length": 3, "width": 1.5, "requiredPeople": 2, "fragile": true, "coolingRequired": false, "rideAlong": true, "fromAddress": "Zurich", "toAddress": "Bern", "moveDate": "2024-04-15"}
      * 
+     * @param userId User ID from header
+     * @param token Authentication token from header
      * @param lat Latitude for location-based search
      * @param lng Longitude for location-based search
      * @param filters JSON string containing filter criteria
      * @return List of contracts matching the criteria
      */
     @GetMapping("/api/v1/contracts")
-    @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
-    public List<ContractGetDTO> getAllContracts(
+    public ResponseEntity<Object> getAllContracts(
+            @RequestHeader("UserId") Long userId,
+            @RequestHeader("Authorization") String token,
             @RequestParam(required = false) Double lat,
             @RequestParam(required = false) Double lng,
             @RequestParam(required = false) String filters) {
+
+        // Authenticate user
+        User authenticatedUser = authorizationService.authenticateUser(userId, token);
+        if (authenticatedUser == null) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Invalid credentials");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
 
         // Parse filters if provided
         ContractFilterDTO filterDTO = null;
@@ -84,12 +106,17 @@ public class ContractController {
                     try {
                         LocalDate.parse(filterDTO.getMoveDate().toString());
                     } catch (Exception e) {
-                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
-                            "Invalid moveDate format. Expected format: yyyy-MM-dd");
+                        Map<String, Object> response = new HashMap<>();
+                        response.put("message", "Invalid moveDate format. Expected format: yyyy-MM-dd");
+                        response.put("timestamp", System.currentTimeMillis());
+                        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
                     }
                 }
             } catch (Exception e) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid filters format");
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "Invalid filters format");
+                response.put("timestamp", System.currentTimeMillis());
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
         }
 
@@ -97,9 +124,15 @@ public class ContractController {
         List<Contract> contracts = contractService.getContracts(lat, lng, filterDTO);
         
         // Convert to DTOs
-        return contracts.stream()
+        List<ContractGetDTO> contractDTOs = contracts.stream()
                 .map(ContractDTOMapper.INSTANCE::convertContractEntityToContractGetDTO)
                 .collect(Collectors.toList());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("contracts", contractDTOs);
+        response.put("timestamp", System.currentTimeMillis());
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     /**
