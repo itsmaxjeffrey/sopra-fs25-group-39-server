@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs24.controller;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.ArrayList;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,8 @@ import ch.uzh.ifi.hase.soprafs24.service.OfferService;
 import ch.uzh.ifi.hase.soprafs24.security.authorization.service.AuthorizationService;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
+import ch.uzh.ifi.hase.soprafs24.entity.Contract;
+import ch.uzh.ifi.hase.soprafs24.service.ContractService;
 
 /**
  * Offer Controller
@@ -38,10 +41,12 @@ public class OfferController {
 
     private final OfferService offerService;
     private final AuthorizationService authorizationService;
+    private final ContractService contractService;
 
-    OfferController(OfferService offerService, AuthorizationService authorizationService) {
+    OfferController(OfferService offerService, AuthorizationService authorizationService, ContractService contractService) {
         this.offerService = offerService;
         this.authorizationService = authorizationService;
+        this.contractService = contractService;
     }
 
     /**
@@ -57,11 +62,62 @@ public class OfferController {
     @GetMapping("/api/v1/offers")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<OfferGetDTO> getOffers(
+    public ResponseEntity<Object> getOffers(
+            @RequestHeader("UserId") Long userId,
+            @RequestHeader("Authorization") String token,
             @RequestParam(required = false) Long contractId,
             @RequestParam(required = false) Long driverId,
             @RequestParam(required = false) OfferStatus status) {
-        return offerService.getOffers(contractId, driverId, status);
+        
+        // Authenticate user
+        User authenticatedUser = authorizationService.authenticateUser(userId, token);
+        if (authenticatedUser == null) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Invalid credentials");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
+
+        // Handle driver access
+        if (authenticatedUser.getUserAccountType() == UserAccountType.DRIVER) {
+            // Drivers can only see their own offers
+            driverId = userId;
+        }
+        // Handle requester access
+        else if (authenticatedUser.getUserAccountType() == UserAccountType.REQUESTER) {
+            // Requesters can only see offers for their contracts
+            if (contractId != null) {
+                // Validate that the contract belongs to the requester
+                Contract contract = contractService.getContractById(contractId);
+                if (!contract.getRequester().getUserId().equals(userId)) {
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("message", "You are not authorized to view offers for this contract");
+                    response.put("timestamp", System.currentTimeMillis());
+                    return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+                }
+            } else {
+                // If no contractId provided, get all contracts for this requester
+                List<Contract> requesterContracts = contractService.getContractsByRequesterId(userId, null);
+                List<OfferGetDTO> allOffers = new ArrayList<>();
+                for (Contract contract : requesterContracts) {
+                    allOffers.addAll(offerService.getOffers(contract.getContractId(), null, status));
+                }
+                Map<String, Object> response = new HashMap<>();
+                response.put("offers", allOffers);
+                response.put("timestamp", System.currentTimeMillis());
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            }
+        }
+
+        // Get filtered offers
+        List<OfferGetDTO> offers = offerService.getOffers(contractId, driverId, status);
+
+        // Create response with standard format
+        Map<String, Object> response = new HashMap<>();
+        response.put("offers", offers);
+        response.put("timestamp", System.currentTimeMillis());
+        
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     /**

@@ -1,15 +1,18 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
+import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.entity.Contract;
+import ch.uzh.ifi.hase.soprafs24.entity.Requester;
 import ch.uzh.ifi.hase.soprafs24.constant.OfferStatus;
 import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
-import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.response.AuthenticatedDriverDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferPutDTO;
-import ch.uzh.ifi.hase.soprafs24.security.authorization.service.AuthorizationService;
 import ch.uzh.ifi.hase.soprafs24.service.OfferService;
+import ch.uzh.ifi.hase.soprafs24.service.ContractService;
+import ch.uzh.ifi.hase.soprafs24.security.authorization.service.AuthorizationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -19,18 +22,24 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 public class OfferControllerTest {
 
     @Mock
     private OfferService offerService;
+
+    @Mock
+    private ContractService contractService;
 
     @Mock
     private AuthorizationService authorizationService;
@@ -87,31 +96,33 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void getOffers_success() {
+    public void getOffers_noFilters_success() {
         // given
-        List<OfferGetDTO> offers = Collections.singletonList(testOfferGetDTO);
-        when(offerService.getOffers(any(), any(), any())).thenReturn(offers);
+        List<OfferGetDTO> offers = new ArrayList<>();
+        when(offerService.getOffers(null, null, null)).thenReturn(offers);
+        when(authorizationService.authenticateUser(anyLong(), anyString())).thenReturn(new User());
 
         // when
-        List<OfferGetDTO> response = offerController.getOffers(null, null, null);
+        ResponseEntity<Object> response = offerController.getOffers(1L, "token", null, null, null);
 
         // then
-        assertEquals(1, response.size());
-        assertEquals(testOfferGetDTO.getOfferId(), response.get(0).getOfferId());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        verify(offerService).getOffers(null, null, null);
     }
 
     @Test
     public void getOffers_withFilters_success() {
         // given
-        List<OfferGetDTO> offers = Collections.singletonList(testOfferGetDTO);
-        when(offerService.getOffers(any(), any(), any())).thenReturn(offers);
+        List<OfferGetDTO> offers = new ArrayList<>();
+        when(offerService.getOffers(1L, 1L, OfferStatus.CREATED)).thenReturn(offers);
+        when(authorizationService.authenticateUser(anyLong(), anyString())).thenReturn(new User());
 
         // when
-        List<OfferGetDTO> response = offerController.getOffers(1L, 1L, OfferStatus.CREATED);
+        ResponseEntity<Object> response = offerController.getOffers(1L, "token", 1L, 1L, OfferStatus.CREATED);
 
         // then
-        assertEquals(1, response.size());
-        assertEquals(testOfferGetDTO.getOfferId(), response.get(0).getOfferId());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        verify(offerService).getOffers(1L, 1L, OfferStatus.CREATED);
     }
 
     @Test
@@ -457,5 +468,164 @@ public class OfferControllerTest {
             offerController.deleteOffer(1L);
         });
         assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+    }
+
+    @Test
+    public void getOffers_unauthorized_returns401() {
+        // given
+        when(authorizationService.authenticateUser(anyLong(), anyString())).thenReturn(null);
+
+        // when
+        ResponseEntity<Object> response = offerController.getOffers(1L, "invalid-token", null, null, null);
+
+        // then
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody, "Response body should not be null");
+        assertEquals("Invalid credentials", responseBody.get("message"));
+        assertNotNull(responseBody.get("timestamp"));
+    }
+
+    @Test
+    public void getOffers_asDriver_canOnlySeeOwnOffers() {
+        // given
+        User driver = new User();
+        driver.setUserId(1L);
+        driver.setUserAccountType(UserAccountType.DRIVER);
+        when(authorizationService.authenticateUser(1L, "token")).thenReturn(driver);
+        List<OfferGetDTO> offers = new ArrayList<>();
+        when(offerService.getOffers(null, 1L, null)).thenReturn(offers);
+
+        // when
+        ResponseEntity<Object> response = offerController.getOffers(1L, "token", null, 2L, null);
+
+        // then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        verify(offerService).getOffers(null, 1L, null); // Should override driverId to 1L
+    }
+
+    @Test
+    public void getOffers_asRequester_canOnlySeeOwnContracts() {
+        // given
+        User requester = new User();
+        requester.setUserId(1L);
+        requester.setUserAccountType(UserAccountType.REQUESTER);
+        when(authorizationService.authenticateUser(1L, "token")).thenReturn(requester);
+        
+        Contract contract = new Contract();
+        Requester otherRequester = new Requester();
+        otherRequester.setUserId(2L);
+        contract.setRequester(otherRequester);
+        when(contractService.getContractById(2L)).thenReturn(contract);
+
+        // when
+        ResponseEntity<Object> response = offerController.getOffers(1L, "token", 2L, null, null);
+
+        // then
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody, "Response body should not be null");
+        assertEquals("You are not authorized to view offers for this contract", responseBody.get("message"));
+        assertNotNull(responseBody.get("timestamp"));
+    }
+
+    @Test
+    public void getOffers_asRequester_canSeeAllOwnContracts() {
+        // given
+        User requester = new User();
+        requester.setUserId(1L);
+        requester.setUserAccountType(UserAccountType.REQUESTER);
+        when(authorizationService.authenticateUser(1L, "token")).thenReturn(requester);
+        
+        List<Contract> contracts = new ArrayList<>();
+        Contract contract = new Contract();
+        contract.setContractId(1L);
+        Requester requesterEntity = new Requester();
+        requesterEntity.setUserId(1L);
+        contract.setRequester(requesterEntity);
+        contracts.add(contract);
+        when(contractService.getContractsByRequesterId(1L, null)).thenReturn(contracts);
+        
+        List<OfferGetDTO> offers = new ArrayList<>();
+        OfferGetDTO offer = new OfferGetDTO();
+        offer.setOfferId(1L);
+        offers.add(offer);
+        when(offerService.getOffers(1L, null, null)).thenReturn(offers);
+
+        // when
+        ResponseEntity<Object> response = offerController.getOffers(1L, "token", null, null, null);
+
+        // then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertTrue(responseBody.containsKey("offers"));
+        assertTrue(responseBody.containsKey("timestamp"));
+        assertEquals(offers, responseBody.get("offers"));
+        assertNotNull(responseBody.get("timestamp"));
+        verify(offerService).getOffers(1L, null, null);
+    }
+
+    @Test
+    public void getOffers_asDriver_withStatusFilter_success() {
+        // given
+        User driver = new User();
+        driver.setUserId(1L);
+        driver.setUserAccountType(UserAccountType.DRIVER);
+        when(authorizationService.authenticateUser(1L, "token")).thenReturn(driver);
+        List<OfferGetDTO> offers = new ArrayList<>();
+        when(offerService.getOffers(null, 1L, OfferStatus.CREATED)).thenReturn(offers);
+
+        // when
+        ResponseEntity<Object> response = offerController.getOffers(1L, "token", null, null, OfferStatus.CREATED);
+
+        // then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        verify(offerService).getOffers(null, 1L, OfferStatus.CREATED);
+    }
+
+    @Test
+    public void getOffers_asRequester_withStatusFilter_success() {
+        // given
+        User requester = new User();
+        requester.setUserId(1L);
+        requester.setUserAccountType(UserAccountType.REQUESTER);
+        when(authorizationService.authenticateUser(1L, "token")).thenReturn(requester);
+        
+        List<Contract> contracts = new ArrayList<>();
+        Contract contract = new Contract();
+        contract.setContractId(1L);
+        Requester requesterEntity = new Requester();
+        requesterEntity.setUserId(1L);
+        contract.setRequester(requesterEntity);
+        contracts.add(contract);
+        when(contractService.getContractsByRequesterId(1L, null)).thenReturn(contracts);
+        
+        List<OfferGetDTO> offers = new ArrayList<>();
+        OfferGetDTO offer = new OfferGetDTO();
+        offer.setOfferId(1L);
+        offers.add(offer);
+        when(offerService.getOffers(1L, null, OfferStatus.CREATED)).thenReturn(offers);
+
+        // when
+        ResponseEntity<Object> response = offerController.getOffers(1L, "token", null, null, OfferStatus.CREATED);
+
+        // then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertTrue(responseBody.containsKey("offers"));
+        assertTrue(responseBody.containsKey("timestamp"));
+        assertEquals(offers, responseBody.get("offers"));
+        assertNotNull(responseBody.get("timestamp"));
+        verify(offerService).getOffers(1L, null, OfferStatus.CREATED);
     }
 } 
