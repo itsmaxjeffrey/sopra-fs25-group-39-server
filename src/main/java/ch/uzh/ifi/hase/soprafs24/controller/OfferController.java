@@ -196,9 +196,46 @@ public class OfferController {
     @GetMapping("/api/v1/users/{driverId}/offers")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<OfferGetDTO> getOffersByDriver(
+    public ResponseEntity<Object> getOffersByDriver(
             @PathVariable Long driverId,
+            @RequestHeader("UserId") Long userId,
+            @RequestHeader("Authorization") String token,
             @RequestParam(required = false) OfferStatus status) {
-        return offerService.getOffers(null, driverId, status);
+        
+        // Authenticate user
+        User authenticatedUser = authorizationService.authenticateUser(userId, token);
+        if (authenticatedUser == null) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Invalid credentials");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
+
+        // Check if user is authorized to view these offers
+        if (authenticatedUser.getUserAccountType() == UserAccountType.DRIVER) {
+            // Driver can only view their own offers
+            if (!driverId.equals(userId)) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "You are not authorized to view these offers");
+                response.put("timestamp", System.currentTimeMillis());
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            }
+        } else {
+            // Only drivers can view offers
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Only drivers can view offers");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+        }
+
+        // Get offers from service
+        List<OfferGetDTO> offers = offerService.getOffers(null, driverId, status);
+
+        // Create response with standard format
+        Map<String, Object> response = new HashMap<>();
+        response.put("offers", offers);
+        response.put("timestamp", System.currentTimeMillis());
+        
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 } 

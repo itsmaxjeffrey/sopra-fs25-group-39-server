@@ -302,13 +302,20 @@ public class OfferControllerTest {
         // given
         List<OfferGetDTO> offers = Collections.singletonList(testOfferGetDTO);
         when(offerService.getOffers(any(), any(), any())).thenReturn(offers);
+        when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(testDriver);
 
         // when
-        List<OfferGetDTO> response = offerController.getOffersByDriver(1L, null);
+        ResponseEntity<Object> response = offerController.getOffersByDriver(2L, 2L, "test-token", null);
 
         // then
-        assertEquals(1, response.size());
-        assertEquals(testOfferGetDTO.getOfferId(), response.get(0).getOfferId());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertEquals(offers, responseBody.get("offers"));
+        assertNotNull(responseBody.get("timestamp"));
+        verify(offerService, times(1)).getOffers(null, 2L, null);
     }
 
     @Test
@@ -342,25 +349,86 @@ public class OfferControllerTest {
         // given
         List<OfferGetDTO> offers = Collections.singletonList(testOfferGetDTO);
         when(offerService.getOffers(any(), any(), any())).thenReturn(offers);
+        when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(testDriver);
 
         // when
-        List<OfferGetDTO> response = offerController.getOffersByDriver(1L, OfferStatus.CREATED);
+        ResponseEntity<Object> response = offerController.getOffersByDriver(2L, 2L, "test-token", OfferStatus.CREATED);
 
         // then
-        assertEquals(1, response.size());
-        assertEquals(testOfferGetDTO.getOfferId(), response.get(0).getOfferId());
-        verify(offerService, times(1)).getOffers(null, 1L, OfferStatus.CREATED);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertEquals(offers, responseBody.get("offers"));
+        assertNotNull(responseBody.get("timestamp"));
+        verify(offerService, times(1)).getOffers(null, 2L, OfferStatus.CREATED);
+    }
+
+    @Test
+    public void getOffersByDriver_unauthorized_returns401() {
+        // given
+        when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(null);
+
+        // when
+        ResponseEntity<Object> response = offerController.getOffersByDriver(2L, 2L, "test-token", null);
+
+        // then
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertEquals("Invalid credentials", responseBody.get("message"));
+        assertNotNull(responseBody.get("timestamp"));
+    }
+
+    @Test
+    public void getOffersByDriver_forbidden_wrongDriver_returns403() {
+        // given
+        when(authorizationService.authenticateUser(3L, "test-token")).thenReturn(testDriver);
+
+        // when
+        ResponseEntity<Object> response = offerController.getOffersByDriver(2L, 3L, "test-token", null);
+
+        // then
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertEquals("You are not authorized to view these offers", responseBody.get("message"));
+        assertNotNull(responseBody.get("timestamp"));
+    }
+
+    @Test
+    public void getOffersByDriver_forbidden_requester_returns403() {
+        // given
+        when(authorizationService.authenticateUser(1L, "test-token")).thenReturn(testRequester);
+
+        // when
+        ResponseEntity<Object> response = offerController.getOffersByDriver(2L, 1L, "test-token", null);
+
+        // then
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertEquals("Only drivers can view offers", responseBody.get("message"));
+        assertNotNull(responseBody.get("timestamp"));
     }
 
     @Test
     public void getOffersByDriver_notFound_throwsException() {
         // given
+        when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(testDriver);
         when(offerService.getOffers(any(), any(), any()))
             .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Driver not found"));
 
         // when/then
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-            offerController.getOffersByDriver(1L, null);
+            offerController.getOffersByDriver(2L, 2L, "test-token", OfferStatus.CREATED);
         });
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
     }
