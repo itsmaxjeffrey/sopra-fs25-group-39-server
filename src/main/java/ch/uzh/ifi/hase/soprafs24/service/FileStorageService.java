@@ -40,9 +40,22 @@ public class FileStorageService {
 
     public String storeFile(MultipartFile file, String subdirectory) {
         // Normalize file name
-        String originalFilename = StringUtils.cleanPath(file.getOriginalFilename());
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST, 
+                "File must have a name");
+        }
+        originalFilename = StringUtils.cleanPath(originalFilename);
 
         try {
+            // Check if the file is empty
+            if (file.isEmpty()) {
+                throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, 
+                    "File is empty. Please upload a non-empty file.");
+            }
+
             // Check if the file's name contains invalid characters
             if (originalFilename.contains("..")) {
                 throw new ResponseStatusException(
