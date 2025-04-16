@@ -4,6 +4,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.entity.Contract;
 import ch.uzh.ifi.hase.soprafs24.entity.Requester;
 import ch.uzh.ifi.hase.soprafs24.constant.OfferStatus;
+import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
 import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.response.AuthenticatedDriverDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractGetDTO;
@@ -54,6 +55,9 @@ public class OfferControllerTest {
     private User testRequester;
     private ContractGetDTO testContractGetDTO;
     private AuthenticatedDriverDTO testDriverDTO;
+    private Contract testContract;
+    private Contract testAcceptedContract;
+    private Requester testRequesterEntity;
 
     @BeforeEach
     public void setup() {
@@ -70,6 +74,22 @@ public class OfferControllerTest {
         testRequester.setUserId(1L);
         testRequester.setUserAccountType(UserAccountType.REQUESTER);
         testRequester.setToken("test-token");
+
+        // Create test requester entity
+        testRequesterEntity = new Requester();
+        testRequesterEntity.setUserId(1L);
+
+        // Create test contract
+        testContract = new Contract();
+        testContract.setContractId(1L);
+        testContract.setContractStatus(ContractStatus.REQUESTED);
+        testContract.setRequester(testRequesterEntity);
+
+        // Create test accepted contract
+        testAcceptedContract = new Contract();
+        testAcceptedContract.setContractId(2L);
+        testAcceptedContract.setContractStatus(ContractStatus.ACCEPTED);
+        testAcceptedContract.setRequester(testRequesterEntity);
 
         // Create test contract DTO
         testContractGetDTO = new ContractGetDTO();
@@ -234,78 +254,181 @@ public class OfferControllerTest {
     @Test
     public void createOffer_success() {
         // given
-        when(offerService.createOffer(any())).thenReturn(testOfferGetDTO);
+        when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(testDriver);
+        when(contractService.getContractById(anyLong())).thenReturn(testContract);
+        when(offerService.createOffer(any(OfferPostDTO.class))).thenReturn(testOfferGetDTO);
+        testOfferPostDTO.setDriverId(2L); // Set driver ID to match authenticated user
 
         // when
-        OfferGetDTO response = offerController.createOffer(testOfferPostDTO);
+        ResponseEntity<Object> response = offerController.createOffer(2L, "test-token", testOfferPostDTO);
 
         // then
-        assertEquals(testOfferGetDTO.getOfferId(), response.getOfferId());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertEquals(testOfferGetDTO, responseBody.get("offer"));
+        assertEquals("Offer created successfully", responseBody.get("message"));
+        assertNotNull(responseBody.get("timestamp"));
     }
 
     @Test
-    public void createOffer_invalidInput_throwsException() {
+    public void createOffer_unauthorized_returns401() {
         // given
-        when(offerService.createOffer(any())).thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST));
+        when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(null);
 
-        // when/then
-        assertThrows(ResponseStatusException.class, () -> offerController.createOffer(testOfferPostDTO));
+        // when
+        ResponseEntity<Object> response = offerController.createOffer(2L, "test-token", testOfferPostDTO);
+
+        // then
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertEquals("Invalid credentials", responseBody.get("message"));
+        assertNotNull(responseBody.get("timestamp"));
     }
 
     @Test
     public void deleteOffer_success() {
         // given
-        doNothing().when(offerService).deleteOffer(any());
+        when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(testDriver);
+        when(offerService.getOffer(1L)).thenReturn(testOfferGetDTO);
+        doNothing().when(offerService).deleteOffer(1L);
 
         // when
-        offerController.deleteOffer(1L);
+        ResponseEntity<Object> response = offerController.deleteOffer(1L, 2L, "test-token");
 
         // then
-        verify(offerService, times(1)).deleteOffer(any());
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertEquals("Offer deleted successfully", responseBody.get("message"));
+        assertNotNull(responseBody.get("timestamp"));
     }
 
     @Test
-    public void deleteOffer_notFound_throwsException() {
+    public void deleteOffer_unauthorized_returns401() {
         // given
-        doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND)).when(offerService).deleteOffer(any());
+        when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(null);
 
-        // when/then
-        assertThrows(ResponseStatusException.class, () -> offerController.deleteOffer(1L));
+        // when
+        ResponseEntity<Object> response = offerController.deleteOffer(1L, 2L, "test-token");
+
+        // then
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertEquals("Invalid credentials", responseBody.get("message"));
+        assertNotNull(responseBody.get("timestamp"));
     }
 
     @Test
     public void updateOfferStatus_success() {
         // given
-        when(offerService.updateOfferStatus(any(), any())).thenReturn(testOfferGetDTO);
+        when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(testDriver);
+        when(offerService.getOffer(1L)).thenReturn(testOfferGetDTO);
+        when(offerService.updateOfferStatus(1L, OfferStatus.DELETED)).thenReturn(testOfferGetDTO);
 
         // when
-        OfferGetDTO response = offerController.updateOfferStatus(1L, testOfferPutDTO);
+        ResponseEntity<Object> response = offerController.updateOfferStatus(1L, OfferStatus.DELETED, 2L, "test-token");
 
         // then
-        assertEquals(testOfferGetDTO.getOfferId(), response.getOfferId());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertEquals(testOfferGetDTO, responseBody.get("offer"));
+        assertEquals("Offer status updated successfully", responseBody.get("message"));
+        assertNotNull(responseBody.get("timestamp"));
     }
 
     @Test
-    public void updateOfferStatus_invalidState_throwsException() {
+    public void updateOfferStatus_unauthorized_returns401() {
         // given
-        when(offerService.updateOfferStatus(any(), any())).thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST));
+        when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(null);
 
-        // when/then
-        assertThrows(ResponseStatusException.class, () -> offerController.updateOfferStatus(1L, testOfferPutDTO));
+        // when
+        ResponseEntity<Object> response = offerController.updateOfferStatus(1L, OfferStatus.DELETED, 2L, "test-token");
+
+        // then
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertEquals("Invalid credentials", responseBody.get("message"));
+        assertNotNull(responseBody.get("timestamp"));
     }
 
     @Test
     public void getOffersByContract_success() {
         // given
-        List<OfferGetDTO> offers = Collections.singletonList(testOfferGetDTO);
-        when(offerService.getOffers(any(), any(), any())).thenReturn(offers);
+        when(authorizationService.authenticateUser(1L, "test-token")).thenReturn(testRequester);
+        when(offerService.getOffers(1L, null, null)).thenReturn(Collections.singletonList(testOfferGetDTO));
+        
+        // Create a contract owned by the requester
+        Contract contract = new Contract();
+        Requester requester = new Requester();
+        requester.setUserId(1L);
+        contract.setRequester(requester);
+        when(contractService.getContractById(1L)).thenReturn(contract);
 
         // when
-        List<OfferGetDTO> response = offerController.getOffersByContract(1L);
+        ResponseEntity<Object> response = offerController.getOffersByContract(1L, 1L, "test-token");
 
         // then
-        assertEquals(1, response.size());
-        assertEquals(testOfferGetDTO.getOfferId(), response.get(0).getOfferId());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertEquals(Collections.singletonList(testOfferGetDTO), responseBody.get("offers"));
+        assertEquals("Offers retrieved successfully", responseBody.get("message"));
+        assertNotNull(responseBody.get("timestamp"));
+    }
+
+    @Test
+    public void getOffersByContract_unauthorized_returns401() {
+        // given
+        when(authorizationService.authenticateUser(1L, "test-token")).thenReturn(null);
+
+        // when
+        ResponseEntity<Object> response = offerController.getOffersByContract(1L, 1L, "test-token");
+
+        // then
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertEquals("Invalid credentials", responseBody.get("message"));
+        assertNotNull(responseBody.get("timestamp"));
+    }
+
+    @Test
+    public void createOffer_requesterCannotCreateOffer_forbidden() {
+        // given
+        when(authorizationService.authenticateUser(1L, "test-token")).thenReturn(testRequester);
+
+        // when
+        ResponseEntity<Object> response = offerController.createOffer(1L, "test-token", testOfferPostDTO);
+
+        // then
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertEquals("Requesters cannot create offers", responseBody.get("message"));
+        assertNotNull(responseBody.get("timestamp"));
     }
 
     @Test
@@ -327,32 +450,6 @@ public class OfferControllerTest {
         assertEquals(offers, responseBody.get("offers"));
         assertNotNull(responseBody.get("timestamp"));
         verify(offerService, times(1)).getOffers(null, 2L, null);
-    }
-
-    @Test
-    public void updateOfferStatus_missingStatus_throwsException() {
-        // given
-        testOfferPutDTO.setStatus(null);
-
-        // when/then
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-            offerController.updateOfferStatus(1L, testOfferPutDTO);
-        });
-        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
-        assertEquals("Status is required", exception.getReason());
-    }
-
-    @Test
-    public void getOffersByContract_notFound_throwsException() {
-        // given
-        when(offerService.getOffers(any(), any(), any()))
-            .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Contract not found"));
-
-        // when/then
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-            offerController.getOffersByContract(1L);
-        });
-        assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
     }
 
     @Test
@@ -442,32 +539,6 @@ public class OfferControllerTest {
             offerController.getOffersByDriver(2L, 2L, "test-token", OfferStatus.CREATED);
         });
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
-    }
-
-    @Test
-    public void createOffer_conflict_throwsException() {
-        // given
-        when(offerService.createOffer(any()))
-            .thenThrow(new ResponseStatusException(HttpStatus.CONFLICT, "Offer already exists"));
-
-        // when/then
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-            offerController.createOffer(testOfferPostDTO);
-        });
-        assertEquals(HttpStatus.CONFLICT, exception.getStatus());
-    }
-
-    @Test
-    public void deleteOffer_forbidden_throwsException() {
-        // given
-        doThrow(new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot delete accepted offer"))
-            .when(offerService).deleteOffer(any());
-
-        // when/then
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-            offerController.deleteOffer(1L);
-        });
-        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
     }
 
     @Test
@@ -627,5 +698,283 @@ public class OfferControllerTest {
         assertEquals(offers, responseBody.get("offers"));
         assertNotNull(responseBody.get("timestamp"));
         verify(offerService).getOffers(1L, null, OfferStatus.CREATED);
+    }
+
+    @Test
+    public void updateOfferStatus_driverCanDeleteOwnOffer_success() {
+        // given
+        when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(testDriver);
+        when(offerService.getOffer(1L)).thenReturn(testOfferGetDTO);
+        when(offerService.updateOfferStatus(1L, OfferStatus.DELETED)).thenReturn(testOfferGetDTO);
+
+        // when
+        ResponseEntity<Object> response = offerController.updateOfferStatus(1L, OfferStatus.DELETED, 2L, "test-token");
+
+        // then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertEquals(testOfferGetDTO, responseBody.get("offer"));
+        assertEquals("Offer status updated successfully", responseBody.get("message"));
+        assertNotNull(responseBody.get("timestamp"));
+    }
+
+    @Test
+    public void updateOfferStatus_driverCannotAcceptOwnOffer_forbidden() {
+        // given
+        when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(testDriver);
+        when(offerService.getOffer(1L)).thenReturn(testOfferGetDTO);
+
+        // when
+        ResponseEntity<Object> response = offerController.updateOfferStatus(1L, OfferStatus.ACCEPTED, 2L, "test-token");
+
+        // then
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertEquals("Drivers can only delete their offers", responseBody.get("message"));
+        assertNotNull(responseBody.get("timestamp"));
+    }
+
+    @Test
+    public void updateOfferStatus_requesterCanAcceptOwnContractOffer_success() {
+        // given
+        when(authorizationService.authenticateUser(1L, "test-token")).thenReturn(testRequester);
+        when(offerService.getOffer(1L)).thenReturn(testOfferGetDTO);
+        when(offerService.updateOfferStatus(1L, OfferStatus.ACCEPTED)).thenReturn(testOfferGetDTO);
+
+        // when
+        ResponseEntity<Object> response = offerController.updateOfferStatus(1L, OfferStatus.ACCEPTED, 1L, "test-token");
+
+        // then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertEquals(testOfferGetDTO, responseBody.get("offer"));
+        assertEquals("Offer status updated successfully", responseBody.get("message"));
+        assertNotNull(responseBody.get("timestamp"));
+    }
+
+    @Test
+    public void updateOfferStatus_requesterCannotDeleteOffer_forbidden() {
+        // given
+        when(authorizationService.authenticateUser(1L, "test-token")).thenReturn(testRequester);
+        when(offerService.getOffer(1L)).thenReturn(testOfferGetDTO);
+
+        // when
+        ResponseEntity<Object> response = offerController.updateOfferStatus(1L, OfferStatus.DELETED, 1L, "test-token");
+
+        // then
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertEquals("Requesters can only accept offers", responseBody.get("message"));
+        assertNotNull(responseBody.get("timestamp"));
+    }
+
+    @Test
+    public void deleteOffer_driverCanDeleteOwnOffer_success() {
+        // given
+        when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(testDriver);
+        when(offerService.getOffer(1L)).thenReturn(testOfferGetDTO);
+        doNothing().when(offerService).deleteOffer(1L);
+
+        // when
+        ResponseEntity<Object> response = offerController.deleteOffer(1L, 2L, "test-token");
+
+        // then
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertEquals("Offer deleted successfully", responseBody.get("message"));
+        assertNotNull(responseBody.get("timestamp"));
+    }
+
+    @Test
+    public void deleteOffer_requesterCannotDeleteOffer_forbidden() {
+        // given
+        when(authorizationService.authenticateUser(1L, "test-token")).thenReturn(testRequester);
+        when(offerService.getOffer(1L)).thenReturn(testOfferGetDTO);
+
+        // when
+        ResponseEntity<Object> response = offerController.deleteOffer(1L, 1L, "test-token");
+
+        // then
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertEquals("Requesters cannot delete offers", responseBody.get("message"));
+        assertNotNull(responseBody.get("timestamp"));
+    }
+
+    @Test
+    public void deleteOffer_driverCannotDeleteOtherDriverOffer_forbidden() {
+        // given
+        User otherDriver = new User();
+        otherDriver.setUserId(3L);
+        otherDriver.setUserAccountType(UserAccountType.DRIVER);
+        when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(testDriver);
+        
+        // Create an offer owned by a different driver
+        OfferGetDTO otherDriverOffer = new OfferGetDTO();
+        otherDriverOffer.setOfferId(1L);
+        otherDriverOffer.setOfferStatus(OfferStatus.CREATED);
+        AuthenticatedDriverDTO otherDriverDTO = new AuthenticatedDriverDTO();
+        otherDriverDTO.setUserId(3L);
+        otherDriverOffer.setDriver(otherDriverDTO);
+        when(offerService.getOffer(1L)).thenReturn(otherDriverOffer);
+
+        // when
+        ResponseEntity<Object> response = offerController.deleteOffer(1L, 2L, "test-token");
+
+        // then
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertEquals("You are not authorized to delete this offer", responseBody.get("message"));
+        assertNotNull(responseBody.get("timestamp"));
+    }
+
+    @Test
+    public void getOffersByContract_forbidden_wrongRequester() {
+        // given
+        when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(testRequester);
+        
+        Contract contract = new Contract();
+        Requester otherRequester = new Requester();
+        otherRequester.setUserId(3L);
+        contract.setRequester(otherRequester);
+        when(contractService.getContractById(1L)).thenReturn(contract);
+
+        // when
+        ResponseEntity<Object> response = offerController.getOffersByContract(1L, 2L, "test-token");
+
+        // then
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertEquals("You are not authorized to view offers for this contract", responseBody.get("message"));
+        assertNotNull(responseBody.get("timestamp"));
+    }
+
+    @Test
+    public void getOffersByContract_forbidden_invalidContractState() {
+        // given
+        when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(testDriver);
+        
+        Contract contract = new Contract();
+        contract.setContractStatus(ContractStatus.ACCEPTED);
+        when(contractService.getContractById(1L)).thenReturn(contract);
+
+        // when
+        ResponseEntity<Object> response = offerController.getOffersByContract(1L, 2L, "test-token");
+
+        // then
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertEquals("You are not authorized to view offers for this contract", responseBody.get("message"));
+        assertNotNull(responseBody.get("timestamp"));
+    }
+
+    @Test
+    public void createOffer_badRequest_invalidContractState() {
+        // given
+        when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(testDriver);
+        when(contractService.getContractById(anyLong())).thenReturn(testAcceptedContract);
+        when(offerService.createOffer(any(OfferPostDTO.class)))
+            .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot create offer for a contract that is accepted"));
+
+        // when/then
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            offerController.createOffer(2L, "test-token", testOfferPostDTO);
+        });
+        
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals("Cannot create offer for a contract that is accepted", exception.getReason());
+    }
+
+    @Test
+    public void createOffer_conflict_duplicateOffer() {
+        // given
+        when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(testDriver);
+        when(contractService.getContractById(anyLong())).thenReturn(testContract);
+        when(offerService.createOffer(any(OfferPostDTO.class)))
+            .thenThrow(new ResponseStatusException(HttpStatus.CONFLICT, "An offer already exists for this contract and driver"));
+
+        // when/then
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            offerController.createOffer(2L, "test-token", testOfferPostDTO);
+        });
+        
+        assertEquals(HttpStatus.CONFLICT, exception.getStatus());
+        assertEquals("An offer already exists for this contract and driver", exception.getReason());
+    }
+
+    @Test
+    public void deleteOffer_forbidden_acceptedOffer() {
+        // given
+        when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(testDriver);
+        when(offerService.getOffer(1L)).thenReturn(testOfferGetDTO);
+        doThrow(new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot delete an accepted offer"))
+            .when(offerService).deleteOffer(1L);
+
+        // when/then
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            offerController.deleteOffer(1L, 2L, "test-token");
+        });
+        
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+        assertEquals("Cannot delete an accepted offer", exception.getReason());
+    }
+
+    @Test
+    public void deleteOffer_notFound() {
+        // given
+        when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(testDriver);
+        when(offerService.getOffer(1L)).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Offer not found"));
+
+        // when/then
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            offerController.deleteOffer(1L, 2L, "test-token");
+        });
+        
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
+        assertEquals("Offer not found", exception.getReason());
+    }
+
+    @Test
+    public void updateOfferStatus_badRequest_invalidContractState() {
+        // given
+        when(authorizationService.authenticateUser(1L, "test-token")).thenReturn(testRequester);
+        when(offerService.getOffer(1L)).thenReturn(testOfferGetDTO);
+        when(offerService.updateOfferStatus(1L, OfferStatus.ACCEPTED))
+            .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Offers can only be accepted for OFFERED contracts"));
+
+        // when/then
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            offerController.updateOfferStatus(1L, OfferStatus.ACCEPTED, 1L, "test-token");
+        });
+        
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals("Offers can only be accepted for OFFERED contracts", exception.getReason());
     }
 } 

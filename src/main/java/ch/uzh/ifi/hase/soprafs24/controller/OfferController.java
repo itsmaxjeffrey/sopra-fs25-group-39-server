@@ -23,13 +23,13 @@ import org.springframework.web.server.ResponseStatusException;
 import ch.uzh.ifi.hase.soprafs24.constant.OfferStatus;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferPostDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.offer.OfferPutDTO;
 import ch.uzh.ifi.hase.soprafs24.service.OfferService;
 import ch.uzh.ifi.hase.soprafs24.security.authorization.service.AuthorizationService;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
 import ch.uzh.ifi.hase.soprafs24.entity.Contract;
 import ch.uzh.ifi.hase.soprafs24.service.ContractService;
+import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
 
 /**
  * Offer Controller
@@ -188,8 +188,64 @@ public class OfferController {
     @GetMapping("/api/v1/contracts/{contractId}/offers")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<OfferGetDTO> getOffersByContract(@PathVariable Long contractId) {
-        return offerService.getOffers(contractId, null, null);
+    public ResponseEntity<Object> getOffersByContract(
+            @PathVariable Long contractId,
+            @RequestHeader("UserId") Long userId,
+            @RequestHeader("Authorization") String token) {
+        
+        // Authenticate user
+        User authenticatedUser = authorizationService.authenticateUser(userId, token);
+        if (authenticatedUser == null) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Invalid credentials");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
+
+        // Check if user is authorized to view offers for this contract
+        Contract contract = contractService.getContractById(contractId);
+        if (contract == null) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Contract not found");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+
+        if (authenticatedUser.getUserAccountType() == UserAccountType.REQUESTER) {
+            // Requesters can only view offers for their contracts
+            if (!contract.getRequester().getUserId().equals(userId)) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "You are not authorized to view offers for this contract");
+                response.put("timestamp", System.currentTimeMillis());
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            }
+        } else if (authenticatedUser.getUserAccountType() == UserAccountType.DRIVER) {
+            // Drivers can view offers for any contract in REQUESTED or OFFERED state
+            if (contract.getContractStatus() != ContractStatus.REQUESTED && 
+                contract.getContractStatus() != ContractStatus.OFFERED) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "You are not authorized to view offers for this contract");
+                response.put("timestamp", System.currentTimeMillis());
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            }
+        } else {
+            // Invalid user type
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Invalid user account type");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+        }
+
+        // Get offers for the contract
+        List<OfferGetDTO> offers = offerService.getOffers(contractId, null, null);
+
+        // Create response with standard format
+        Map<String, Object> response = new HashMap<>();
+        response.put("offers", offers);
+        response.put("message", "Offers retrieved successfully");
+        response.put("timestamp", System.currentTimeMillis());
+        
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     /**
@@ -206,8 +262,47 @@ public class OfferController {
     @PostMapping("/api/v1/offers")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public OfferGetDTO createOffer(@RequestBody OfferPostDTO offerPostDTO) {
-        return offerService.createOffer(offerPostDTO);
+    public ResponseEntity<Object> createOffer(
+            @RequestHeader("UserId") Long userId,
+            @RequestHeader("Authorization") String token,
+            @RequestBody OfferPostDTO offerPostDTO) {
+        
+        // Authenticate user
+        User authenticatedUser = authorizationService.authenticateUser(userId, token);
+        if (authenticatedUser == null) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Invalid credentials");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
+
+        // Verify user is a driver
+        if (authenticatedUser.getUserAccountType() != UserAccountType.DRIVER) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Requesters cannot create offers");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+        }
+
+        // Check if contract is in a valid state for new offers
+        if (contractService.getContractById(offerPostDTO.getContractId()).getContractStatus() == ContractStatus.ACCEPTED ||
+            contractService.getContractById(offerPostDTO.getContractId()).getContractStatus() == ContractStatus.COMPLETED ||
+            contractService.getContractById(offerPostDTO.getContractId()).getContractStatus() == ContractStatus.CANCELED ||
+            contractService.getContractById(offerPostDTO.getContractId()).getContractStatus() == ContractStatus.DELETED) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                "Cannot create offer for a contract that is " + contractService.getContractById(offerPostDTO.getContractId()).getContractStatus());
+        }
+
+        // Create the offer
+        OfferGetDTO createdOffer = offerService.createOffer(offerPostDTO);
+
+        // Create response with standard format
+        Map<String, Object> response = new HashMap<>();
+        response.put("offer", createdOffer);
+        response.put("message", "Offer created successfully");
+        response.put("timestamp", System.currentTimeMillis());
+        
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     /**
@@ -218,8 +313,55 @@ public class OfferController {
      */
     @DeleteMapping("/api/v1/offers/{offerId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteOffer(@PathVariable Long offerId) {
+    public ResponseEntity<Object> deleteOffer(
+            @PathVariable Long offerId,
+            @RequestHeader("UserId") Long userId,
+            @RequestHeader("Authorization") String token) {
+        
+        // Authenticate user
+        User authenticatedUser = authorizationService.authenticateUser(userId, token);
+        if (authenticatedUser == null) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Invalid credentials");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
+
+        // Get the offer to check authorization
+        OfferGetDTO offer = offerService.getOffer(offerId);
+        if (offer == null) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Offer not found");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+        
+        // Verify user is authorized to delete the offer
+        if (authenticatedUser.getUserAccountType() == UserAccountType.DRIVER) {
+            // Drivers can only delete their own offers
+            if (!offer.getDriver().getUserId().equals(userId)) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "You are not authorized to delete this offer");
+                response.put("timestamp", System.currentTimeMillis());
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            }
+        } else {
+            // Requesters cannot delete offers
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Requesters cannot delete offers");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+        }
+
+        // Delete the offer
         offerService.deleteOffer(offerId);
+
+        // Return success response
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Offer deleted successfully");
+        response.put("timestamp", System.currentTimeMillis());
+        
+        return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
     }
 
     /**
@@ -234,12 +376,73 @@ public class OfferController {
      */
     @PutMapping("/api/v1/offers/{offerId}/status")
     @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
-    public OfferGetDTO updateOfferStatus(@PathVariable Long offerId, @RequestBody OfferPutDTO offerPutDTO) {
-        if (offerPutDTO.getStatus() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Status is required");
+    public ResponseEntity<Object> updateOfferStatus(
+            @PathVariable Long offerId,
+            @RequestParam OfferStatus status,
+            @RequestHeader("UserId") Long userId,
+            @RequestHeader("Authorization") String token) {
+        
+        // Authenticate user
+        User authenticatedUser = authorizationService.authenticateUser(userId, token);
+        if (authenticatedUser == null) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Invalid credentials");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
-        return offerService.updateOfferStatus(offerId, offerPutDTO.getStatus());
+
+        // Get the offer to check authorization
+        OfferGetDTO offer = offerService.getOffer(offerId);
+
+        // Verify user is authorized to update the offer status
+        if (authenticatedUser.getUserAccountType() == UserAccountType.DRIVER) {
+            // Drivers can only update their own offers
+            if (!offer.getDriver().getUserId().equals(userId)) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "You are not authorized to update this offer");
+                response.put("timestamp", System.currentTimeMillis());
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            }
+            // Drivers can only set status to DELETED
+            if (status != OfferStatus.DELETED) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "Drivers can only delete their offers");
+                response.put("timestamp", System.currentTimeMillis());
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            }
+        } else if (authenticatedUser.getUserAccountType() == UserAccountType.REQUESTER) {
+            // Requesters can only accept offers for their contracts
+            if (!offer.getContract().getRequesterId().equals(userId)) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "You are not authorized to update this offer");
+                response.put("timestamp", System.currentTimeMillis());
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            }
+            // Requesters can only set status to ACCEPTED
+            if (status != OfferStatus.ACCEPTED) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "Requesters can only accept offers");
+                response.put("timestamp", System.currentTimeMillis());
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            }
+        } else {
+            // Invalid user type
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Invalid user account type");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+        }
+
+        // Update the offer status
+        OfferGetDTO updatedOffer = offerService.updateOfferStatus(offerId, status);
+
+        // Return success response
+        Map<String, Object> response = new HashMap<>();
+        response.put("offer", updatedOffer);
+        response.put("message", "Offer status updated successfully");
+        response.put("timestamp", System.currentTimeMillis());
+        
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     /**
