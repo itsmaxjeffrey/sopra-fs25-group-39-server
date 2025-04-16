@@ -216,21 +216,26 @@ class FileStorageServiceTest {
     @Test
     void storeFile_permissionError_throwsException() throws IOException {
         // given
-        Path readOnlyDir = tempDir.resolve("readonly");
-        Files.createDirectories(readOnlyDir);
-        readOnlyDir.toFile().setReadOnly();
-        
         String originalFilename = "test.txt";
         byte[] content = "Test content".getBytes();
         MultipartFile file = new MockMultipartFile(originalFilename, originalFilename, "text/plain", content);
 
+        // Create a subdirectory that will cause an IOException when trying to write
+        Path errorDir = tempDir.resolve("error-dir");
+        Files.createDirectories(errorDir);
+        Files.createFile(errorDir.resolve("existing-file.txt"));
+        errorDir.toFile().setReadOnly();
+
         // when/then
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
-            () -> fileStorageService.storeFile(file, "readonly"));
+            () -> fileStorageService.storeFile(file, "error-dir"));
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, exception.getStatus());
         String reason = exception.getReason();
         assertNotNull(reason);
         assertTrue(reason.contains("Could not store file"));
+
+        // Cleanup
+        errorDir.toFile().setWritable(true);
     }
 
     private byte[] readFileContent(Path filePath) {
