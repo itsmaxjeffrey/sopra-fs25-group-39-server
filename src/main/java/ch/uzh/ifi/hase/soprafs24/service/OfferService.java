@@ -223,23 +223,10 @@ public class OfferService {
         Offer offer = offerRepository.findById(offerId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Offer not found"));
 
-        // Validate status transition
-        if (offer.getOfferStatus() == OfferStatus.DELETED) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Cannot update a deleted offer");
-        }
-
-        if (offer.getOfferStatus() == OfferStatus.ACCEPTED && status != OfferStatus.ACCEPTED) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Cannot change status of an accepted offer");
-        }
-
-        if (offer.getOfferStatus() == OfferStatus.REJECTED && status != OfferStatus.REJECTED) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Cannot change status of a rejected offer");
-        }
-
-        // Additional validations for status transitions
-        if (status == OfferStatus.ACCEPTED && offer.getOfferStatus() != OfferStatus.CREATED) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
-                "Only CREATED offers can be accepted");
+        // Validate that offer is in CREATED state
+        if (offer.getOfferStatus() != OfferStatus.CREATED) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, 
+                "Only CREATED offers can be modified");
         }
 
         // Update the status
