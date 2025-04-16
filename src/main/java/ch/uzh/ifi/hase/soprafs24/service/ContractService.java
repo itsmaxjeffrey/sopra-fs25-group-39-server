@@ -336,28 +336,10 @@ public class ContractService {
      * @throws ResponseStatusException if the update is not allowed
      */
     private void validateContractUpdate(Contract existingContract, Contract contractUpdates) {
-        // If contract is in REQUESTED state, allow all changes
+        // Only allow updates for REQUESTED contracts
         if (existingContract.getContractStatus() != ContractStatus.REQUESTED) {
-            // Validate price and collateral updates
-            if (contractUpdates.getPrice() > 0 && contractUpdates.getPrice() != existingContract.getPrice()) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price cannot be changed after contract is offered");
-            }
-            if (contractUpdates.getCollateral() >= 0 && contractUpdates.getCollateral() != existingContract.getCollateral()) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Collateral cannot be changed after contract is offered");
-            }
-
-            // Validate mass and volume updates
-            if (contractUpdates.getMass() > 0 && contractUpdates.getMass() != existingContract.getMass()) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mass cannot be changed after contract is offered");
-            }
-            if (contractUpdates.getVolume() > 0 && contractUpdates.getVolume() != existingContract.getVolume()) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Volume cannot be changed after contract is offered");
-            }
-
-            // Validate manpower update
-            if (contractUpdates.getManPower() > 0 && contractUpdates.getManPower() != existingContract.getManPower()) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Manpower cannot be changed after contract is offered");
-            }
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                "Only REQUESTED contracts can be edited. Use delete for REQUESTED or OFFERED contracts, or cancel for ACCEPTED contracts.");
         }
 
         // Always validate that move date time is in the future
@@ -365,11 +347,6 @@ public class ContractService {
             !contractUpdates.getMoveDateTime().equals(existingContract.getMoveDateTime())) {
             if (contractUpdates.getMoveDateTime().isBefore(LocalDateTime.now())) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Move date time must be in the future");
-            }
-            // Only allow date changes in REQUESTED state
-            if (existingContract.getContractStatus() != ContractStatus.REQUESTED) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
-                    "Move date time can only be changed for REQUESTED contracts");
             }
         }
     }
@@ -509,7 +486,11 @@ public class ContractService {
             }
         }
         
-        // Reject all offers for this contract
+        // First, mark the contract as deleted
+        contract.setContractStatus(ContractStatus.DELETED);
+        contractRepository.save(contract);
+        
+        // Then reject all offers for this contract
         List<Offer> offers = offerRepository.findByContract_ContractId(contractId);
         for (Offer offer : offers) {
             if (offer.getOfferStatus() != OfferStatus.REJECTED) {
@@ -518,18 +499,9 @@ public class ContractService {
             }
         }
         
-        // If contract was in OFFERED state and this was the last offer, revert to REQUESTED
-        if (contract.getContractStatus() == ContractStatus.OFFERED && 
-            offers.stream().allMatch(o -> o.getOfferStatus() == OfferStatus.REJECTED)) {
-            contract.setContractStatus(ContractStatus.REQUESTED);
-        } else {
-            // Otherwise, mark as deleted
-            contract.setContractStatus(ContractStatus.DELETED);
-        }
-        
-        // Save the updated contract
-        contractRepository.save(contract);
+        // Flush all changes
         contractRepository.flush();
+        offerRepository.flush();
         
         log.debug("Deleted Contract: {}", contract);
     }
