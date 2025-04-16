@@ -737,4 +737,176 @@ public class ContractServiceTest {
         assertEquals(HttpStatus.CONFLICT, finalizedException.getStatus());
         assertEquals("Cannot delete a completed or finalized contract", finalizedException.getReason());
     }
+
+    @Test
+    public void createContract_negativePrice_throwsException() {
+        // given
+        testContract.setPrice(-100.0f);
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.of(testRequester));
+
+        // when/then -> check that an error is thrown
+        assertThrows(ResponseStatusException.class, () -> contractService.createContract(testContract));
+    }
+
+    @Test
+    public void createContract_negativeCollateral_throwsException() {
+        // given
+        testContract.setCollateral(-50.0f);
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.of(testRequester));
+
+        // when/then -> check that an error is thrown
+        assertThrows(ResponseStatusException.class, () -> contractService.createContract(testContract));
+    }
+
+    @Test
+    public void createContract_negativeMass_throwsException() {
+        // given
+        testContract.setMass(-10.0f);
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.of(testRequester));
+
+        // when/then -> check that an error is thrown
+        assertThrows(ResponseStatusException.class, () -> contractService.createContract(testContract));
+    }
+
+    @Test
+    public void createContract_negativeVolume_throwsException() {
+        // given
+        testContract.setVolume(-5.0f);
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.of(testRequester));
+
+        // when/then -> check that an error is thrown
+        assertThrows(ResponseStatusException.class, () -> contractService.createContract(testContract));
+    }
+
+    @Test
+    public void createContract_negativeManpower_throwsException() {
+        // given
+        testContract.setManPower(-2);
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.of(testRequester));
+
+        // when/then -> check that an error is thrown
+        assertThrows(ResponseStatusException.class, () -> contractService.createContract(testContract));
+    }
+
+    @Test
+    public void createContract_pastMoveDate_throwsException() {
+        // given
+        testContract.setMoveDateTime(LocalDateTime.now().minusDays(1));
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.of(testRequester));
+
+        // when/then -> check that an error is thrown
+        assertThrows(ResponseStatusException.class, () -> contractService.createContract(testContract));
+    }
+
+    @Test
+    public void createContract_missingAddresses_throwsException() {
+        // given
+        testContract.setFromAddress(null);
+        testContract.setToAddress(null);
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.of(testRequester));
+
+        // when/then -> check that an error is thrown
+        assertThrows(ResponseStatusException.class, () -> contractService.createContract(testContract));
+    }
+
+    @Test
+    public void updateContract_invalidStatus_throwsException() {
+        // given
+        testContract.setContractStatus(ContractStatus.ACCEPTED);
+        Contract contractUpdates = new Contract();
+        contractUpdates.setContractStatus(ContractStatus.COMPLETED);
+        Mockito.when(contractRepository.findById(Mockito.any())).thenReturn(java.util.Optional.of(testContract));
+
+        // when/then -> check that an error is thrown
+        assertThrows(ResponseStatusException.class, () -> contractService.updateContract(1L, contractUpdates));
+    }
+
+    @Test
+    public void updateContract_pastMoveDate_throwsException() {
+        // given
+        testContract.setContractStatus(ContractStatus.REQUESTED);
+        Contract contractUpdates = new Contract();
+        contractUpdates.setMoveDateTime(LocalDateTime.now().minusDays(1));
+        Mockito.when(contractRepository.findById(Mockito.any())).thenReturn(java.util.Optional.of(testContract));
+
+        // when/then -> check that an error is thrown
+        assertThrows(ResponseStatusException.class, () -> contractService.updateContract(1L, contractUpdates));
+    }
+
+    @Test
+    public void updateContract_invalidRequester_throwsException() {
+        // given
+        testContract.setContractStatus(ContractStatus.REQUESTED);
+        Contract contractUpdates = new Contract();
+        Requester differentRequester = new Requester();
+        differentRequester.setUserId(999L); // Different from testRequester's ID
+        contractUpdates.setRequester(differentRequester);
+        Mockito.when(contractRepository.findById(Mockito.any())).thenReturn(java.util.Optional.of(testContract));
+
+        // when/then -> check that an error is thrown
+        assertThrows(ResponseStatusException.class, () -> contractService.updateContract(1L, contractUpdates));
+    }
+
+    @Test
+    public void completeContract_beforeMoveDate_throwsException() {
+        // given
+        testContract.setContractStatus(ContractStatus.ACCEPTED);
+        testContract.setMoveDateTime(LocalDateTime.now().plusDays(1));
+        Mockito.when(contractRepository.findById(Mockito.any())).thenReturn(java.util.Optional.of(testContract));
+
+        // when/then -> check that an error is thrown
+        assertThrows(ResponseStatusException.class, () -> contractService.completeContract(1L));
+    }
+
+    @Test
+    public void completeContract_afterMoveDate_success() {
+        // given
+        testContract.setContractStatus(ContractStatus.ACCEPTED);
+        testContract.setMoveDateTime(LocalDateTime.now().minusDays(1));
+        Mockito.when(contractRepository.findById(Mockito.any())).thenReturn(java.util.Optional.of(testContract));
+        Mockito.when(contractRepository.save(Mockito.any())).thenReturn(testContract);
+
+        // when
+        Contract completedContract = contractService.completeContract(1L);
+
+        // then
+        assertEquals(ContractStatus.COMPLETED, completedContract.getContractStatus());
+    }
+
+    @Test
+    public void finalizeContract_nonCompleted_throwsException() {
+        // given
+        testContract.setContractStatus(ContractStatus.ACCEPTED);
+        Mockito.when(contractRepository.findById(Mockito.any())).thenReturn(java.util.Optional.of(testContract));
+
+        // when/then -> check that an error is thrown
+        assertThrows(ResponseStatusException.class, () -> contractService.finalizeContract(1L));
+    }
+
+    @Test
+    public void cancelContract_within72Hours_throwsException() {
+        // given
+        testContract.setContractStatus(ContractStatus.ACCEPTED);
+        testContract.setMoveDateTime(LocalDateTime.now().plusHours(48));
+        Mockito.when(contractRepository.findById(Mockito.any())).thenReturn(java.util.Optional.of(testContract));
+
+        // when/then -> check that an error is thrown
+        assertThrows(ResponseStatusException.class, () -> contractService.cancelContract(1L, "Test reason"));
+    }
+
+    @Test
+    public void cancelContract_moreThan72Hours_success() {
+        // given
+        testContract.setContractStatus(ContractStatus.ACCEPTED);
+        testContract.setMoveDateTime(LocalDateTime.now().plusDays(4));
+        Mockito.when(contractRepository.findById(Mockito.any())).thenReturn(java.util.Optional.of(testContract));
+        Mockito.when(contractRepository.save(Mockito.any())).thenReturn(testContract);
+
+        // when
+        Contract cancelledContract = contractService.cancelContract(1L, "Test reason");
+
+        // then
+        assertEquals(ContractStatus.CANCELED, cancelledContract.getContractStatus());
+        assertEquals("Test reason", cancelledContract.getCancelReason());
+    }
 } 
