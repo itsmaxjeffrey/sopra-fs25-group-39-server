@@ -125,6 +125,8 @@ public class OfferControllerTest {
 
         // then
         assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
         Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
         assertNotNull(responseBody);
         assertEquals(testOfferGetDTO, responseBody.get("offer"));
@@ -142,6 +144,8 @@ public class OfferControllerTest {
 
         // then
         assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
         Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
         assertNotNull(responseBody);
         assertEquals(testOfferGetDTO, responseBody.get("offer"));
@@ -158,6 +162,8 @@ public class OfferControllerTest {
 
         // then
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
         Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
         assertNotNull(responseBody);
         assertEquals("Invalid credentials", responseBody.get("message"));
@@ -176,6 +182,8 @@ public class OfferControllerTest {
 
         // then
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
         Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
         assertNotNull(responseBody);
         assertEquals("You are not authorized to view this offer", responseBody.get("message"));
@@ -194,6 +202,8 @@ public class OfferControllerTest {
 
         // then
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
         Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
         assertNotNull(responseBody);
         assertEquals("You are not authorized to view this offer", responseBody.get("message"));

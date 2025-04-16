@@ -13,14 +13,10 @@ import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractCancelDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractPutDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractPostDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
 import ch.uzh.ifi.hase.soprafs24.security.authorization.service.AuthorizationService;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +30,6 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
-import java.util.Arrays;
-import java.text.SimpleDateFormat;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
