@@ -342,6 +342,13 @@ public class ContractService {
                 "Only REQUESTED contracts can be edited. Use delete for REQUESTED or OFFERED contracts, or cancel for ACCEPTED contracts.");
         }
 
+        // Validate that the requester is the same as the original requester
+        if (contractUpdates.getRequester() != null && 
+            !contractUpdates.getRequester().getUserId().equals(existingContract.getRequester().getUserId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, 
+                "Only the original requester can update the contract");
+        }
+
         // Always validate that move date time is in the future
         if (contractUpdates.getMoveDateTime() != null && 
             !contractUpdates.getMoveDateTime().equals(existingContract.getMoveDateTime())) {

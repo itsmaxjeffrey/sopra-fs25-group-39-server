@@ -41,24 +41,24 @@ public class LocationService {
     public Location createLocationFromDTO(LocationDTO locationDTO) {
         Location createdLocation = locationCreator.createLocationFromDTO(locationDTO);
         log.debug("Created Location from DTO: {}", createdLocation);
-        return locationCreator.createLocationFromDTO(locationDTO);
+        return createdLocation;
     }
     
     /**
- * Updates an existing location or creates a new one
- */
-public Location updateLocationFromDTO(Location existingLocation, LocationDTO locationDTO) {
-    // If location doesn't exist, create a new one
-    if (existingLocation == null) {
-        return createLocationFromDTO(locationDTO);
+     * Updates an existing location or creates a new one
+     */
+    public Location updateLocationFromDTO(Location existingLocation, LocationDTO locationDTO) {
+        // If location doesn't exist, create a new one
+        if (existingLocation == null) {
+            return createLocationFromDTO(locationDTO);
+        }
+        
+        // Update and save the location
+        Location updatedLocation = locationUpdater.updateAndSaveLocation(existingLocation, locationDTO);
+        
+        log.debug("Updated Location: {}", updatedLocation);
+        return updatedLocation;
     }
-    
-    // Update and save the location
-    Location updatedLocation = locationUpdater.updateAndSaveLocation(existingLocation, locationDTO);
-    
-    log.debug("Updated Location: {}", updatedLocation);
-    return updatedLocation;
-}
 
 
     public Location getLocationById(Long locationId){
