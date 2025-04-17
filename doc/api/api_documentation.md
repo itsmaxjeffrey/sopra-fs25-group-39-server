@@ -19,7 +19,7 @@
 ## API Conventions
 - All endpoints require HTTPS
 - API version is included in the URL path: `/api/v1/...`
-- Authentication uses JWT tokens in the `Authorization` header
+- Authentication requires both UserId and Authorization headers
 - Date format: ISO 8601 (YYYY-MM-DDTHH:MM:SSZ)
 - All times are in UTC
 
@@ -27,11 +27,45 @@
 
 | FE | BE | Mapping | Method | Parameter | Parameter Type | Status Code | Response | Description | User Story |
 |---------|--------|-----------|----------------|-------------|----------|-------------|-----------|-----------|-----------|
-| No ❌ | Yes ✅ | `/api/v1/auth/register/driver` | POST | `driverToRegister <User>` | Body | 201, 400, 409 | `createdDriver <User>` | Register a new driver account | S1 | 
+| No ❌ | Yes ✅ | `/api/v1/auth/register` | POST | `user <BaseUserRegisterDTO>`, `car <CarDTO>` (optional), `location <LocationDTO>` (optional) | Body | 201, 400, 409 | `{ "token": "uuid-token", "userId": 1, "userAccountType": "REQUESTER", ... }` | Register a new user account | S1 | 
 
-| No ❌ | No ❌ | `/api/v1/auth/login` | POST | `username <string>`, `password <string>` | Body | 200, 401 | `{ "token": "jwt-token", "user": {...} }` | Authenticate user and create session | S2 | 
-| No ❌ | No ❌ | `/api/v1/auth/logout` | POST | Auth token | Header | 200, 401 | `{ "message": "Successfully logged out" }` | End user session | S2 |
-| No ❌ | No ❌ | `/api/v1/auth/refresh` | POST | Refresh token | Body | 200, 401 | `{ "token": "new-jwt-token" }` | Refresh authentication token | S2 |
+| No ❌ | Yes ✅ | `/api/v1/auth/login` | POST | `username <string>`, `password <string>` | Body | 200, 401 | `{ "token": "uuid-token", "userId": 1, "userAccountType": "REQUESTER", ... }` | Authenticate user and create session | S2 | 
+| No ❌ | Yes ✅ | `/api/v1/auth/logout` | POST | `UserId <string>`, `Authorization <string>` | Header | 200, 401 | `{ "message": "Successfully logged out", "timestamp": 1234567890 }` | End user session | S2 |
+
+### Authentication Headers
+All authenticated endpoints require the following headers:
+- `UserId`: The ID of the authenticated user
+- `Authorization`: The authentication token received during login/registration
+
+### Example Authentication Flow
+1. Register a new user:
+```bash
+curl -X POST "http://localhost:8080/api/v1/auth/register" \
+  -H "Content-Type: application/json" \
+  -d '{"user": {"username": "testuser", "password": "testpass", "email": "test@test.com", "userAccountType": "REQUESTER", ...}}'
+```
+
+2. Use the received token and userId in subsequent requests:
+```bash
+curl -X GET "http://localhost:8080/api/v1/contracts" \
+  -H "Content-Type: application/json" \
+  -H "UserId: 1" \
+  -H "Authorization: uuid-token"
+```
+
+### Error Responses
+Authentication errors return the following format:
+```json
+{
+  "message": "Error message",
+  "timestamp": 1234567890
+}
+```
+
+Common authentication error codes:
+- 400: Missing required headers
+- 401: Invalid credentials
+- 403: Insufficient permissions
 
 ## User Management
 
@@ -51,13 +85,12 @@
 
 | FE | BE | Mapping | Method | Parameter | Parameter Type | Status Code | Response | Description | User Story |
 |---------|--------|-----------|----------------|-------------|----------|-------------|-----------|-----------|-----------|
-| No ❌ | Yes ✅ | `/api/v1/contracts` | POST | `newContract <Contract>` | Body | 201, 400, 404 | Created contract object | Create a new contract | S5 | 
-| Yes ✅ | Yes ✅ | `/api/v1/contracts` | GET | `lat <number>`, `lng <number>`, `filters <object>`{ radius (number), price (number), weight (number), height (number), length (number), width (number), requiredPeople (number), fragile (boolean), coolingRequired (boolean), rideAlong (boolean), fromAddress (string), toAddress (string), moveDateTime (string) } | Query | 200 | List of Contracts | Get available contracts with filtering | S11 |
+| No ❌ | Yes ✅ | `/api/v1/contracts` | POST | `newContract <Contract>` { title, mass, volume, fragile, coolingRequired, rideAlong, manPower, contractDescription, price, collateral, requesterId, fromLocation, toLocation, moveDateTime, contractPhotos } | Body | 201, 400, 404 | Created contract object | Create a new contract | S5 | 
+| Yes ✅ | Yes ✅ | `/api/v1/contracts` | GET | `lat <number>`, `lng <number>`, `filters <object>`{ radius (number), price (number), weight (number), height (number), length (number), width (number), requiredPeople (number), fragile (boolean), coolingRequired (boolean), rideAlong (boolean), fromAddress (string), toAddress (string), moveDateTime (string) } | Query | 200 | `{ "contracts": [...], "timestamp": 1234567890 }` | Get available contracts with filtering | S11 |
 | No ❌ | Yes ✅ | `/api/v1/contracts/{id}` | GET | `id <string>` | Path | 200, 404 | Contract details object | Get contract details | S7, S12 |
 | No ❌ | Yes ✅ | `/api/v1/contracts/{id}` | PUT | `id <string>`, `contractToUpdate <Contract>` | Path, Body | 200, 400, 403 | Updated contract object | Update a contract | S6 |
 | No ❌ | Yes ✅ | `/api/v1/contracts/{id}/cancel` | PUT | `id <string>`, `reason <string>` | Path, Body | 200, 400, 403, 409 | Updated contract with cancel status | Cancel a contract (72h policy) | S8 | 
 | No ❌ | Yes ✅ | `/api/v1/contracts/{id}/fulfill` | PUT | `id <string>` | Path | 200, 400, 403 | Updated contract status | Mark contract as fulfilled | S9, S18 | 
-| No ❌ | No ❌ | `/api/v1/contracts/{id}/photos` | POST | `id <string>`, `photos <file[]>`, `type <string>` (before/after) | Path, Body | 201, 400, 403 | Photo upload confirmation with URLs | Upload before/after photos | S19 | 
 | No ❌ | No ❌ | `/api/v1/contracts/{id}/collateral` | POST | `id <string>`, `collateralAmount <number>` | Path, Body | 200, 400, 403, 409 | Updated contract with collateral | Provide contract collateral | S21 | 
 | No ❌ | Yes ✅ | `/api/v1/users/{userId}/contracts` | GET | `userId <string>`, `status <string>` (optional) | Path, Query | 200 | List of contracts for a specific user| Get user's contracts with optional status filtering | S12 | 
 | No ❌ | Yes ✅ | `/api/v1/contracts/{id}` | DELETE | `id <string>` | Path | 204, 403, 409 | None | Delete a contract (soft delete) | S8 | 
@@ -599,3 +632,73 @@ or
 | 422 | BUSINESS_RULE_VIOLATION | Operation violates business rules (e.g., cancellation policy) |
 | 429 | RATE_LIMIT_EXCEEDED | Too many requests, try again later |
 | 500 | INTERNAL_SERVER_ERROR | Server encountered an error |
+
+#### Create Contract (POST /api/v1/contracts)
+**Request Body:**
+```json
+{
+  "title": "Moving furniture",
+  "mass": 100.0,
+  "volume": 2.0,
+  "fragile": true,
+  "coolingRequired": false,
+  "rideAlong": true,
+  "manPower": 2,
+  "contractDescription": "Moving a sofa and two chairs",
+  "price": 150.0,
+  "collateral": 200.0,
+  "requesterId": 1,
+  "fromLocation": {
+    "formattedAddress": "Zurich, Switzerland",
+    "latitude": 47.3769,
+    "longitude": 8.5417
+  },
+  "toLocation": {
+    "formattedAddress": "Bern, Switzerland",
+    "latitude": 46.9480,
+    "longitude": 7.4474
+  },
+  "moveDateTime": "2025-05-20T10:00:00",
+  "contractPhotos": [
+    "/path/to/photo1.jpg",
+    "/path/to/photo2.jpg"
+  ]
+}
+```
+
+**Response (201 Created):**
+```json
+{
+  "contractId": 8,
+  "title": "Moving furniture",
+  "mass": 100.0,
+  "volume": 2.0,
+  "fragile": true,
+  "coolingRequired": false,
+  "rideAlong": true,
+  "manPower": 2,
+  "contractDescription": "Moving a sofa and two chairs",
+  "price": 150.0,
+  "collateral": 200.0,
+  "requesterId": 1,
+  "fromLocation": {
+    "locationId": 6,
+    "formattedAddress": "Zurich, Switzerland",
+    "latitude": 47.3769,
+    "longitude": 8.5417
+  },
+  "toLocation": {
+    "locationId": 7,
+    "formattedAddress": "Bern, Switzerland",
+    "latitude": 46.9480,
+    "longitude": 7.4474
+  },
+  "moveDateTime": "2025-05-20T10:00:00",
+  "contractStatus": "REQUESTED",
+  "creationDateTime": "2025-04-13T13:15:41.80276",
+  "contractPhotos": [
+    "/path/to/photo1.jpg",
+    "/path/to/photo2.jpg"
+  ]
+}
+```

@@ -58,20 +58,18 @@ public class ContractService {
      * @return The created contract entity
      */
     public Contract createContract(Contract contract) {
-        // Validate requester exists
+        // First validate and set up the requester
         final Long requesterId = contract.getRequester().getUserId();
         Requester requester = (Requester) userRepository.findById(requesterId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
                 "Requester with ID " + requesterId + " not found"));
+        contract.setRequester(requester);
 
-        // Validate contract data
+        // Then validate the rest of the contract data
         validateContractData(contract);
 
         // Set initial contract status
         contract.setContractStatus(ContractStatus.REQUESTED);
-        
-        // Set requester
-        contract.setRequester(requester);
         
         // Save contract to database
         contract = contractRepository.save(contract);
@@ -338,36 +336,24 @@ public class ContractService {
      * @throws ResponseStatusException if the update is not allowed
      */
     private void validateContractUpdate(Contract existingContract, Contract contractUpdates) {
-        // Validate price and collateral updates
-        if (contractUpdates.getPrice() > 0 && contractUpdates.getPrice() != existingContract.getPrice()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price cannot be changed after contract creation");
-        }
-        if (contractUpdates.getCollateral() >= 0 && contractUpdates.getCollateral() != existingContract.getCollateral()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Collateral cannot be changed after contract creation");
+        // Only allow updates for REQUESTED contracts
+        if (existingContract.getContractStatus() != ContractStatus.REQUESTED) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                "Only REQUESTED contracts can be edited. Use delete for REQUESTED or OFFERED contracts, or cancel for ACCEPTED contracts.");
         }
 
-        // Validate mass and volume updates
-        if (contractUpdates.getMass() > 0 && contractUpdates.getMass() != existingContract.getMass()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mass cannot be changed after contract creation");
-        }
-        if (contractUpdates.getVolume() > 0 && contractUpdates.getVolume() != existingContract.getVolume()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Volume cannot be changed after contract creation");
-        }
-
-        // Validate manpower update
-        if (contractUpdates.getManPower() > 0 && contractUpdates.getManPower() != existingContract.getManPower()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Manpower cannot be changed after contract creation");
+        // Validate that the requester is the same as the original requester
+        if (contractUpdates.getRequester() != null && 
+            !contractUpdates.getRequester().getUserId().equals(existingContract.getRequester().getUserId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, 
+                "Only the original requester can update the contract");
         }
 
-        // Validate move date time update
+        // Always validate that move date time is in the future
         if (contractUpdates.getMoveDateTime() != null && 
             !contractUpdates.getMoveDateTime().equals(existingContract.getMoveDateTime())) {
             if (contractUpdates.getMoveDateTime().isBefore(LocalDateTime.now())) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Move date time must be in the future");
-            }
-            if (existingContract.getContractStatus() != ContractStatus.REQUESTED) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
-                    "Move date time can only be changed for REQUESTED contracts");
             }
         }
     }
@@ -387,28 +373,26 @@ public class ContractService {
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
                 "Contract with ID " + contractId + " not found"));
         
-        // Check if contract can be canceled
-        if (contract.getContractStatus() == ContractStatus.COMPLETED || 
-            contract.getContractStatus() == ContractStatus.FINALIZED) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, 
-                "Cannot cancel a completed or finalized contract");
+        // Check if contract is in ACCEPTED state
+        if (contract.getContractStatus() != ContractStatus.ACCEPTED) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                "Only ACCEPTED contracts can be cancelled. Use delete for REQUESTED or OFFERED contracts.");
         }
         
+        // Check if contract is already canceled
         if (contract.getContractStatus() == ContractStatus.CANCELED) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, 
                 "Contract is already canceled");
         }
         
-        // Check if the move date is within 72 hours for ACCEPTED contracts
-        if (contract.getContractStatus() == ContractStatus.ACCEPTED) {
-            LocalDateTime now = LocalDateTime.now();
-            LocalDateTime moveDateTime = contract.getMoveDateTime();
-            long hoursUntilMove = ChronoUnit.HOURS.between(now, moveDateTime);
-            
-            if (hoursUntilMove < 72) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, 
-                    "Cannot cancel an accepted contract less than 72 hours before move date");
-            }
+        // Check if the move date is within 72 hours
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime moveDateTime = contract.getMoveDateTime();
+        long hoursUntilMove = ChronoUnit.HOURS.between(now, moveDateTime);
+        
+        if (hoursUntilMove < 72) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, 
+                "Cannot cancel an accepted contract less than 72 hours before move date");
         }
         
         try {
@@ -453,14 +437,14 @@ public class ContractService {
         Contract contract = getContractById(contractId);
         
         // Check if contract can be fulfilled
-        if (contract.getContractStatus() != ContractStatus.ACCEPTED) {
+        if (contract.getContractStatus() != ContractStatus.COMPLETED) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, 
-                "Only accepted contracts can be fulfilled");
+                "Only completed contracts can be fulfilled");
         }
         
-        if (contract.getContractStatus() == ContractStatus.COMPLETED) {
+        if (contract.getContractStatus() == ContractStatus.FINALIZED) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, 
-                "Contract is already completed");
+                "Contract is already finalized");
         }
         
         if (contract.getContractStatus() == ContractStatus.CANCELED) {
@@ -469,7 +453,7 @@ public class ContractService {
         }
         
         // Update contract status
-        contract.setContractStatus(ContractStatus.COMPLETED);
+        contract.setContractStatus(ContractStatus.FINALIZED);
         
         // Save the updated contract
         return contractRepository.save(contract);
@@ -509,7 +493,11 @@ public class ContractService {
             }
         }
         
-        // Reject all offers for this contract
+        // First, mark the contract as deleted
+        contract.setContractStatus(ContractStatus.DELETED);
+        contractRepository.save(contract);
+        
+        // Then reject all offers for this contract
         List<Offer> offers = offerRepository.findByContract_ContractId(contractId);
         for (Offer offer : offers) {
             if (offer.getOfferStatus() != OfferStatus.REJECTED) {
@@ -518,18 +506,9 @@ public class ContractService {
             }
         }
         
-        // If contract was in OFFERED state and this was the last offer, revert to REQUESTED
-        if (contract.getContractStatus() == ContractStatus.OFFERED && 
-            offers.stream().allMatch(o -> o.getOfferStatus() == OfferStatus.REJECTED)) {
-            contract.setContractStatus(ContractStatus.REQUESTED);
-        } else {
-            // Otherwise, mark as deleted
-            contract.setContractStatus(ContractStatus.DELETED);
-        }
-        
-        // Save the updated contract
-        contractRepository.save(contract);
+        // Flush all changes
         contractRepository.flush();
+        offerRepository.flush();
         
         log.debug("Deleted Contract: {}", contract);
     }

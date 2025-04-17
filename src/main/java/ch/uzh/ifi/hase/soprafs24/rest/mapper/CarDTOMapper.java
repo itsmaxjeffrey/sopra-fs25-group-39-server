@@ -11,7 +11,7 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.CarDTO;
  * CarDTOMapper
  * This class is responsible for mapping between Car entity and CarDTO
  */
-@Mapper
+@Mapper(componentModel = "spring")
 public interface CarDTOMapper {
 
     CarDTOMapper INSTANCE = Mappers.getMapper(CarDTOMapper.class);

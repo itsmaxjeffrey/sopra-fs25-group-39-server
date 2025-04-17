@@ -11,7 +11,7 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
  * LocationDTOMapper
  * This class is responsible for mapping between Location entity and LocationDTO
  */
-@Mapper
+@Mapper(componentModel = "spring")
 public interface LocationDTOMapper {
 
     LocationDTOMapper INSTANCE = Mappers.getMapper(LocationDTOMapper.class);

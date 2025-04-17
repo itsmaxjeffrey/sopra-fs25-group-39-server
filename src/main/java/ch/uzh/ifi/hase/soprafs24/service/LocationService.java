@@ -1,59 +1,69 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
+import javax.transaction.Transactional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Location;
 import ch.uzh.ifi.hase.soprafs24.repository.LocationRepository;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
 
 @Service
 @Transactional
 public class LocationService {
-    
-    private final Logger log = LoggerFactory.getLogger(LocationService.class);
-    
     private final LocationRepository locationRepository;
+    private final LocationCreator locationCreator;
+    private final LocationUpdater locationUpdater;
+
+
+    private final Logger log = LoggerFactory.getLogger(LocationService.class);
+
+    public LocationService(
+        LocationCreator locationCreator, 
+        LocationRepository locationRepository,
+        LocationUpdater locationUpdater) {
+            this.locationCreator = locationCreator;
+            this.locationRepository = locationRepository;
+            this.locationUpdater = locationUpdater;
+    }
+
+    public Location createLocation(Location location) {
+        Location createdLocation = locationCreator.createLocation(location);
+        log.debug("Created Location: {}", createdLocation);
+        return createdLocation;
+    }
     
-    public LocationService(@Qualifier("locationRepository") LocationRepository locationRepository) {
-        this.locationRepository = locationRepository;
+
+    public Location createLocationFromDTO(LocationDTO locationDTO) {
+        Location createdLocation = locationCreator.createLocationFromDTO(locationDTO);
+        log.debug("Created Location from DTO: {}", createdLocation);
+        return createdLocation;
     }
     
     /**
-     * Creates a new location entity
-     * 
-     * @param location The location entity to create
-     * @return The created location entity
+     * Updates an existing location or creates a new one
      */
-    public Location createLocation(Location location) {
-        // Validate location coordinates
-        if (location.getLatitude() == null || location.getLongitude() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
-                "Location must include both latitude and longitude");
+    public Location updateLocationFromDTO(Location existingLocation, LocationDTO locationDTO) {
+        // If location doesn't exist, create a new one
+        if (existingLocation == null) {
+            return createLocationFromDTO(locationDTO);
         }
         
-        // Save location to database
-        location = locationRepository.save(location);
-        locationRepository.flush();
+        // Update and save the location
+        Location updatedLocation = locationUpdater.updateAndSaveLocation(existingLocation, locationDTO);
         
-        log.debug("Created Location: {}", location);
-        return location;
+        log.debug("Updated Location: {}", updatedLocation);
+        return updatedLocation;
     }
-    
-    /**
-     * Retrieves a location by ID
-     * 
-     * @param locationId The ID of the location to retrieve
-     * @return The location entity
-     */
-    public Location getLocationById(Long locationId) {
+
+
+    public Location getLocationById(Long locationId){
         return locationRepository.findById(locationId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
-                "Location with ID " + locationId + " not found"));
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
+            "Location with ID " + locationId + " not found"));
     }
 }

@@ -41,7 +41,7 @@ public class Contract implements Serializable{
     private Requester requester;
 
     @ManyToOne
-    @JoinColumn(name = "driver_id", nullable= false)
+    @JoinColumn(name = "driver_id", nullable= true)
     private Driver driver;
 
     @Column

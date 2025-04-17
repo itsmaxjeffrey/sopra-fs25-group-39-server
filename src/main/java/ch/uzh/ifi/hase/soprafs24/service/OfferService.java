@@ -41,16 +41,18 @@ public class OfferService {
     private final OfferRepository offerRepository;
     private final ContractRepository contractRepository;
     private final UserRepository userRepository;
-    private final OfferDTOMapper offerDTOMapper = OfferDTOMapper.INSTANCE;
+    private final OfferDTOMapper offerDTOMapper;
 
     @Autowired
     public OfferService(
             @Qualifier("offerRepository") OfferRepository offerRepository,
             @Qualifier("contractRepository") ContractRepository contractRepository,
-            @Qualifier("userRepository") UserRepository userRepository) {
+            @Qualifier("userRepository") UserRepository userRepository,
+            OfferDTOMapper offerDTOMapper) {
         this.offerRepository = offerRepository;
         this.contractRepository = contractRepository;
         this.userRepository = userRepository;
+        this.offerDTOMapper = offerDTOMapper;
     }
 
     /**
@@ -112,6 +114,15 @@ public class OfferService {
         Contract contract = contractRepository.findById(offerPostDTO.getContractId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Contract not found"));
 
+        // Check if contract is in a valid state for new offers
+        if (contract.getContractStatus() == ContractStatus.ACCEPTED ||
+            contract.getContractStatus() == ContractStatus.COMPLETED ||
+            contract.getContractStatus() == ContractStatus.CANCELED ||
+            contract.getContractStatus() == ContractStatus.DELETED) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, 
+                "Cannot create offer for a contract that is " + contract.getContractStatus());
+        }
+
         // Check if user exists and is a driver
         User user = userRepository.findById(offerPostDTO.getDriverId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
@@ -123,9 +134,15 @@ public class OfferService {
         Driver driver = (Driver) user;
 
         // Check if offer already exists for this contract and driver
-        if (offerRepository.findByContract_ContractIdAndDriver_UserId(
-                offerPostDTO.getContractId(), offerPostDTO.getDriverId()).size() > 0) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Offer already exists for this contract and driver");
+        List<Offer> existingOffers = offerRepository.findByContract_ContractIdAndDriver_UserId(offerPostDTO.getContractId(), offerPostDTO.getDriverId());
+        if (!existingOffers.isEmpty()) {
+            Offer existingOffer = existingOffers.get(0);
+            if (existingOffer.getOfferStatus() == OfferStatus.ACCEPTED) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, 
+                    "Cannot create new offer when an accepted offer exists for this contract");
+            }
+            throw new ResponseStatusException(HttpStatus.CONFLICT, 
+                "An offer already exists for this contract and driver");
         }
 
         // Create new offer
@@ -198,7 +215,7 @@ public class OfferService {
      * Updates the status of an offer
      * 
      * @param offerId The ID of the offer to update
-     * @param status The new status to set
+     * @param status The new status to set (valid values: CREATED, ACCEPTED, REJECTED, DELETED)
      * @return The updated offer
      * @throws ResponseStatusException if the offer is not found or the status update is invalid
      */
@@ -206,21 +223,46 @@ public class OfferService {
         Offer offer = offerRepository.findById(offerId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Offer not found"));
 
-        // Validate status transition
-        if (offer.getOfferStatus() == OfferStatus.DELETED) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Cannot update a deleted offer");
+        // Validate that offer is in CREATED state
+        if (offer.getOfferStatus() != OfferStatus.CREATED) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, 
+                "Only CREATED offers can be modified");
         }
 
-        if (offer.getOfferStatus() == OfferStatus.ACCEPTED && status != OfferStatus.ACCEPTED) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Cannot change status of an accepted offer");
-        }
-
-        if (offer.getOfferStatus() == OfferStatus.REJECTED && status != OfferStatus.REJECTED) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Cannot change status of a rejected offer");
-        }
-
-        // Update the status directly
+        // Update the status
         offer.setOfferStatus(status);
+        
+        // If the offer is being accepted, update the contract status and reject other offers
+        if (status == OfferStatus.ACCEPTED) {
+            Contract contract = offer.getContract();
+            
+            // Validate contract status
+            if (contract.getContractStatus() != ContractStatus.OFFERED) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+                    "Offers can only be accepted for OFFERED contracts");
+            }
+            
+            // Set the accepted offer and update contract status
+            contract.setAcceptedOffer(offer);
+            contract.setContractStatus(ContractStatus.ACCEPTED);
+            contract.setAcceptedDateTime(LocalDateTime.now());
+            contract.setDriver(offer.getDriver());
+            
+            // Reject all other offers for this contract
+            List<Offer> otherOffers = offerRepository.findByContract_ContractIdAndOfferStatus(
+                contract.getContractId(), OfferStatus.CREATED);
+            for (Offer otherOffer : otherOffers) {
+                if (!otherOffer.getOfferId().equals(offerId)) {
+                    otherOffer.setOfferStatus(OfferStatus.REJECTED);
+                    offerRepository.save(otherOffer);
+                }
+            }
+            
+            // Save contract changes
+            contractRepository.save(contract);
+        }
+        
+        // Save offer changes
         offer = offerRepository.save(offer);
         log.debug("Updated status of offer {} to {}", offerId, status);
 

@@ -1,4 +1,4 @@
-package ch.uzh.ifi.hase.soprafs24.security.authentication;
+package ch.uzh.ifi.hase.soprafs24.security.authentication.service;
 
 import java.util.Optional;
 
@@ -11,24 +11,27 @@ import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.login.BaseUserLoginDTO;
-import ch.uzh.ifi.hase.soprafs24.security.TokenService;
+import ch.uzh.ifi.hase.soprafs24.security.authentication.dto.request.BaseUserLoginDTO;
+import ch.uzh.ifi.hase.soprafs24.security.authorization.service.AuthorizationService;
+import ch.uzh.ifi.hase.soprafs24.security.registration.service.TokenService;
 
 //this file handles login and logout
 @Service
 @Transactional
 public class AuthService {
-
     private final Logger log = LoggerFactory.getLogger(AuthService.class);
     private final UserRepository userRepository;
     private final TokenService tokenService;
+    private final AuthorizationService authorizationService;
 
     public AuthService(
         UserRepository userRepository,
-        TokenService tokenService){
+        TokenService tokenService,
+        AuthorizationService authorizationService){
             this.userRepository = userRepository;
             this.tokenService = tokenService;
-    }
+            this.authorizationService = authorizationService;}
+    
 
 
    
@@ -67,18 +70,12 @@ public class AuthService {
     
 
     //handle logout
-    public void logoutUser(String token) {
-        if (token == null || token.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token is required");
-        }
-        
-        Optional<User> userOptional = userRepository.findByToken(token);
-        if (userOptional.isEmpty()){
+    public void logoutUser(Long userId, String token) {
+
+        User user = authorizationService.authenticateUser(userId, token);
+        if (user == null){
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
         }
-        User user = userOptional.get();
-        
-        // Invalidate token
         user.setToken(null);
         userRepository.save(user);
         userRepository.flush();

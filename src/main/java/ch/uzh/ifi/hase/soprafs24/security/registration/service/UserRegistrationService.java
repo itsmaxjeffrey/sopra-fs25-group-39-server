@@ -1,4 +1,4 @@
-package ch.uzh.ifi.hase.soprafs24.security.registration;
+package ch.uzh.ifi.hase.soprafs24.security.registration.service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,10 +14,9 @@ import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.CarDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.register.BaseUserRegisterDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.register.DriverRegisterDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.register.RequesterRegisterDTO;
-import ch.uzh.ifi.hase.soprafs24.security.TokenService;
+import ch.uzh.ifi.hase.soprafs24.security.registration.dto.BaseUserRegisterDTO;
+import ch.uzh.ifi.hase.soprafs24.security.registration.dto.DriverRegisterDTO;
+import ch.uzh.ifi.hase.soprafs24.security.registration.dto.RequesterRegisterDTO;
 @Service
 public class UserRegistrationService {
     
@@ -96,7 +95,6 @@ public class UserRegistrationService {
         newUser.setFirstName(baseUserRegisterDTO.getFirstName());
         newUser.setLastName(baseUserRegisterDTO.getLastName());
         newUser.setPhoneNumber(baseUserRegisterDTO.getPhoneNumber());
-        newUser.setUserBio(baseUserRegisterDTO.getUserBio());
         newUser.setBirthDate(baseUserRegisterDTO.getBirthDate());
         newUser.setUserAccountType(baseUserRegisterDTO.getUserAccountType());
         newUser.setWalletBalance(0.0);
