@@ -41,8 +41,8 @@ public class CarServiceTest {
         testCar = new Car();
         testCar.setCarId(1L);
         testCar.setCarModel("Tesla Model 3");
-        testCar.setSpace(500.0f);
-        testCar.setSupportedWeight(1000.0f);
+        testCar.setVolumeCapacity(500.0f);
+        testCar.setWeightCapacity(1000.0f);
         testCar.setElectric(true);
         testCar.setLicensePlate("ZH123456");
         testCar.setCarPicturePath("/path/to/car.jpg");
@@ -50,8 +50,8 @@ public class CarServiceTest {
         // Create test car DTO
         testCarDTO = new CarDTO();
         testCarDTO.setCarModel("Tesla Model 3");
-        testCarDTO.setSpace(500.0f);
-        testCarDTO.setSupportedWeight(1000.0f);
+        testCarDTO.setVolumeCapacity(500.0f);
+        testCarDTO.setWeightCapacity(1000.0f);
         testCarDTO.setElectric(true);
         testCarDTO.setLicensePlate("ZH123456");
         testCarDTO.setCarPicturePath("/path/to/car.jpg");
@@ -69,8 +69,8 @@ public class CarServiceTest {
         assertNotNull(createdCar);
         assertEquals(testCar.getCarId(), createdCar.getCarId());
         assertEquals(testCar.getCarModel(), createdCar.getCarModel());
-        assertEquals(testCar.getSpace(), createdCar.getSpace());
-        assertEquals(testCar.getSupportedWeight(), createdCar.getSupportedWeight());
+        assertEquals(testCar.getVolumeCapacity(), createdCar.getVolumeCapacity());
+        assertEquals(testCar.getWeightCapacity(), createdCar.getWeightCapacity());
         assertEquals(testCar.isElectric(), createdCar.isElectric());
         assertEquals(testCar.getLicensePlate(), createdCar.getLicensePlate());
         assertEquals(testCar.getCarPicturePath(), createdCar.getCarPicturePath());
@@ -90,8 +90,8 @@ public class CarServiceTest {
         assertNotNull(createdCar);
         assertEquals(testCar.getCarId(), createdCar.getCarId());
         assertEquals(testCar.getCarModel(), createdCar.getCarModel());
-        assertEquals(testCar.getSpace(), createdCar.getSpace());
-        assertEquals(testCar.getSupportedWeight(), createdCar.getSupportedWeight());
+        assertEquals(testCar.getVolumeCapacity(), createdCar.getVolumeCapacity());
+        assertEquals(testCar.getWeightCapacity(), createdCar.getWeightCapacity());
         assertEquals(testCar.isElectric(), createdCar.isElectric());
         assertEquals(testCar.getLicensePlate(), createdCar.getLicensePlate());
         assertEquals(testCar.getCarPicturePath(), createdCar.getCarPicturePath());
@@ -111,8 +111,8 @@ public class CarServiceTest {
         assertNotNull(updatedCar);
         assertEquals(testCar.getCarId(), updatedCar.getCarId());
         assertEquals(testCar.getCarModel(), updatedCar.getCarModel());
-        assertEquals(testCar.getSpace(), updatedCar.getSpace());
-        assertEquals(testCar.getSupportedWeight(), updatedCar.getSupportedWeight());
+        assertEquals(testCar.getVolumeCapacity(), updatedCar.getVolumeCapacity());
+        assertEquals(testCar.getWeightCapacity(), updatedCar.getWeightCapacity());
         assertEquals(testCar.isElectric(), updatedCar.isElectric());
         assertEquals(testCar.getLicensePlate(), updatedCar.getLicensePlate());
         assertEquals(testCar.getCarPicturePath(), updatedCar.getCarPicturePath());
@@ -132,8 +132,8 @@ public class CarServiceTest {
         assertNotNull(createdCar);
         assertEquals(testCar.getCarId(), createdCar.getCarId());
         assertEquals(testCar.getCarModel(), createdCar.getCarModel());
-        assertEquals(testCar.getSpace(), createdCar.getSpace());
-        assertEquals(testCar.getSupportedWeight(), createdCar.getSupportedWeight());
+        assertEquals(testCar.getVolumeCapacity(), createdCar.getVolumeCapacity());
+        assertEquals(testCar.getWeightCapacity(), createdCar.getWeightCapacity());
         assertEquals(testCar.isElectric(), createdCar.isElectric());
         assertEquals(testCar.getLicensePlate(), createdCar.getLicensePlate());
         assertEquals(testCar.getCarPicturePath(), createdCar.getCarPicturePath());
@@ -154,8 +154,8 @@ public class CarServiceTest {
         assertNotNull(foundCar);
         assertEquals(testCar.getCarId(), foundCar.getCarId());
         assertEquals(testCar.getCarModel(), foundCar.getCarModel());
-        assertEquals(testCar.getSpace(), foundCar.getSpace());
-        assertEquals(testCar.getSupportedWeight(), foundCar.getSupportedWeight());
+        assertEquals(testCar.getVolumeCapacity(), foundCar.getVolumeCapacity());
+        assertEquals(testCar.getWeightCapacity(), foundCar.getWeightCapacity());
         assertEquals(testCar.isElectric(), foundCar.isElectric());
         assertEquals(testCar.getLicensePlate(), foundCar.getLicensePlate());
         assertEquals(testCar.getCarPicturePath(), foundCar.getCarPicturePath());

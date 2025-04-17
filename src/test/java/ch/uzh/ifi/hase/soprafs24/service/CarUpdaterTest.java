@@ -43,8 +43,8 @@ public class CarUpdaterTest {
         existingCar = new Car();
         existingCar.setCarId(1L);
         existingCar.setCarModel("Toyota Camry");
-        existingCar.setSpace(4.5f);
-        existingCar.setSupportedWeight(500.0f);
+        existingCar.setVolumeCapacity(4.5f);
+        existingCar.setWeightCapacity(500.0f);
         existingCar.setElectric(true);
         existingCar.setLicensePlate("ZH123456");
         existingCar.setCarPicturePath("/path/to/car/picture.jpg");
@@ -52,8 +52,8 @@ public class CarUpdaterTest {
         // Create car updates
         carUpdates = new CarDTO();
         carUpdates.setCarModel("Honda Civic");
-        carUpdates.setSpace(4.0f);
-        carUpdates.setSupportedWeight(450.0f);
+        carUpdates.setVolumeCapacity(4.0f);
+        carUpdates.setWeightCapacity(450.0f);
         carUpdates.setElectric(true);
         carUpdates.setLicensePlate("ZH654321");
         carUpdates.setCarPicturePath("/path/to/new/car/picture.jpg");
@@ -62,8 +62,8 @@ public class CarUpdaterTest {
         updatedCar = new Car();
         updatedCar.setCarId(1L);
         updatedCar.setCarModel("Honda Civic");
-        updatedCar.setSpace(4.0f);
-        updatedCar.setSupportedWeight(450.0f);
+        updatedCar.setVolumeCapacity(4.0f);
+        updatedCar.setWeightCapacity(450.0f);
         updatedCar.setElectric(true);
         updatedCar.setLicensePlate("ZH654321");
         updatedCar.setCarPicturePath("/path/to/new/car/picture.jpg");
@@ -88,8 +88,8 @@ public class CarUpdaterTest {
 
         assertNotNull(result);
         assertEquals(updatedCar.getCarModel(), result.getCarModel());
-        assertEquals(updatedCar.getSpace(), result.getSpace());
-        assertEquals(updatedCar.getSupportedWeight(), result.getSupportedWeight());
+        assertEquals(updatedCar.getVolumeCapacity(), result.getVolumeCapacity());
+        assertEquals(updatedCar.getWeightCapacity(), result.getWeightCapacity());
         assertEquals(updatedCar.isElectric(), result.isElectric());
         assertEquals(updatedCar.getLicensePlate(), result.getLicensePlate());
         assertEquals(updatedCar.getCarPicturePath(), result.getCarPicturePath());
@@ -130,8 +130,8 @@ public class CarUpdaterTest {
         Car expectedCar = new Car();
         expectedCar.setCarId(1L);
         expectedCar.setCarModel("Tesla Model 3");
-        expectedCar.setSpace(4.5f); // Preserved from existing car
-        expectedCar.setSupportedWeight(500.0f); // Preserved from existing car
+        expectedCar.setVolumeCapacity(4.5f); // Preserved from existing car
+        expectedCar.setWeightCapacity(500.0f); // Preserved from existing car
         expectedCar.setElectric(true);
         expectedCar.setLicensePlate("ZH123456");
         expectedCar.setCarPicturePath("/path/to/car/picture.jpg");
@@ -146,8 +146,8 @@ public class CarUpdaterTest {
         // Assert
         assertNotNull(updatedCar);
         assertEquals("Tesla Model 3", updatedCar.getCarModel());
-        assertEquals(4.5f, updatedCar.getSpace()); // Should keep original value
-        assertEquals(500.0f, updatedCar.getSupportedWeight()); // Should keep original value
+        assertEquals(4.5f, updatedCar.getVolumeCapacity()); // Should keep original value
+        assertEquals(500.0f, updatedCar.getWeightCapacity()); // Should keep original value
         verify(carValidator).validateCar(expectedCar);
         verify(carRepository).save(expectedCar);
     }

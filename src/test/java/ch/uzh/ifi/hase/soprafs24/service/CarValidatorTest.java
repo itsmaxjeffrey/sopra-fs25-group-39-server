@@ -34,8 +34,8 @@ public class CarValidatorTest {
         testCar = new Car();
         testCar.setCarId(1L);
         testCar.setCarModel("Tesla Model 3");
-        testCar.setSpace(100.0f);
-        testCar.setSupportedWeight(500.0f);
+        testCar.setVolumeCapacity(100.0f);
+        testCar.setWeightCapacity(500.0f);
         testCar.setElectric(true);
         testCar.setLicensePlate("ZH123456");
         testCar.setCarPicturePath("/path/to/car/picture.jpg");

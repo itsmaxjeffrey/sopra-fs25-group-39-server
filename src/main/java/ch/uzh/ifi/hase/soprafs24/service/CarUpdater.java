@@ -44,11 +44,11 @@ public class CarUpdater {
         if (carDTO.getCarPicturePath() == null) {
             updatedCar.setCarPicturePath(existingCar.getCarPicturePath());
         }
-        if (carDTO.getSpace() <= 0) {
-            updatedCar.setSpace(existingCar.getSpace());
+        if (carDTO.getVolumeCapacity() <= 0) {
+            updatedCar.setVolumeCapacity(existingCar.getVolumeCapacity());
         }
-        if (carDTO.getSupportedWeight() <= 0) {
-            updatedCar.setSupportedWeight(existingCar.getSupportedWeight());
+        if (carDTO.getWeightCapacity() <= 0) {
+            updatedCar.setWeightCapacity(existingCar.getWeightCapacity());
         }
         
         // Validate updated car
