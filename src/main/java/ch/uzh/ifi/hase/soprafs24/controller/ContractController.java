@@ -179,7 +179,6 @@ public class ContractController {
      */
     @PostMapping("/api/v1/contracts")
     @ResponseStatus(HttpStatus.CREATED)
-    @ResponseBody
     public ResponseEntity<Object> createContract(
             @RequestHeader("UserId") Long userId,
             @RequestHeader("Authorization") String token,
@@ -446,19 +445,17 @@ public class ContractController {
         }
 
         // Check if from location is valid when provided
-        if (contractPutDTO.getFromLocation() != null) {
-            if (contractPutDTO.getFromLocation().getLatitude() == null || 
-                contractPutDTO.getFromLocation().getLongitude() == null) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "From location must have a valid latitude and longitude");
-            }
+        if (contractPutDTO.getFromLocation() != null && 
+            (contractPutDTO.getFromLocation().getLatitude() == null || 
+             contractPutDTO.getFromLocation().getLongitude() == null)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "From location must have a valid latitude and longitude");
         }
 
         // Check if to location is valid when provided
-        if (contractPutDTO.getToLocation() != null) {
-            if (contractPutDTO.getToLocation().getLatitude() == null || 
-                contractPutDTO.getToLocation().getLongitude() == null) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "To location must have a valid latitude and longitude");
-            }
+        if (contractPutDTO.getToLocation() != null && 
+            (contractPutDTO.getToLocation().getLatitude() == null || 
+             contractPutDTO.getToLocation().getLongitude() == null)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "To location must have a valid latitude and longitude");
         }
 
         // Check if both locations are provided and are the same
@@ -528,7 +525,6 @@ public class ContractController {
      */
     @PutMapping("/api/v1/contracts/{id}/fulfill")
     @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
     public ResponseEntity<Object> fulfillContract(
             @PathVariable("id") Long contractId,
             @RequestHeader("UserId") Long userId,
@@ -577,7 +573,6 @@ public class ContractController {
      */
     @GetMapping("/api/v1/users/{userId}/contracts")
     @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
     public ResponseEntity<Object> getUserContracts(
             @PathVariable Long userId,
             @RequestHeader("UserId") Long requestUserId,
@@ -668,7 +663,6 @@ public class ContractController {
      */
     @GetMapping("/api/v1/contracts/{contractId}/driver")
     @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
     public ResponseEntity<Object> getContractDriver(
             @PathVariable Long contractId,
             @RequestHeader("UserId") Long userId,
