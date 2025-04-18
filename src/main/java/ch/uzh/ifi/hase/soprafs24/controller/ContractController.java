@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -111,6 +110,67 @@ public class ContractController {
 
     private ResponseEntity<Object> createResponse(Object data, String message, HttpStatus status) {
         return createResponse(data, message, status, null);
+    }
+
+    /**
+     * Helper method to check if a user is authorized to access a contract
+     * @param authenticatedUser The authenticated user
+     * @param contract The contract to check access for
+     * @param userId The user ID to check against
+     * @return true if authorized, false otherwise
+     */
+    private boolean isAuthorizedToAccessContract(User authenticatedUser, Contract contract, Long userId) {
+        if (authenticatedUser.getUserAccountType() == UserAccountType.DRIVER) {
+            // Drivers can only access contracts that are:
+            // 1. In REQUESTED state (available for offers)
+            // 2. In OFFERED state (available for offers)
+            // 3. Assigned to them (ACCEPTED state)
+            if (contract.getContractStatus() == ContractStatus.REQUESTED || 
+                contract.getContractStatus() == ContractStatus.OFFERED) {
+                return true;
+            } else if (contract.getContractStatus() == ContractStatus.ACCEPTED) {
+                return contract.getDriver() != null && contract.getDriver().getUserId().equals(userId);
+            }
+            return false;
+        } else if (authenticatedUser.getUserAccountType() == UserAccountType.REQUESTER) {
+            // Requesters can only access their own contracts
+            return contract.getRequester().getUserId().equals(userId);
+        }
+        return false;
+    }
+
+    /**
+     * Helper method to check if a user is authorized to view driver details
+     * @param authenticatedUser The authenticated user
+     * @param contract The contract to check access for
+     * @param userId The user ID to check against
+     * @return true if authorized, false otherwise
+     */
+    private boolean isAuthorizedToViewDriver(User authenticatedUser, Contract contract, Long userId) {
+        if (authenticatedUser.getUserAccountType() == UserAccountType.REQUESTER) {
+            // Requesters can only view driver details for their own contracts
+            return contract.getRequester().getUserId().equals(userId);
+        } else if (authenticatedUser.getUserAccountType() == UserAccountType.DRIVER) {
+            // Drivers can only view their own details
+            return contract.getDriver() != null && contract.getDriver().getUserId().equals(userId);
+        }
+        return false;
+    }
+
+    /**
+     * Helper method to check if a user is authorized to perform an action on a contract
+     * @param authenticatedUser The authenticated user
+     * @param contract The contract to check access for
+     * @param userId The user ID to check against
+     * @param requiredType The required user account type
+     * @return true if authorized, false otherwise
+     */
+    private boolean checkContractAuthorization(User authenticatedUser, Contract contract, Long userId, 
+                                            UserAccountType requiredType) {
+        if (!authenticatedUser.getUserAccountType().equals(requiredType)) {
+            return false;
+        }
+        return contract.getRequester().getUserId().equals(userId);
     }
 
     /**
@@ -319,34 +379,11 @@ public class ContractController {
         Contract contract = contractService.getContractById(contractId);
         
         // Check if user is authorized to view the contract
-        if (authenticatedUser.getUserAccountType() == UserAccountType.DRIVER) {
-            // Drivers can only access contracts that are:
-            // 1. In REQUESTED state (available for offers)
-            // 2. In OFFERED state (available for offers)
-            // 3. Assigned to them (ACCEPTED state)
-            if (contract.getContractStatus() == ContractStatus.REQUESTED || 
-                contract.getContractStatus() == ContractStatus.OFFERED) {
-                // All drivers can see REQUESTED and OFFERED contracts
-                return createResponse(ContractDTOMapper.INSTANCE.convertContractEntityToContractGetDTO(contract), null, HttpStatus.OK);
-            } else if (contract.getContractStatus() == ContractStatus.ACCEPTED) {
-                // Only the assigned driver can see ACCEPTED contracts
-                if (contract.getDriver() != null && contract.getDriver().getUserId().equals(userId)) {
-                    return createResponse(ContractDTOMapper.INSTANCE.convertContractEntityToContractGetDTO(contract), null, HttpStatus.OK);
-                }
-            }
-            
-            // If none of the above conditions are met, the driver is not authorized
+        if (!isAuthorizedToAccessContract(authenticatedUser, contract, userId)) {
             return createResponse(null, ERROR_NOT_AUTHORIZED_TO_VIEW_CONTRACT, HttpStatus.FORBIDDEN);
-        } else if (authenticatedUser.getUserAccountType() == UserAccountType.REQUESTER) {
-            // Requesters can only access their own contracts
-            if (!contract.getRequester().getUserId().equals(userId)) {
-                return createResponse(null, ERROR_NOT_AUTHORIZED_TO_VIEW_CONTRACT, HttpStatus.FORBIDDEN);
-            }
-            return createResponse(ContractDTOMapper.INSTANCE.convertContractEntityToContractGetDTO(contract), null, HttpStatus.OK);
         }
-        
-        // This should never happen, but just in case
-        return createResponse(null, "Invalid user account type", HttpStatus.FORBIDDEN);
+
+        return createResponse(ContractDTOMapper.INSTANCE.convertContractEntityToContractGetDTO(contract), null, HttpStatus.OK);
     }
 
     /**
@@ -378,16 +415,14 @@ public class ContractController {
             return createResponse(null, ERROR_INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED);
         }
 
-        // Verify user is a requester
-        if (!authenticatedUser.getUserAccountType().equals(UserAccountType.REQUESTER)) {
-            return createResponse(null, ERROR_ONLY_REQUESTERS_CAN_UPDATE, HttpStatus.FORBIDDEN);
-        }
-
         // Get contract from service
         Contract contract = contractService.getContractById(contractId);
         
         // Check if user is authorized to update the contract
-        if (!contract.getRequester().getUserId().equals(userId)) {
+        if (!checkContractAuthorization(authenticatedUser, contract, userId, UserAccountType.REQUESTER)) {
+            if (authenticatedUser.getUserAccountType() != UserAccountType.REQUESTER) {
+                return createResponse(null, ERROR_ONLY_REQUESTERS_CAN_UPDATE, HttpStatus.FORBIDDEN);
+            }
             return createResponse(null, ERROR_NOT_AUTHORIZED_TO_UPDATE, HttpStatus.FORBIDDEN);
         }
 
@@ -488,16 +523,14 @@ public class ContractController {
             return createResponse(null, ERROR_INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED);
         }
 
-        // Verify user is a requester
-        if (!authenticatedUser.getUserAccountType().equals(UserAccountType.REQUESTER)) {
-            return createResponse(null, ERROR_ONLY_REQUESTERS_CAN_CANCEL, HttpStatus.FORBIDDEN);
-        }
-
         // Get contract from service
         Contract contract = contractService.getContractById(contractId);
         
         // Check if user is authorized to cancel the contract
-        if (!contract.getRequester().getUserId().equals(userId)) {
+        if (!checkContractAuthorization(authenticatedUser, contract, userId, UserAccountType.REQUESTER)) {
+            if (authenticatedUser.getUserAccountType() != UserAccountType.REQUESTER) {
+                return createResponse(null, ERROR_ONLY_REQUESTERS_CAN_CANCEL, HttpStatus.FORBIDDEN);
+            }
             return createResponse(null, ERROR_NOT_AUTHORIZED_TO_CANCEL, HttpStatus.FORBIDDEN);
         }
 
@@ -636,14 +669,11 @@ public class ContractController {
         Contract contract = contractService.getContractById(contractId);
         
         // Check if user is authorized to delete the contract
-        if (authenticatedUser.getUserAccountType() == UserAccountType.REQUESTER) {
-            // Only the requester who created the contract can delete it
-            if (!contract.getRequester().getUserId().equals(userId)) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, ERROR_NOT_AUTHORIZED_TO_DELETE);
+        if (!checkContractAuthorization(authenticatedUser, contract, userId, UserAccountType.REQUESTER)) {
+            if (authenticatedUser.getUserAccountType() != UserAccountType.REQUESTER) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only requesters can delete contracts");
             }
-        } else {
-            // Drivers cannot delete contracts
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only requesters can delete contracts");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, ERROR_NOT_AUTHORIZED_TO_DELETE);
         }
 
         // If authorized, delete the contract
@@ -683,19 +713,8 @@ public class ContractController {
         }
         
         // Check if user is authorized to view the driver details
-        if (authenticatedUser.getUserAccountType() == UserAccountType.REQUESTER) {
-            // Requesters can only view driver details for their own contracts
-            if (!contract.getRequester().getUserId().equals(userId)) {
-                return createResponse(null, ERROR_NOT_AUTHORIZED_TO_VIEW_DRIVER, HttpStatus.FORBIDDEN);
-            }
-        } else if (authenticatedUser.getUserAccountType() == UserAccountType.DRIVER) {
-            // Drivers can only view their own details
-            if (contract.getDriver() == null || !contract.getDriver().getUserId().equals(userId)) {
-                return createResponse(null, ERROR_NOT_AUTHORIZED_TO_VIEW_DRIVER, HttpStatus.FORBIDDEN);
-            }
-        } else {
-            // Invalid user type
-            return createResponse(null, "Invalid user account type", HttpStatus.FORBIDDEN);
+        if (!isAuthorizedToViewDriver(authenticatedUser, contract, userId)) {
+            return createResponse(null, ERROR_NOT_AUTHORIZED_TO_VIEW_DRIVER, HttpStatus.FORBIDDEN);
         }
 
         // Check if driver is assigned
