@@ -5,19 +5,19 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class CarTest {
+class CarTest {
 
     private Car car;
     private Driver driver;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         car = new Car();
         driver = new Driver();
     }
 
     @Test
-    public void testCarId() {
+    void testCarId() {
         // Test initial state
         assertNull(car.getCarId());
 
@@ -28,7 +28,7 @@ public class CarTest {
     }
 
     @Test
-    public void testCarModel() {
+    void testCarModel() {
         // Test initial state
         assertNull(car.getCarModel());
 
@@ -39,7 +39,7 @@ public class CarTest {
     }
 
     @Test
-    public void testSpace() {
+    void testSpace() {
         // Test initial state
         assertEquals(0.0f, car.getSpace());
 
@@ -50,7 +50,7 @@ public class CarTest {
     }
 
     @Test
-    public void testSupportedWeight() {
+    void testSupportedWeight() {
         // Test initial state
         assertEquals(0.0f, car.getSupportedWeight());
 
@@ -61,7 +61,7 @@ public class CarTest {
     }
 
     @Test
-    public void testElectric() {
+    void testElectric() {
         // Test initial state
         assertFalse(car.isElectric());
 
@@ -71,7 +71,7 @@ public class CarTest {
     }
 
     @Test
-    public void testLicensePlate() {
+    void testLicensePlate() {
         // Test initial state
         assertNull(car.getLicensePlate());
 
@@ -82,7 +82,7 @@ public class CarTest {
     }
 
     @Test
-    public void testCarPicturePath() {
+    void testCarPicturePath() {
         // Test initial state
         assertNull(car.getCarPicturePath());
 
@@ -93,7 +93,7 @@ public class CarTest {
     }
 
     @Test
-    public void testDriverRelationship() {
+    void testDriverRelationship() {
         // Test initial state
         assertNull(car.getDriver());
 
@@ -103,7 +103,7 @@ public class CarTest {
     }
 
     @Test
-    public void testEqualsAndHashCode() {
+    void testEqualsAndHashCode() {
         Car car1 = new Car();
         Car car2 = new Car();
         
@@ -124,7 +124,7 @@ public class CarTest {
     }
 
     @Test
-    public void testToString() {
+    void testToString() {
         car.setCarId(1L);
         car.setCarModel("Tesla Model 3");
         car.setLicensePlate("ZH123456");

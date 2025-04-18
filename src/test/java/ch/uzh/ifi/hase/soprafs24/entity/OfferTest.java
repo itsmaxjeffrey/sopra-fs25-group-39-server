@@ -9,49 +9,49 @@ import org.junit.jupiter.api.Test;
 
 import ch.uzh.ifi.hase.soprafs24.constant.OfferStatus;
 
-public class OfferTest {
+class OfferTest {
 
     private Offer offer;
     private Driver driver;
     private Contract contract;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         offer = new Offer();
         driver = new Driver();
         contract = new Contract();
     }
 
     @Test
-    public void testOfferId() {
+    void testOfferId() {
         assertNull(offer.getOfferId());
         offer.setOfferId(1L);
         assertEquals(1L, offer.getOfferId());
     }
 
     @Test
-    public void testDriver() {
+    void testDriver() {
         assertNull(offer.getDriver());
         offer.setDriver(driver);
         assertEquals(driver, offer.getDriver());
     }
 
     @Test
-    public void testContract() {
+    void testContract() {
         assertNull(offer.getContract());
         offer.setContract(contract);
         assertEquals(contract, offer.getContract());
     }
 
     @Test
-    public void testOfferStatus() {
+    void testOfferStatus() {
         assertNull(offer.getOfferStatus());
         offer.setOfferStatus(OfferStatus.CREATED);
         assertEquals(OfferStatus.CREATED, offer.getOfferStatus());
     }
 
     @Test
-    public void testCreationDateTime() {
+    void testCreationDateTime() {
         assertNull(offer.getCreationDateTime());
         LocalDateTime now = LocalDateTime.now();
         offer.setCreationDateTime(now);
@@ -59,7 +59,7 @@ public class OfferTest {
     }
 
     @Test
-    public void testEquals() {
+    void testEquals() {
         Offer offer1 = new Offer();
         Offer offer2 = new Offer();
         offer1.setOfferId(1L);
@@ -71,7 +71,7 @@ public class OfferTest {
     }
 
     @Test
-    public void testToString() {
+    void testToString() {
         offer.setOfferId(1L);
         offer.setOfferStatus(OfferStatus.CREATED);
         String expected = "Offer(offerId=1, contract=null, driver=null, offerStatus=created, creationDateTime=null)";

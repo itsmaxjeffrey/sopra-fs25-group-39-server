@@ -7,10 +7,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-public class UserNotFoundExceptionTest {
+class UserNotFoundExceptionTest {
 
     @Test
-    public void testUserNotFoundExceptionWithUserId() {
+    void testUserNotFoundExceptionWithUserId() {
         // Given
         Long userId = 123L;
         String expectedMessage = String.format("User with ID %d was not found", userId);
@@ -24,7 +24,7 @@ public class UserNotFoundExceptionTest {
     }
 
     @Test
-    public void testUserNotFoundExceptionWithCustomMessage() {
+    void testUserNotFoundExceptionWithCustomMessage() {
         // Given
         String customMessage = "Custom error message";
 
@@ -37,7 +37,7 @@ public class UserNotFoundExceptionTest {
     }
 
     @Test
-    public void testExceptionThrowing() {
+    void testExceptionThrowing() {
         // Given
         Long userId = 123L;
 

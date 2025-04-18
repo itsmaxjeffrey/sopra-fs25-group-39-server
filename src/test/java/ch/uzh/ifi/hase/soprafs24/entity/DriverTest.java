@@ -5,21 +5,21 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class DriverTest {
+class DriverTest {
 
     private Driver driver;
     private Car car;
     private Location location;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         driver = new Driver();
         car = new Car();
         location = new Location();
     }
 
     @Test
-    public void testDriverLicensePath() {
+    void testDriverLicensePath() {
         assertNull(driver.getDriverLicensePath());
         
         String licensePath = "/images/license.jpg";
@@ -28,7 +28,7 @@ public class DriverTest {
     }
 
     @Test
-    public void testDriverInsurancePath() {
+    void testDriverInsurancePath() {
         assertNull(driver.getDriverInsurancePath());
         
         String insurancePath = "/images/insurance.pdf";
@@ -37,7 +37,7 @@ public class DriverTest {
     }
 
     @Test
-    public void testCar() {
+    void testCar() {
         assertNull(driver.getCar());
         
         driver.setCar(car);
@@ -45,7 +45,7 @@ public class DriverTest {
     }
 
     @Test
-    public void testLocation() {
+    void testLocation() {
         assertNull(driver.getLocation());
         
         driver.setLocation(location);
@@ -53,7 +53,7 @@ public class DriverTest {
     }
 
     @Test
-    public void testPreferredRange() {
+    void testPreferredRange() {
         assertEquals(0.0f, driver.getPreferredRange());
         
         float range = 50.0f;
@@ -62,7 +62,7 @@ public class DriverTest {
     }
 
     @Test
-    public void testInheritedFields() {
+    void testInheritedFields() {
         // Test inherited fields from User
         Long userId = 1L;
         driver.setUserId(userId);
@@ -86,7 +86,7 @@ public class DriverTest {
     }
 
     @Test
-    public void testEqualsAndHashCode() {
+    void testEqualsAndHashCode() {
         Driver driver1 = new Driver();
         Driver driver2 = new Driver();
         
@@ -107,7 +107,7 @@ public class DriverTest {
     }
 
     @Test
-    public void testToString() {
+    void testToString() {
         driver.setUserId(1L);
         driver.setUsername("testdriver");
         driver.setEmail("driver@example.com");

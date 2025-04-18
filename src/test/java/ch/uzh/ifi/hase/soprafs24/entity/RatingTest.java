@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class RatingTest {
+class RatingTest {
 
     private Rating rating;
     private User fromUser;
@@ -13,7 +13,7 @@ public class RatingTest {
     private Contract contract;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         rating = new Rating();
         fromUser = new User();
         toUser = new User();
@@ -21,56 +21,56 @@ public class RatingTest {
     }
 
     @Test
-    public void testRatingId() {
+    void testRatingId() {
         assertNull(rating.getRatingId());
         rating.setRatingId(1L);
         assertEquals(1L, rating.getRatingId());
     }
 
     @Test
-    public void testFromUser() {
+    void testFromUser() {
         assertNull(rating.getFromUser());
         rating.setFromUser(fromUser);
         assertEquals(fromUser, rating.getFromUser());
     }
 
     @Test
-    public void testToUser() {
+    void testToUser() {
         assertNull(rating.getToUser());
         rating.setToUser(toUser);
         assertEquals(toUser, rating.getToUser());
     }
 
     @Test
-    public void testContract() {
+    void testContract() {
         assertNull(rating.getContract());
         rating.setContract(contract);
         assertEquals(contract, rating.getContract());
     }
 
     @Test
-    public void testRatingValue() {
+    void testRatingValue() {
         assertNull(rating.getRatingValue());
         rating.setRatingValue(5);
         assertEquals(5, rating.getRatingValue());
     }
 
     @Test
-    public void testFlagIssues() {
+    void testFlagIssues() {
         assertFalse(rating.isFlagIssues());
         rating.setFlagIssues(true);
         assertTrue(rating.isFlagIssues());
     }
 
     @Test
-    public void testComment() {
+    void testComment() {
         assertNull(rating.getComment());
         rating.setComment("Great service!");
         assertEquals("Great service!", rating.getComment());
     }
 
     @Test
-    public void testEquals() {
+    void testEquals() {
         Rating rating1 = new Rating();
         Rating rating2 = new Rating();
         
@@ -91,7 +91,7 @@ public class RatingTest {
     }
 
     @Test
-    public void testHashCode() {
+    void testHashCode() {
         Rating rating1 = new Rating();
         Rating rating2 = new Rating();
         
@@ -106,7 +106,7 @@ public class RatingTest {
     }
 
     @Test
-    public void testToString() {
+    void testToString() {
         rating.setRatingId(1L);
         rating.setRatingValue(5);
         rating.setFlagIssues(false);

@@ -5,19 +5,19 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class RequesterTest {
+class RequesterTest {
 
     private Requester requester;
     private Contract contract;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         requester = new Requester();
         contract = new Contract();
     }
 
     @Test
-    public void testContracts() {
+    void testContracts() {
         // Test initial state
         assertNotNull(requester.getContracts());
         assertEquals(0, requester.getContracts().size());
@@ -36,7 +36,7 @@ public class RequesterTest {
     }
 
     @Test
-    public void testInheritedFields() {
+    void testInheritedFields() {
         // Test inherited fields from User
         Long userId = 1L;
         requester.setUserId(userId);
@@ -60,7 +60,7 @@ public class RequesterTest {
     }
 
     @Test
-    public void testEqualsAndHashCode() {
+    void testEqualsAndHashCode() {
         Requester requester1 = new Requester();
         Requester requester2 = new Requester();
         
@@ -81,7 +81,7 @@ public class RequesterTest {
     }
 
     @Test
-    public void testToString() {
+    void testToString() {
         requester.setUserId(1L);
         requester.setUsername("testrequester");
         requester.setEmail("requester@example.com");

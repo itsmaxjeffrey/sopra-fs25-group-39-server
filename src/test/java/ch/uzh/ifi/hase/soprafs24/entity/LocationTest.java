@@ -5,17 +5,17 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class LocationTest {
+class LocationTest {
 
     private Location location;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         location = new Location();
     }
 
     @Test
-    public void testId() {
+    void testId() {
         assertNull(location.getId());
         
         Long id = 1L;
@@ -24,7 +24,7 @@ public class LocationTest {
     }
 
     @Test
-    public void testFormattedAddress() {
+    void testFormattedAddress() {
         assertNull(location.getFormattedAddress());
         
         String address = "Bahnhofstrasse 1, 8001 Zürich";
@@ -33,7 +33,7 @@ public class LocationTest {
     }
 
     @Test
-    public void testLatitude() {
+    void testLatitude() {
         assertNull(location.getLatitude());
         
         Double latitude = 47.3769;
@@ -42,7 +42,7 @@ public class LocationTest {
     }
 
     @Test
-    public void testLongitude() {
+    void testLongitude() {
         assertNull(location.getLongitude());
         
         Double longitude = 8.5417;
@@ -51,7 +51,7 @@ public class LocationTest {
     }
 
     @Test
-    public void testEqualsAndHashCode() {
+    void testEqualsAndHashCode() {
         Location location1 = new Location();
         Location location2 = new Location();
         
@@ -72,7 +72,7 @@ public class LocationTest {
     }
 
     @Test
-    public void testToString() {
+    void testToString() {
         location.setId(1L);
         location.setFormattedAddress("Bahnhofstrasse 1, 8001 Zürich");
         location.setLatitude(47.3769);

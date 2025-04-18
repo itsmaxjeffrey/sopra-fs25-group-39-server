@@ -10,21 +10,21 @@ import org.junit.jupiter.api.Test;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
 
-public class UserTest {
+class UserTest {
 
     private User user;
     private Rating ratingGiven;
     private Rating ratingReceived;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         user = new User();
         ratingGiven = new Rating();
         ratingReceived = new Rating();
     }
 
     @Test
-    public void testUserId() {
+    void testUserId() {
         assertNull(user.getUserId());
         
         Long userId = 1L;
@@ -33,7 +33,7 @@ public class UserTest {
     }
 
     @Test
-    public void testUsername() {
+    void testUsername() {
         assertNull(user.getUsername());
         
         String username = "testuser";
@@ -42,7 +42,7 @@ public class UserTest {
     }
 
     @Test
-    public void testPassword() {
+    void testPassword() {
         assertNull(user.getPassword());
         
         String password = "password123";
@@ -51,7 +51,7 @@ public class UserTest {
     }
 
     @Test
-    public void testEmail() {
+    void testEmail() {
         assertNull(user.getEmail());
         
         String email = "test@example.com";
@@ -60,7 +60,7 @@ public class UserTest {
     }
 
     @Test
-    public void testUserAccountType() {
+    void testUserAccountType() {
         assertNull(user.getUserAccountType());
         
         user.setUserAccountType(UserAccountType.DRIVER);
@@ -68,7 +68,7 @@ public class UserTest {
     }
 
     @Test
-    public void testCreationDate() {
+    void testCreationDate() {
         assertNull(user.getCreationDate());
         
         LocalDateTime now = LocalDateTime.now();
@@ -77,7 +77,7 @@ public class UserTest {
     }
 
     @Test
-    public void testBirthDate() {
+    void testBirthDate() {
         assertNull(user.getBirthDate());
         
         LocalDate birthDate = LocalDate.of(1990, 1, 1);
@@ -86,7 +86,7 @@ public class UserTest {
     }
 
     @Test
-    public void testProfilePicturePath() {
+    void testProfilePicturePath() {
         assertNull(user.getProfilePicturePath());
         
         String path = "/images/profile.jpg";
@@ -95,7 +95,7 @@ public class UserTest {
     }
 
     @Test
-    public void testWalletBalance() {
+    void testWalletBalance() {
         assertEquals(0.0, user.getWalletBalance());
         
         Double balance = 100.0;
@@ -104,7 +104,7 @@ public class UserTest {
     }
 
     @Test
-    public void testFirstName() {
+    void testFirstName() {
         assertNull(user.getFirstName());
         
         String firstName = "John";
@@ -113,7 +113,7 @@ public class UserTest {
     }
 
     @Test
-    public void testLastName() {
+    void testLastName() {
         assertNull(user.getLastName());
         
         String lastName = "Doe";
@@ -122,7 +122,7 @@ public class UserTest {
     }
 
     @Test
-    public void testPhoneNumber() {
+    void testPhoneNumber() {
         assertNull(user.getPhoneNumber());
         
         String phoneNumber = "+41791234567";
@@ -131,7 +131,7 @@ public class UserTest {
     }
 
     @Test
-    public void testUserBio() {
+    void testUserBio() {
         assertNull(user.getUserBio());
         
         String bio = "This is a test bio";
@@ -140,7 +140,7 @@ public class UserTest {
     }
 
     @Test
-    public void testToken() {
+    void testToken() {
         assertNull(user.getToken());
         
         String token = "test-token";
@@ -149,7 +149,7 @@ public class UserTest {
     }
 
     @Test
-    public void testRatingsGiven() {
+    void testRatingsGiven() {
         assertNotNull(user.getRatingsGiven());
         assertEquals(0, user.getRatingsGiven().size());
         
@@ -160,7 +160,7 @@ public class UserTest {
     }
 
     @Test
-    public void testRatingsReceived() {
+    void testRatingsReceived() {
         assertNotNull(user.getRatingsReceived());
         assertEquals(0, user.getRatingsReceived().size());
         
@@ -171,7 +171,7 @@ public class UserTest {
     }
 
     @Test
-    public void testEqualsAndHashCode() {
+    void testEqualsAndHashCode() {
         User user1 = new User();
         User user2 = new User();
         
@@ -192,7 +192,7 @@ public class UserTest {
     }
 
     @Test
-    public void testToString() {
+    void testToString() {
         user.setUserId(1L);
         user.setUsername("testuser");
         user.setEmail("test@example.com");

@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class LocationServiceTest {
+class LocationServiceTest {
 
     @Mock
     private LocationRepository locationRepository;
@@ -33,7 +33,7 @@ public class LocationServiceTest {
     private LocationDTO testLocationDTO;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         MockitoAnnotations.openMocks(this);
 
         // Create test location

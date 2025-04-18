@@ -28,7 +28,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ContractServiceTest {
+class ContractServiceTest {
 
     @Mock
     private ContractRepository contractRepository;
@@ -48,7 +48,7 @@ public class ContractServiceTest {
     private Location testToLocation;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         MockitoAnnotations.openMocks(this);
 
         // Create test requester

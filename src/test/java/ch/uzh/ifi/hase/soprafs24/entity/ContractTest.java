@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
 
-public class ContractTest {
+class ContractTest {
 
     private Contract contract;
     private Requester requester;
@@ -19,7 +19,7 @@ public class ContractTest {
     private Offer offer;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         contract = new Contract();
         requester = new Requester();
         driver = new Driver();
@@ -29,7 +29,7 @@ public class ContractTest {
     }
 
     @Test
-    public void testContractId() {
+    void testContractId() {
         assertNull(contract.getContractId());
         
         Long id = 1L;
@@ -38,7 +38,7 @@ public class ContractTest {
     }
 
     @Test
-    public void testRequester() {
+    void testRequester() {
         assertNull(contract.getRequester());
         
         contract.setRequester(requester);
@@ -46,7 +46,7 @@ public class ContractTest {
     }
 
     @Test
-    public void testDriver() {
+    void testDriver() {
         assertNull(contract.getDriver());
         
         contract.setDriver(driver);
@@ -54,14 +54,14 @@ public class ContractTest {
     }
 
     @Test
-    public void testContractStatus() {
+    void testContractStatus() {
         assertNull(contract.getContractStatus());
         contract.setContractStatus(ContractStatus.REQUESTED);
         assertEquals(ContractStatus.REQUESTED, contract.getContractStatus());
     }
 
     @Test
-    public void testCreationDateTime() {
+    void testCreationDateTime() {
         assertNull(contract.getCreationDateTime());
         
         LocalDateTime now = LocalDateTime.now();
@@ -70,7 +70,7 @@ public class ContractTest {
     }
 
     @Test
-    public void testTitle() {
+    void testTitle() {
         assertNull(contract.getTitle());
         
         String title = "Test Contract";
@@ -79,7 +79,7 @@ public class ContractTest {
     }
 
     @Test
-    public void testAcceptedDateTime() {
+    void testAcceptedDateTime() {
         assertNull(contract.getAcceptedDateTime());
         
         LocalDateTime now = LocalDateTime.now();
@@ -88,7 +88,7 @@ public class ContractTest {
     }
 
     @Test
-    public void testMoveDateTime() {
+    void testMoveDateTime() {
         assertNull(contract.getMoveDateTime());
         
         LocalDateTime now = LocalDateTime.now();
@@ -97,7 +97,7 @@ public class ContractTest {
     }
 
     @Test
-    public void testFromAddress() {
+    void testFromAddress() {
         assertNull(contract.getFromAddress());
         
         contract.setFromAddress(fromAddress);
@@ -105,7 +105,7 @@ public class ContractTest {
     }
 
     @Test
-    public void testToAddress() {
+    void testToAddress() {
         assertNull(contract.getToAddress());
         
         contract.setToAddress(toAddress);
@@ -113,7 +113,7 @@ public class ContractTest {
     }
 
     @Test
-    public void testMass() {
+    void testMass() {
         assertEquals(0.0f, contract.getMass());
         
         float mass = 10.5f;
@@ -122,7 +122,7 @@ public class ContractTest {
     }
 
     @Test
-    public void testVolume() {
+    void testVolume() {
         assertEquals(0.0f, contract.getVolume());
         
         float volume = 2.5f;
@@ -131,7 +131,7 @@ public class ContractTest {
     }
 
     @Test
-    public void testFragile() {
+    void testFragile() {
         assertFalse(contract.isFragile());
         
         contract.setFragile(true);
@@ -139,7 +139,7 @@ public class ContractTest {
     }
 
     @Test
-    public void testCoolingRequired() {
+    void testCoolingRequired() {
         assertFalse(contract.isCoolingRequired());
         
         contract.setCoolingRequired(true);
@@ -147,7 +147,7 @@ public class ContractTest {
     }
 
     @Test
-    public void testRideAlong() {
+    void testRideAlong() {
         assertFalse(contract.isRideAlong());
         
         contract.setRideAlong(true);
@@ -155,7 +155,7 @@ public class ContractTest {
     }
 
     @Test
-    public void testManPower() {
+    void testManPower() {
         assertEquals(0, contract.getManPower());
         
         int manPower = 2;
@@ -164,7 +164,7 @@ public class ContractTest {
     }
 
     @Test
-    public void testContractDescription() {
+    void testContractDescription() {
         assertNull(contract.getContractDescription());
         
         String description = "Test Description";
@@ -173,7 +173,7 @@ public class ContractTest {
     }
 
     @Test
-    public void testContractPhotos() {
+    void testContractPhotos() {
         assertNotNull(contract.getContractPhotos());
         assertTrue(contract.getContractPhotos().isEmpty());
         
@@ -183,7 +183,7 @@ public class ContractTest {
     }
 
     @Test
-    public void testPrice() {
+    void testPrice() {
         assertEquals(0.0f, contract.getPrice());
         
         float price = 100.0f;
@@ -192,7 +192,7 @@ public class ContractTest {
     }
 
     @Test
-    public void testCollateral() {
+    void testCollateral() {
         assertEquals(0.0f, contract.getCollateral());
         
         float collateral = 50.0f;
@@ -201,7 +201,7 @@ public class ContractTest {
     }
 
     @Test
-    public void testOffers() {
+    void testOffers() {
         assertNotNull(contract.getOffers());
         assertTrue(contract.getOffers().isEmpty());
         
@@ -211,7 +211,7 @@ public class ContractTest {
     }
 
     @Test
-    public void testAcceptedOffer() {
+    void testAcceptedOffer() {
         assertNull(contract.getAcceptedOffer());
         
         contract.setAcceptedOffer(offer);
@@ -219,7 +219,7 @@ public class ContractTest {
     }
 
     @Test
-    public void testCancelReason() {
+    void testCancelReason() {
         assertNull(contract.getCancelReason());
         
         String reason = "Test cancellation";
@@ -228,7 +228,7 @@ public class ContractTest {
     }
 
     @Test
-    public void testEquals() {
+    void testEquals() {
         Contract contract1 = new Contract();
         Contract contract2 = new Contract();
         contract1.setContractId(1L);
@@ -240,7 +240,7 @@ public class ContractTest {
     }
 
     @Test
-    public void testToString() {
+    void testToString() {
         contract.setContractId(1L);
         contract.setContractStatus(ContractStatus.REQUESTED);
         String expected = "Contract(contractId=1, requester=null, driver=null, contractStatus=requested, creationDateTime=null, title=null, acceptedDateTime=null, moveDateTime=null, fromAddress=null, toAddress=null, mass=0.0, volume=0.0, fragile=false, coolingRequired=false, rideAlong=false, manPower=0, contractDescription=null, contractPhotos=[], price=0.0, collateral=0.0, offers=[], acceptedOffer=null, cancelReason=null)";
