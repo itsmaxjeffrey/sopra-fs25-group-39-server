@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.security.authentication.dto.response.AuthenticatedUserDTO;
@@ -33,6 +34,10 @@ public class RegistrationController {
      */
     @PostMapping("/register")
     public ResponseEntity<Object> registerUser(@RequestBody UserRegistrationRequestDTO request) {
+        // Validate request
+        if (request == null || request.getUser() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User data is required");
+        }
         
         //#DEBUG#
         System.out.println("Received user account type: " + 
