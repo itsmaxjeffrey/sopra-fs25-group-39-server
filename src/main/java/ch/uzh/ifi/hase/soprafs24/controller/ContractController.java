@@ -226,8 +226,8 @@ public class ContractController {
             }
         
             // Check if from and to locations are the same  
-            if (contractPostDTO.getFromLocation().getLatitude() == contractPostDTO.getToLocation().getLatitude() && 
-                contractPostDTO.getFromLocation().getLongitude() == contractPostDTO.getToLocation().getLongitude()) {
+            if (contractPostDTO.getFromLocation().getLatitude().equals(contractPostDTO.getToLocation().getLatitude()) && 
+                contractPostDTO.getFromLocation().getLongitude().equals(contractPostDTO.getToLocation().getLongitude())) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "From and to locations cannot be the same");
             }
         
@@ -424,6 +424,8 @@ public class ContractController {
      * Validate the required fields in contract put DTO
      */
     private void validateContractPutDTO(ContractPutDTO contractPutDTO) {
+        // Only validate fields that are provided (not null)
+        
         // Check if title is provided and not empty
         if (contractPutDTO.getTitle() != null && contractPutDTO.getTitle().trim().isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Title cannot be empty");
@@ -435,28 +437,52 @@ public class ContractController {
         }
 
         // Check if mass is positive
-        if (contractPutDTO.getMass() < 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mass cannot be negative");
+        if (contractPutDTO.getMass() != null && contractPutDTO.getMass() <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mass must be positive");
         }
 
         // Check if volume is positive
-        if (contractPutDTO.getVolume() < 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Volume cannot be negative");
+        if (contractPutDTO.getVolume() != null && contractPutDTO.getVolume() <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Volume must be positive");
         }
 
         // Check if man power is positive
-        if (contractPutDTO.getManPower() < 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Man power cannot be negative");
+        if (contractPutDTO.getManPower() != null && contractPutDTO.getManPower() <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Man power must be positive");
         }
 
         // Check if price is positive
-        if (contractPutDTO.getPrice() < 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price cannot be negative");
+        if (contractPutDTO.getPrice() != null && contractPutDTO.getPrice() <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price must be positive");
         }
 
         // Check if collateral is positive
-        if (contractPutDTO.getCollateral() < 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Collateral cannot be negative");
+        if (contractPutDTO.getCollateral() != null && contractPutDTO.getCollateral() <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Collateral must be positive");
+        }
+
+        // Check if from location is valid when provided
+        if (contractPutDTO.getFromLocation() != null) {
+            if (contractPutDTO.getFromLocation().getLatitude() == null || 
+                contractPutDTO.getFromLocation().getLongitude() == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "From location must have a valid latitude and longitude");
+            }
+        }
+
+        // Check if to location is valid when provided
+        if (contractPutDTO.getToLocation() != null) {
+            if (contractPutDTO.getToLocation().getLatitude() == null || 
+                contractPutDTO.getToLocation().getLongitude() == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "To location must have a valid latitude and longitude");
+            }
+        }
+
+        // Check if both locations are provided and are the same
+        if (contractPutDTO.getFromLocation() != null && contractPutDTO.getToLocation() != null) {
+            if (contractPutDTO.getFromLocation().getLatitude().equals(contractPutDTO.getToLocation().getLatitude()) && 
+                contractPutDTO.getFromLocation().getLongitude().equals(contractPutDTO.getToLocation().getLongitude())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "From and to locations cannot be the same");
+            }
         }
     }
 
