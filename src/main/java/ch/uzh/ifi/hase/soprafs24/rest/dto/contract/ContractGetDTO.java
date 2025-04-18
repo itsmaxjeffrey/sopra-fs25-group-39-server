@@ -26,6 +26,7 @@ public class ContractGetDTO {
     private LocalDateTime creationDateTime;
     private List<String> contractPhotos;
     private String cancelReason;
+    private Long driverId;
 
     // Getters and Setters
     public Long getContractId() {
@@ -178,5 +179,13 @@ public class ContractGetDTO {
 
     public void setCancelReason(String cancelReason) {
         this.cancelReason = cancelReason;
+    }
+
+    public Long getDriverId() {
+        return driverId;
+    }
+
+    public void setDriverId(Long driverId) {
+        this.driverId = driverId;
     }
 }

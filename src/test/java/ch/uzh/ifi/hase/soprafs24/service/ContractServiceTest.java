@@ -909,4 +909,60 @@ public class ContractServiceTest {
         assertEquals(ContractStatus.CANCELED, cancelledContract.getContractStatus());
         assertEquals("Test reason", cancelledContract.getCancelReason());
     }
+
+    @Test
+    public void getContractById_withDriver_success() {
+        // given
+        Driver driver = new Driver();
+        driver.setUserId(2L);
+        testContract.setDriver(driver);
+        Mockito.when(contractRepository.findById(Mockito.any())).thenReturn(java.util.Optional.of(testContract));
+
+        // when
+        Contract foundContract = contractService.getContractById(1L);
+
+        // then
+        assertEquals(testContract, foundContract);
+        assertEquals(2L, foundContract.getDriver().getUserId());
+    }
+
+    @Test
+    public void getContractsByDriverId_withDriver_success() {
+        // given
+        Driver driver = new Driver();
+        driver.setUserId(2L);
+        testContract.setDriver(driver);
+        List<Contract> driverContracts = Arrays.asList(testContract);
+        Mockito.when(contractRepository.findByDriver_UserIdAndContractStatus(Mockito.any(), Mockito.any()))
+            .thenReturn(driverContracts);
+
+        // when
+        List<Contract> foundContracts = contractService.getContractsByDriverId(2L, ContractStatus.ACCEPTED);
+
+        // then
+        assertEquals(driverContracts.size(), foundContracts.size());
+        assertEquals(testContract, foundContracts.get(0));
+        assertEquals(2L, foundContracts.get(0).getDriver().getUserId());
+        Mockito.verify(contractRepository, Mockito.times(1))
+            .findByDriver_UserIdAndContractStatus(2L, ContractStatus.ACCEPTED);
+    }
+
+    @Test
+    public void getContractsByDriverId_withoutDriver_success() {
+        // given
+        testContract.setDriver(null);
+        List<Contract> driverContracts = Arrays.asList(testContract);
+        Mockito.when(contractRepository.findByDriver_UserId(Mockito.any()))
+            .thenReturn(driverContracts);
+
+        // when
+        List<Contract> foundContracts = contractService.getContractsByDriverId(1L, null);
+
+        // then
+        assertEquals(driverContracts.size(), foundContracts.size());
+        assertEquals(testContract, foundContracts.get(0));
+        assertNull(foundContracts.get(0).getDriver());
+        Mockito.verify(contractRepository, Mockito.times(1))
+            .findByDriver_UserId(1L);
+    }
 } 

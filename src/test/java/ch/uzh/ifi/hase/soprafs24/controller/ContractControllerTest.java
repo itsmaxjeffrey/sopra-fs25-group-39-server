@@ -267,6 +267,7 @@ public class ContractControllerTest {
                 .andExpect(jsonPath("$.contract.contractId", is(contract.getContractId().intValue())))
                 .andExpect(jsonPath("$.contract.title", is(contract.getTitle())))
                 .andExpect(jsonPath("$.contract.contractStatus", is("ACCEPTED")))
+                .andExpect(jsonPath("$.contract.driverId", is(TEST_USER_ID.intValue())))
                 .andExpect(jsonPath("$.timestamp", notNullValue()));
     }
 
@@ -329,6 +330,7 @@ public class ContractControllerTest {
                 .andExpect(jsonPath("$.contract.contractId", is(contract.getContractId().intValue())))
                 .andExpect(jsonPath("$.contract.title", is(contract.getTitle())))
                 .andExpect(jsonPath("$.contract.contractStatus", is("OFFERED")))
+                .andExpect(jsonPath("$.contract.driverId").doesNotExist())
                 .andExpect(jsonPath("$.timestamp", notNullValue()));
     }
 
@@ -770,6 +772,11 @@ public class ContractControllerTest {
         contract.setContractId(1L);
         contract.setTitle("Test Contract");
         contract.setContractStatus(ContractStatus.ACCEPTED);
+        
+        // Set up the driver
+        Driver driver = new Driver();
+        driver.setUserId(TEST_USER_ID);
+        contract.setDriver(driver);
 
         List<Contract> contracts = Collections.singletonList(contract);
         given(contractService.getContractsByDriverId(TEST_USER_ID, ContractStatus.ACCEPTED)).willReturn(contracts);
@@ -794,6 +801,7 @@ public class ContractControllerTest {
                 .andExpect(jsonPath("$.contracts[0].contractId", is(contract.getContractId().intValue())))
                 .andExpect(jsonPath("$.contracts[0].title", is(contract.getTitle())))
                 .andExpect(jsonPath("$.contracts[0].contractStatus", is("ACCEPTED")))
+                .andExpect(jsonPath("$.contracts[0].driverId", is(TEST_USER_ID.intValue())))
                 .andExpect(jsonPath("$.timestamp", notNullValue()));
     }
 

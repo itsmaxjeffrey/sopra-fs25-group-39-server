@@ -66,6 +66,7 @@ public interface ContractDTOMapper {
     @Mapping(source = "fromAddress", target = "fromLocation")
     @Mapping(source = "toAddress", target = "toLocation")
     @Mapping(source = "cancelReason", target = "cancelReason")
+    @Mapping(source = "driver.userId", target = "driverId")
     ContractGetDTO convertContractEntityToContractGetDTO(Contract contract);
 
     @Mapping(source = "title", target = "title")
