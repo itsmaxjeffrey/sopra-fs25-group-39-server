@@ -168,4 +168,26 @@ public class RatingController {
             return createResponse(null, e.getReason(), e.getStatus());
         }
     }
+
+    /**
+     * Get average rating for a specific user
+     * 
+     * Example request:
+     * GET /api/v1/users/123/average-rating
+     */
+    @GetMapping("/users/{userId}/average-rating")
+    public ResponseEntity<Object> getUserAverageRating(
+            @PathVariable Long userId,
+            @RequestHeader("userId") Long requestUserId,
+            @RequestHeader("Authorization") String token) {
+        
+        // Authenticate user
+        if (authorizationService.authenticateUser(requestUserId, token) == null) {
+            return createResponse(null, "User is not authorized", HttpStatus.UNAUTHORIZED);
+        }
+
+        // Get average rating from service
+        Double averageRating = ratingService.getAverageRating(userId);
+        return createResponse(averageRating, null, HttpStatus.OK);
+    }
 }

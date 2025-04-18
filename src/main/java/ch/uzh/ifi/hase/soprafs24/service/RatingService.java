@@ -211,4 +211,30 @@ public class RatingService {
         // Delete rating
         ratingRepository.delete(rating);
     }
+
+    /**
+     * Calculates the average rating for a user.
+     * 
+     * @param userId The ID of the user
+     * @return The average rating, or null if no ratings exist
+     * @throws IllegalArgumentException if userId is null or not positive
+     */
+    public Double getAverageRating(Long userId) {
+        if (userId == null) {
+            throw new IllegalArgumentException("User ID cannot be null");
+        }
+        if (userId <= 0) {
+            throw new IllegalArgumentException("User ID must be a positive number");
+        }
+
+        List<Rating> ratings = getRatingsByUserId(userId);
+        if (ratings.isEmpty()) {
+            return null;
+        }
+
+        return ratings.stream()
+            .mapToInt(Rating::getRatingValue)
+            .average()
+            .orElse(0.0);
+    }
 }
