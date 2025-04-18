@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Arrays;
@@ -140,6 +141,21 @@ class RatingServiceTest {
     void createRating_invalidRatingValue_throwsException() {
         testRatingPostDTO.setRatingValue(6);
         assertThrows(ResponseStatusException.class, () -> ratingService.createRating(testRatingPostDTO, 1L));
+    }
+
+    @Test
+    void createRating_duplicateRating_throwsException() {
+        // Mock existing rating
+        when(ratingRepository.findByContract_ContractIdAndFromUser_UserId(any(), any())).thenReturn(testRating);
+        
+        // Attempt to create duplicate rating
+        assertThrows(ResponseStatusException.class, () -> ratingService.createRating(testRatingPostDTO, 1L));
+        
+        // Verify the error message
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, 
+            () -> ratingService.createRating(testRatingPostDTO, 1L));
+        assertEquals(HttpStatus.CONFLICT, exception.getStatus());
+        assertEquals("You have already rated this contract", exception.getReason());
     }
 
     @Test

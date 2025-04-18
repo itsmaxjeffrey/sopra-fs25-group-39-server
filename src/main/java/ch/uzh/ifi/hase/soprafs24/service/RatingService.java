@@ -84,6 +84,13 @@ public class RatingService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only rate your own contracts");
         }
 
+        // Check for existing rating
+        Rating existingRating = ratingRepository.findByContract_ContractIdAndFromUser_UserId(
+            ratingPostDTO.getContractId(), requesterId);
+        if (existingRating != null) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "You have already rated this contract");
+        }
+
         // Validate rating value
         if (ratingPostDTO.getRatingValue() == null || ratingPostDTO.getRatingValue() < 1 || ratingPostDTO.getRatingValue() > 5) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Rating value must be between 1 and 5");
