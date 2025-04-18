@@ -226,8 +226,8 @@ public class ContractController {
             }
         
             // Check if from and to locations are the same  
-            if (contractPostDTO.getFromLocation().getLatitude() == contractPostDTO.getToLocation().getLatitude() && 
-                contractPostDTO.getFromLocation().getLongitude() == contractPostDTO.getToLocation().getLongitude()) {
+            if (contractPostDTO.getFromLocation().getLatitude().equals(contractPostDTO.getToLocation().getLatitude()) && 
+                contractPostDTO.getFromLocation().getLongitude().equals(contractPostDTO.getToLocation().getLongitude())) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "From and to locations cannot be the same");
             }
         
