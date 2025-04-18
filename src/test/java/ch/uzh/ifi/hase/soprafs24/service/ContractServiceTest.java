@@ -128,7 +128,7 @@ class ContractServiceTest {
     */
 
     @Test
-    public void createContract_requesterNotFound_throwsException() {
+    void createContract_requesterNotFound_throwsException() {
         // given
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.empty());
 
@@ -137,7 +137,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void getContracts_success() {
+    void getContracts_success() {
         // given
         List<Contract> allContracts = Arrays.asList(testContract);
         Mockito.when(contractRepository.findAll()).thenReturn(allContracts);
@@ -151,7 +151,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void getContractById_success() {
+    void getContractById_success() {
         // given
         Mockito.when(contractRepository.findById(Mockito.any())).thenReturn(java.util.Optional.of(testContract));
 
@@ -163,7 +163,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void getContractById_notFound_throwsException() {
+    void getContractById_notFound_throwsException() {
         // given
         Mockito.when(contractRepository.findById(Mockito.any())).thenReturn(java.util.Optional.empty());
 
@@ -172,7 +172,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void getContractsByUser_success() {
+    void getContractsByUser_success() {
         // given
         List<Contract> userContracts = Arrays.asList(testContract);
         Mockito.when(contractRepository.findByRequester_UserId(Mockito.any())).thenReturn(userContracts);
@@ -186,7 +186,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void getContractsByStatus_success() {
+    void getContractsByStatus_success() {
         // given
         List<Contract> statusContracts = Arrays.asList(testContract);
         Mockito.when(contractRepository.findByContractStatus(Mockito.any())).thenReturn(statusContracts);
@@ -200,7 +200,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void getContractsByRequesterId_withStatus_success() {
+    void getContractsByRequesterId_withStatus_success() {
         // given
         List<Contract> requesterContracts = Arrays.asList(testContract);
         Mockito.when(contractRepository.findByRequester_UserIdAndContractStatus(Mockito.any(), Mockito.any()))
@@ -217,7 +217,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void getContractsByRequesterId_withoutStatus_success() {
+    void getContractsByRequesterId_withoutStatus_success() {
         // given
         List<Contract> requesterContracts = Arrays.asList(testContract);
         Mockito.when(contractRepository.findByRequester_UserId(Mockito.any()))
@@ -234,7 +234,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void getContractsByDriverId_withStatus_success() {
+    void getContractsByDriverId_withStatus_success() {
         // given
         List<Contract> driverContracts = Arrays.asList(testContract);
         Mockito.when(contractRepository.findByDriver_UserIdAndContractStatus(Mockito.any(), Mockito.any()))
@@ -251,7 +251,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void getContractsByDriverId_withoutStatus_success() {
+    void getContractsByDriverId_withoutStatus_success() {
         // given
         List<Contract> driverContracts = Arrays.asList(testContract);
         Mockito.when(contractRepository.findByDriver_UserId(Mockito.any()))
@@ -268,7 +268,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void getContractsByStatus_allStatuses_success() {
+    void getContractsByStatus_allStatuses_success() {
         // given
         List<Contract> statusContracts = Arrays.asList(testContract);
         Mockito.when(contractRepository.findByContractStatus(Mockito.any()))
@@ -288,7 +288,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void getContractsByUser_withStatus_success() {
+    void getContractsByUser_withStatus_success() {
         // given
         List<Contract> userContracts = Arrays.asList(testContract);
         Mockito.when(contractRepository.findByRequester_UserId(Mockito.any()))
@@ -305,7 +305,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void getContractsByUser_withoutStatus_success() {
+    void getContractsByUser_withoutStatus_success() {
         // given
         List<Contract> userContracts = Arrays.asList(testContract);
         Mockito.when(contractRepository.findByRequester_UserId(Mockito.any()))
@@ -322,7 +322,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void getContractsByRequesterId_emptyList_success() {
+    void getContractsByRequesterId_emptyList_success() {
         // given
         List<Contract> emptyList = Collections.emptyList();
         Mockito.when(contractRepository.findByRequester_UserIdAndContractStatus(Mockito.any(), Mockito.any()))
@@ -338,7 +338,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void getContractsByDriverId_multipleContracts_success() {
+    void getContractsByDriverId_multipleContracts_success() {
         // given
         Contract contract1 = new Contract();
         contract1.setContractId(1L);
@@ -362,7 +362,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void getContractsByStatus_mixedStatuses_success() {
+    void getContractsByStatus_mixedStatuses_success() {
         // given
         Contract requestedContract = new Contract();
         requestedContract.setContractId(1L);
@@ -389,7 +389,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void getContractsByUser_mixedStatuses_success() {
+    void getContractsByUser_mixedStatuses_success() {
         // given
         Contract requestedContract = new Contract();
         requestedContract.setContractId(1L);
@@ -415,7 +415,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void getContractsByUser_invalidUserId_throwsException() {
+    void getContractsByUser_invalidUserId_throwsException() {
         // given
         Mockito.when(contractRepository.findByRequester_UserId(Mockito.any()))
             .thenReturn(Collections.emptyList());
@@ -426,7 +426,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void updateContract_onlyRequestedContractsCanBeUpdated() {
+    void updateContract_onlyRequestedContractsCanBeUpdated() {
         // given
         Contract existingContract = new Contract();
         existingContract.setContractId(1L);
@@ -440,7 +440,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void updateContract_requestedContract_success() {
+    void updateContract_requestedContract_success() {
         // given
         Contract existingContract = new Contract();
         existingContract.setContractId(1L);
@@ -464,7 +464,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void cancelContract_acceptedContract_success() {
+    void cancelContract_acceptedContract_success() {
         // given
         Contract existingContract = new Contract();
         existingContract.setContractId(1L);
@@ -484,7 +484,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void cancelContract_tooCloseToMoveDate_throwsException() {
+    void cancelContract_tooCloseToMoveDate_throwsException() {
         // given
         Contract existingContract = new Contract();
         existingContract.setContractId(1L);
@@ -498,7 +498,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void cancelContract_nonAcceptedStatus_throwsException() {
+    void cancelContract_nonAcceptedStatus_throwsException() {
         // given
         Contract existingContract = new Contract();
         existingContract.setContractId(1L);
@@ -512,7 +512,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void fulfillContract_asRequester_success() {
+    void fulfillContract_asRequester_success() {
         // given
         Contract existingContract = new Contract();
         existingContract.setContractId(1L);
@@ -530,7 +530,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void fulfillContract_asDriver_success() {
+    void fulfillContract_asDriver_success() {
         // given
         Driver testDriver = new Driver();
         testDriver.setUserId(2L);
@@ -551,7 +551,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void fulfillContract_invalidStatus_throwsException() {
+    void fulfillContract_invalidStatus_throwsException() {
         // given
         Contract existingContract = new Contract();
         existingContract.setContractId(1L);
@@ -564,7 +564,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void deleteContract_requestedStatus_success() {
+    void deleteContract_requestedStatus_success() {
         // given
         Contract existingContract = new Contract();
         existingContract.setContractId(1L);
@@ -593,7 +593,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void deleteContract_offeredStatus_success() {
+    void deleteContract_offeredStatus_success() {
         // given
         Contract existingContract = new Contract();
         existingContract.setContractId(1L);
@@ -633,7 +633,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void deleteContract_acceptedStatus_success() {
+    void deleteContract_acceptedStatus_success() {
         // given
         Contract existingContract = new Contract();
         existingContract.setContractId(1L);
@@ -674,7 +674,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void deleteContract_acceptedStatus_tooCloseToMoveDate_throwsException() {
+    void deleteContract_acceptedStatus_tooCloseToMoveDate_throwsException() {
         // given
         Contract existingContract = new Contract();
         existingContract.setContractId(1L);
@@ -693,7 +693,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void deleteContract_alreadyDeleted_throwsException() {
+    void deleteContract_alreadyDeleted_throwsException() {
         // given
         Contract existingContract = new Contract();
         existingContract.setContractId(1L);
@@ -710,7 +710,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void deleteContract_completedOrFinalized_throwsException() {
+    void deleteContract_completedOrFinalized_throwsException() {
         // Test for COMPLETED status
         Contract completedContract = new Contract();
         completedContract.setContractId(1L);
@@ -739,7 +739,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void createContract_negativePrice_throwsException() {
+    void createContract_negativePrice_throwsException() {
         // given
         testContract.setPrice(-100.0f);
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.of(testRequester));
@@ -749,7 +749,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void createContract_negativeCollateral_throwsException() {
+    void createContract_negativeCollateral_throwsException() {
         // given
         testContract.setCollateral(-50.0f);
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.of(testRequester));
@@ -759,7 +759,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void createContract_negativeMass_throwsException() {
+    void createContract_negativeMass_throwsException() {
         // given
         testContract.setMass(-10.0f);
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.of(testRequester));
@@ -769,7 +769,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void createContract_negativeVolume_throwsException() {
+    void createContract_negativeVolume_throwsException() {
         // given
         testContract.setVolume(-5.0f);
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.of(testRequester));
@@ -779,7 +779,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void createContract_negativeManpower_throwsException() {
+    void createContract_negativeManpower_throwsException() {
         // given
         testContract.setManPower(-2);
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.of(testRequester));
@@ -789,7 +789,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void createContract_pastMoveDate_throwsException() {
+    void createContract_pastMoveDate_throwsException() {
         // given
         testContract.setMoveDateTime(LocalDateTime.now().minusDays(1));
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.of(testRequester));
@@ -799,7 +799,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void createContract_missingAddresses_throwsException() {
+    void createContract_missingAddresses_throwsException() {
         // given
         testContract.setFromAddress(null);
         testContract.setToAddress(null);
@@ -810,7 +810,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void updateContract_invalidStatus_throwsException() {
+    void updateContract_invalidStatus_throwsException() {
         // given
         testContract.setContractStatus(ContractStatus.ACCEPTED);
         Contract contractUpdates = new Contract();
@@ -822,7 +822,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void updateContract_pastMoveDate_throwsException() {
+    void updateContract_pastMoveDate_throwsException() {
         // given
         testContract.setContractStatus(ContractStatus.REQUESTED);
         Contract contractUpdates = new Contract();
@@ -834,7 +834,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void updateContract_invalidRequester_throwsException() {
+    void updateContract_invalidRequester_throwsException() {
         // given
         testContract.setContractStatus(ContractStatus.REQUESTED);
         Contract contractUpdates = new Contract();
@@ -848,7 +848,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void completeContract_beforeMoveDate_throwsException() {
+    void completeContract_beforeMoveDate_throwsException() {
         // given
         testContract.setContractStatus(ContractStatus.ACCEPTED);
         testContract.setMoveDateTime(LocalDateTime.now().plusDays(1));
@@ -859,7 +859,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void completeContract_afterMoveDate_success() {
+    void completeContract_afterMoveDate_success() {
         // given
         testContract.setContractStatus(ContractStatus.ACCEPTED);
         testContract.setMoveDateTime(LocalDateTime.now().minusDays(1));
@@ -874,7 +874,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void finalizeContract_nonCompleted_throwsException() {
+    void finalizeContract_nonCompleted_throwsException() {
         // given
         testContract.setContractStatus(ContractStatus.ACCEPTED);
         Mockito.when(contractRepository.findById(Mockito.any())).thenReturn(java.util.Optional.of(testContract));
@@ -884,7 +884,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void cancelContract_within72Hours_throwsException() {
+    void cancelContract_within72Hours_throwsException() {
         // given
         testContract.setContractStatus(ContractStatus.ACCEPTED);
         testContract.setMoveDateTime(LocalDateTime.now().plusHours(48));
@@ -895,7 +895,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void cancelContract_moreThan72Hours_success() {
+    void cancelContract_moreThan72Hours_success() {
         // given
         testContract.setContractStatus(ContractStatus.ACCEPTED);
         testContract.setMoveDateTime(LocalDateTime.now().plusDays(4));
@@ -911,7 +911,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void getContractById_withDriver_success() {
+    void getContractById_withDriver_success() {
         // given
         Driver driver = new Driver();
         driver.setUserId(2L);
@@ -927,7 +927,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void getContractsByDriverId_withDriver_success() {
+    void getContractsByDriverId_withDriver_success() {
         // given
         Driver driver = new Driver();
         driver.setUserId(2L);
@@ -948,7 +948,7 @@ class ContractServiceTest {
     }
 
     @Test
-    public void getContractsByDriverId_withoutDriver_success() {
+    void getContractsByDriverId_withoutDriver_success() {
         // given
         testContract.setDriver(null);
         List<Contract> driverContracts = Arrays.asList(testContract);
