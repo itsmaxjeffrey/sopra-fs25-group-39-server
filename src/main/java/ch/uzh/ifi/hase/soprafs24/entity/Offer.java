@@ -15,10 +15,14 @@ import org.hibernate.annotations.CreationTimestamp;
 import ch.uzh.ifi.hase.soprafs24.constant.OfferStatus;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Entity
 @Table(name = "OFFERS")
 @Getter @Setter
+@EqualsAndHashCode
+@ToString
 public class Offer implements Serializable {
     private static final long serialVersionUID = 1L;
     

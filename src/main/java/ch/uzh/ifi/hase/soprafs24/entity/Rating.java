@@ -12,11 +12,14 @@ import javax.persistence.Table;
 
 import lombok.Getter;
 import lombok.Setter;
-
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Entity
 @Table(name = "RATING")
 @Getter @Setter
+@EqualsAndHashCode
+@ToString
 public class Rating implements Serializable{
     private static final long serialVersionUID = 1L;
 
@@ -44,7 +47,4 @@ public class Rating implements Serializable{
 
     @Column(nullable = true)
     private String comment;
-
-
-
 }
