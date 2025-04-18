@@ -305,7 +305,6 @@ public class ContractController {
      */
     @GetMapping("/api/v1/contracts/{contractId}")
     @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
     public ResponseEntity<Object> getContractById(
             @PathVariable Long contractId,
             @RequestHeader("UserId") Long userId,
@@ -368,7 +367,6 @@ public class ContractController {
      */
     @PutMapping("/api/v1/contracts/{contractId}")
     @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
     public ResponseEntity<Object> updateContract(
             @PathVariable Long contractId,
             @RequestHeader("UserId") Long userId,
@@ -481,7 +479,6 @@ public class ContractController {
      */
     @PutMapping("/api/v1/contracts/{id}/cancel")
     @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
     public ResponseEntity<Object> cancelContract(
             @PathVariable("id") Long contractId,
             @RequestHeader("UserId") Long userId,
