@@ -1,3 +1,5 @@
+package ch.uzh.ifi.hase.soprafs24.service;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.eq;
@@ -12,8 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.*;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Contract;
-import ch.uzh.ifi.hase.soprafs24.service.ContractPollingService;
-import ch.uzh.ifi.hase.soprafs24.service.ContractService;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractFilterDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractGetDTO;
 
@@ -25,7 +25,6 @@ class ContractPollingServiceTest {
     private ContractPollingService contractPollingService;
 
     private ContractFilterDTO filterDTO;
-    private CompletableFuture<List<ContractGetDTO>> future;
 
     @BeforeEach
     void setUp() {
@@ -36,9 +35,6 @@ class ContractPollingServiceTest {
         filterDTO = new ContractFilterDTO();
         Double FilterPrice = 100.0;
         filterDTO.setPrice(FilterPrice);
-
-        // Create a CompletableFuture for the client
-        future = new CompletableFuture<>();
     }
 
     @Test
