@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-public class OfferStatusTest {
+class OfferStatusTest {
 
     @Test
-    public void testToString() {
+    void testToString() {
         // Test all enum values
         assertEquals("created", OfferStatus.CREATED.toString());
         assertEquals("deleted", OfferStatus.DELETED.toString());

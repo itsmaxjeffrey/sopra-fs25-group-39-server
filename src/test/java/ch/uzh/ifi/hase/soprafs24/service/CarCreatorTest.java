@@ -15,7 +15,7 @@ import ch.uzh.ifi.hase.soprafs24.repository.CarRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.CarDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.CarDTOMapper;
 
-public class CarCreatorTest {
+class CarCreatorTest {
 
     @Mock
     private CarRepository carRepository;
@@ -33,7 +33,7 @@ public class CarCreatorTest {
     private CarDTO testCarDTO;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         MockitoAnnotations.openMocks(this);
 
         // Create test car

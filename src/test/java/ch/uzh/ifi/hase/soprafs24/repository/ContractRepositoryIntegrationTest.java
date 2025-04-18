@@ -5,6 +5,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
 
 @WebAppConfiguration
 @DataJpaTest
-public class ContractRepositoryIntegrationTest {
+class ContractRepositoryIntegrationTest {
     // Test class structure maintained for future tests
 } 

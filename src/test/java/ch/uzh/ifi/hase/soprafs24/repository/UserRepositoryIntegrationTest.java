@@ -14,7 +14,7 @@
 // import ch.uzh.ifi.hase.soprafs24.entity.User;
 
 // @DataJpaTest
-// public class UserRepositoryIntegrationTest {
+// class UserRepositoryIntegrationTest {
 
 //   @Autowired
 //   private TestEntityManager entityManager;

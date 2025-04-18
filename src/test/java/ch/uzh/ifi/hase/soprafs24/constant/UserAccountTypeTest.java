@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-public class UserAccountTypeTest {
+class UserAccountTypeTest {
 
     @Test
-    public void testToString() {
+    void testToString() {
         // Test all enum values
         assertEquals("requester", UserAccountType.REQUESTER.toString());
         assertEquals("driver", UserAccountType.DRIVER.toString());

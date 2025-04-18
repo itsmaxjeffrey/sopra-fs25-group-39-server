@@ -50,7 +50,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * This tests if the ContractController works.
  */
 @WebMvcTest(ContractController.class)
-public class ContractControllerTest {
+class ContractControllerTest {
 
     @Autowired
     private MockMvc mockMvc;

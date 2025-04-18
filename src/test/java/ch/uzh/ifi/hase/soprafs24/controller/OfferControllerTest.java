@@ -34,7 +34,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-public class OfferControllerTest {
+class OfferControllerTest {
 
     @Mock
     private OfferService offerService;
@@ -60,7 +60,7 @@ public class OfferControllerTest {
     private Requester testRequesterEntity;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         MockitoAnnotations.openMocks(this);
 
         // Create test driver

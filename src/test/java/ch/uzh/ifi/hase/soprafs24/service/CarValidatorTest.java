@@ -15,7 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 import ch.uzh.ifi.hase.soprafs24.entity.Car;
 import ch.uzh.ifi.hase.soprafs24.repository.CarRepository;
 
-public class CarValidatorTest {
+class CarValidatorTest {
 
     @Mock
     private CarRepository carRepository;
@@ -27,7 +27,7 @@ public class CarValidatorTest {
     private Car existingCar;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         MockitoAnnotations.openMocks(this);
 
         // Create test car

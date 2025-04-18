@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestPropertySource(properties = {
     "google.maps.api.key=${GOOGLE_MAPS_API_KEY}"
 })
-public class GoogleMapsServiceIntegrationTest {
+class GoogleMapsServiceIntegrationTest {
 
     private static final Logger log = LoggerFactory.getLogger(GoogleMapsServiceIntegrationTest.class);
 
@@ -27,7 +27,7 @@ public class GoogleMapsServiceIntegrationTest {
     private Environment environment;
 
     @Test
-    public void testApiKeyLoaded() {
+    void testApiKeyLoaded() {
         assertNotNull(googleMapsService, "GoogleMapsService should be autowired");
         String apiKey = environment.getProperty("GOOGLE_MAPS_API_KEY");
         log.info("Environment API key loaded: {}", apiKey != null ? "***" : "null");
@@ -41,7 +41,7 @@ public class GoogleMapsServiceIntegrationTest {
     }
 
     @Test
-    public void testDistanceCalculation() {
+    void testDistanceCalculation() {
         log.info("Starting distance calculation test");
         
         // Test distance between two points in Zürich
@@ -63,7 +63,7 @@ public class GoogleMapsServiceIntegrationTest {
     }
 
     @Test
-    public void testGeocoding() {
+    void testGeocoding() {
         log.info("Starting geocoding test");
         
         // Test geocoding of a known address in Zürich

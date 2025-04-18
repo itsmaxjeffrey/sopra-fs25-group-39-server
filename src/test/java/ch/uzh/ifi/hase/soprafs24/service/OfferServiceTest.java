@@ -33,7 +33,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
-public class OfferServiceTest {
+class OfferServiceTest {
 
     @Mock
     private OfferDTOMapper offerDTOMapper;
@@ -60,7 +60,7 @@ public class OfferServiceTest {
     private OfferPostDTO testOfferPostDTO;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         MockitoAnnotations.openMocks(this);
 
         // Create test contract
