@@ -24,11 +24,9 @@ import ch.uzh.ifi.hase.soprafs24.user.mapper.PublicUserDTOMapper;
 import ch.uzh.ifi.hase.soprafs24.user.mapper.UserDTOMapper;
 import ch.uzh.ifi.hase.soprafs24.user.service.UserService;
 
-
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserController {
-
 
     private final PublicUserDTOMapper publicUserDTOMapper;
     private final UserService userService;
@@ -36,40 +34,34 @@ public class UserController {
     public UserController(
         AuthorizationService authorizationService,
         PublicUserDTOMapper publicUserDTOMapper,
-        UserService userService
-    , Application application){
+        UserService userService,
+        Application application) {
         this.publicUserDTOMapper = publicUserDTOMapper;
         this.userService = userService;
-
     }
 
-
-
-    //get single user by id. a logged in user can see their own profile. from others they can only see public info(publicUserDTO) 
     @GetMapping("/{paramUserId}")
     public ResponseEntity<?> getUserById(
         @RequestHeader("UserId") Long userId, 
         @RequestHeader("Authorization") String token, 
         @PathVariable("paramUserId") Long paramUserId) {
-           try{ 
+        try {
+            User targetUser = userService.getUserById(userId, token, paramUserId);
 
-                //if a user is not logged in, they cannot see anything    
-                User targetUser = userService.getUserById(userId, token, paramUserId);
-
-                // check if the user is viewing their own profile
-                if (userId.equals(paramUserId)) {
-
-                    AuthenticatedUserDTO fullUserDTO = UserDTOMapper.INSTANCE.convertToDTO(targetUser);
-                    return ResponseEntity.ok(fullUserDTO);
-                } else {
-                    PublicUserDTO publicUserDTO = publicUserDTOMapper.convertToPublicUserDTO(targetUser);
-                    return ResponseEntity.ok(publicUserDTO);
-                }
-            }catch (Exception e) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("status", "error", "message", e.getMessage()));
+            if (userId.equals(paramUserId)) {
+                AuthenticatedUserDTO fullUserDTO = UserDTOMapper.INSTANCE.convertToDTO(targetUser);
+                return ResponseEntity.ok(fullUserDTO);
+            } else {
+                PublicUserDTO publicUserDTO = publicUserDTOMapper.convertToPublicUserDTO(targetUser);
+                return ResponseEntity.ok(publicUserDTO);
             }
-
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getRawStatusCode())
+                .body(Map.of("message", e.getReason()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("message", e.getMessage()));
+        }
     }
 
     @PutMapping("/{userId}")
@@ -77,42 +69,32 @@ public class UserController {
         @PathVariable Long userId,
         @RequestHeader("Authorization") String token,
         @RequestBody BaseUserUpdateDTO userUpdateDTO) {
-            
-            try {
-                User updatedUser = userService.editUser(userId, token, userUpdateDTO);
-                AuthenticatedUserDTO userDTO = UserDTOMapper.INSTANCE.convertToDTO(updatedUser);
-                return ResponseEntity.ok(userDTO);
-            } catch (Exception e) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("status", "error", "message", e.getMessage()));
-            }
+        try {
+            User updatedUser = userService.editUser(userId, token, userUpdateDTO);
+            AuthenticatedUserDTO userDTO = UserDTOMapper.INSTANCE.convertToDTO(updatedUser);
+            return ResponseEntity.ok(userDTO);
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getRawStatusCode())
+                .body(Map.of("message", e.getReason()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("message", e.getMessage()));
+        }
     }
-            
 
-    /**
-     * Delete a user account
-     * Only the user themselves can delete their account
-     * 
-     * @param userId ID of the user to delete
-     * @param token Authentication token
-     * @return ResponseEntity with status code
-     */
     @DeleteMapping("/{userId}")
     public ResponseEntity<?> deleteUser(
         @PathVariable Long userId,
         @RequestHeader("Authorization") String token) {
-        
         try {
             userService.deleteUser(userId, token);
             return ResponseEntity.noContent().build();
         } catch (ResponseStatusException e) {
             return ResponseEntity.status(e.getRawStatusCode())
-                .body(Map.of("status", "error", "message", e.getReason()));
+                .body(Map.of("message", e.getReason()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("status", "error", "message", e.getMessage()));
+                .body(Map.of("message", e.getMessage()));
         }
     }
-    
-    
 }
