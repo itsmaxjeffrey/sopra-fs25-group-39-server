@@ -48,6 +48,19 @@ import ch.uzh.ifi.hase.soprafs24.rest.mapper.UserDTOMapper;
 @RestController
 public class ContractController {
 
+    // Error message constants
+    private static final String ERROR_INVALID_CREDENTIALS = "Invalid credentials";
+    private static final String ERROR_ONLY_REQUESTERS_CAN_CREATE = "Only requesters can create contracts";
+    private static final String ERROR_ONLY_REQUESTERS_CAN_UPDATE = "Only requesters can update contracts";
+    private static final String ERROR_ONLY_REQUESTERS_CAN_CANCEL = "Only requesters can cancel contracts";
+    private static final String ERROR_NOT_AUTHORIZED_TO_VIEW = "You are not authorized to view these contracts";
+    private static final String ERROR_NOT_AUTHORIZED_TO_VIEW_CONTRACT = "You are not authorized to view this contract";
+    private static final String ERROR_NOT_AUTHORIZED_TO_UPDATE = "You are not authorized to update this contract";
+    private static final String ERROR_NOT_AUTHORIZED_TO_CANCEL = "You are not authorized to cancel this contract";
+    private static final String ERROR_NOT_AUTHORIZED_TO_DELETE = "You are not authorized to delete this contract";
+    private static final String ERROR_NOT_AUTHORIZED_TO_FULFILL = "You are not authorized to fulfill this contract";
+    private static final String ERROR_NOT_AUTHORIZED_TO_VIEW_DRIVER = "You are not authorized to view driver details for this contract";
+
     private final UserRepository userRepository;
     private final ContractService contractService;
     private final LocationService locationService;
@@ -124,7 +137,7 @@ public class ContractController {
         // Authenticate user
         User authenticatedUser = authorizationService.authenticateUser(userId, token);
         if (authenticatedUser == null) {
-            return createResponse(null, "Invalid credentials", HttpStatus.UNAUTHORIZED);
+            return createResponse(null, ERROR_INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED);
         }
 
         // Parse filters if provided
@@ -175,12 +188,12 @@ public class ContractController {
         // Authenticate user
         User authenticatedUser = authorizationService.authenticateUser(userId, token);
         if (authenticatedUser == null) {
-            return createResponse(null, "Invalid credentials", HttpStatus.UNAUTHORIZED);
+            return createResponse(null, ERROR_INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED);
         }
 
         // Verify user is a requester
         if (!authenticatedUser.getUserAccountType().equals(UserAccountType.REQUESTER)) {
-            return createResponse(null, "Only requesters can create contracts", HttpStatus.FORBIDDEN);
+            return createResponse(null, ERROR_ONLY_REQUESTERS_CAN_CREATE, HttpStatus.FORBIDDEN);
         }
 
         validateContractPostDTO(contractPostDTO);
@@ -301,7 +314,7 @@ public class ContractController {
         // Authenticate user
         User authenticatedUser = authorizationService.authenticateUser(userId, token);
         if (authenticatedUser == null) {
-            return createResponse(null, "Invalid credentials", HttpStatus.UNAUTHORIZED);
+            return createResponse(null, ERROR_INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED);
         }
 
         // Get contract from service
@@ -325,11 +338,11 @@ public class ContractController {
             }
             
             // If none of the above conditions are met, the driver is not authorized
-            return createResponse(null, "You are not authorized to view this contract", HttpStatus.FORBIDDEN);
+            return createResponse(null, ERROR_NOT_AUTHORIZED_TO_VIEW_CONTRACT, HttpStatus.FORBIDDEN);
         } else if (authenticatedUser.getUserAccountType() == UserAccountType.REQUESTER) {
             // Requesters can only access their own contracts
             if (!contract.getRequester().getUserId().equals(userId)) {
-                return createResponse(null, "You are not authorized to view this contract", HttpStatus.FORBIDDEN);
+                return createResponse(null, ERROR_NOT_AUTHORIZED_TO_VIEW_CONTRACT, HttpStatus.FORBIDDEN);
             }
             return createResponse(ContractDTOMapper.INSTANCE.convertContractEntityToContractGetDTO(contract), null, HttpStatus.OK);
         }
@@ -365,12 +378,12 @@ public class ContractController {
         // Authenticate user
         User authenticatedUser = authorizationService.authenticateUser(userId, token);
         if (authenticatedUser == null) {
-            return createResponse(null, "Invalid credentials", HttpStatus.UNAUTHORIZED);
+            return createResponse(null, ERROR_INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED);
         }
 
         // Verify user is a requester
         if (!authenticatedUser.getUserAccountType().equals(UserAccountType.REQUESTER)) {
-            return createResponse(null, "Only requesters can update contracts", HttpStatus.FORBIDDEN);
+            return createResponse(null, ERROR_ONLY_REQUESTERS_CAN_UPDATE, HttpStatus.FORBIDDEN);
         }
 
         // Get contract from service
@@ -378,7 +391,7 @@ public class ContractController {
         
         // Check if user is authorized to update the contract
         if (!contract.getRequester().getUserId().equals(userId)) {
-            return createResponse(null, "You are not authorized to update this contract", HttpStatus.FORBIDDEN);
+            return createResponse(null, ERROR_NOT_AUTHORIZED_TO_UPDATE, HttpStatus.FORBIDDEN);
         }
 
         // Validate required fields
@@ -478,12 +491,12 @@ public class ContractController {
         // Authenticate user
         User authenticatedUser = authorizationService.authenticateUser(userId, token);
         if (authenticatedUser == null) {
-            return createResponse(null, "Invalid credentials", HttpStatus.UNAUTHORIZED);
+            return createResponse(null, ERROR_INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED);
         }
 
         // Verify user is a requester
         if (!authenticatedUser.getUserAccountType().equals(UserAccountType.REQUESTER)) {
-            return createResponse(null, "Only requesters can cancel contracts", HttpStatus.FORBIDDEN);
+            return createResponse(null, ERROR_ONLY_REQUESTERS_CAN_CANCEL, HttpStatus.FORBIDDEN);
         }
 
         // Get contract from service
@@ -491,7 +504,7 @@ public class ContractController {
         
         // Check if user is authorized to cancel the contract
         if (!contract.getRequester().getUserId().equals(userId)) {
-            return createResponse(null, "You are not authorized to cancel this contract", HttpStatus.FORBIDDEN);
+            return createResponse(null, ERROR_NOT_AUTHORIZED_TO_CANCEL, HttpStatus.FORBIDDEN);
         }
 
         // Check contract status - only ACCEPTED contracts can be cancelled
@@ -527,7 +540,7 @@ public class ContractController {
         // Authenticate user
         User authenticatedUser = authorizationService.authenticateUser(userId, token);
         if (authenticatedUser == null) {
-            return createResponse(null, "Invalid credentials", HttpStatus.UNAUTHORIZED);
+            return createResponse(null, ERROR_INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED);
         }
 
         // Get contract from service
@@ -537,12 +550,12 @@ public class ContractController {
         if (authenticatedUser.getUserAccountType() == UserAccountType.REQUESTER) {
             // Only the requester who created the contract can fulfill it
             if (!contract.getRequester().getUserId().equals(userId)) {
-                return createResponse(null, "You are not authorized to fulfill this contract", HttpStatus.FORBIDDEN);
+                return createResponse(null, ERROR_NOT_AUTHORIZED_TO_FULFILL, HttpStatus.FORBIDDEN);
             }
         } else if (authenticatedUser.getUserAccountType() == UserAccountType.DRIVER) {
             // Only the driver assigned to the contract can fulfill it
             if (contract.getDriver() == null || !contract.getDriver().getUserId().equals(userId)) {
-                return createResponse(null, "You are not authorized to fulfill this contract", HttpStatus.FORBIDDEN);
+                return createResponse(null, ERROR_NOT_AUTHORIZED_TO_FULFILL, HttpStatus.FORBIDDEN);
             }
         } else {
             // Invalid user type
@@ -577,12 +590,12 @@ public class ContractController {
         // Authenticate user
         User authenticatedUser = authorizationService.authenticateUser(requestUserId, token);
         if (authenticatedUser == null) {
-            return createResponse(null, "Invalid credentials", HttpStatus.UNAUTHORIZED);
+            return createResponse(null, ERROR_INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED);
         }
 
         // Check if user is authorized to view these contracts
         if (!authenticatedUser.getUserId().equals(userId)) {
-            return createResponse(null, "You are not authorized to view these contracts", HttpStatus.FORBIDDEN);
+            return createResponse(null, ERROR_NOT_AUTHORIZED_TO_VIEW, HttpStatus.FORBIDDEN);
         }
         
         // Check if user is a Requester
@@ -624,7 +637,7 @@ public class ContractController {
         // Authenticate user
         User authenticatedUser = authorizationService.authenticateUser(userId, token);
         if (authenticatedUser == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, ERROR_INVALID_CREDENTIALS);
         }
 
         // Get contract from service
@@ -634,7 +647,7 @@ public class ContractController {
         if (authenticatedUser.getUserAccountType() == UserAccountType.REQUESTER) {
             // Only the requester who created the contract can delete it
             if (!contract.getRequester().getUserId().equals(userId)) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not authorized to delete this contract");
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, ERROR_NOT_AUTHORIZED_TO_DELETE);
             }
         } else {
             // Drivers cannot delete contracts
@@ -667,7 +680,7 @@ public class ContractController {
         // Authenticate user
         User authenticatedUser = authorizationService.authenticateUser(userId, token);
         if (authenticatedUser == null) {
-            return createResponse(null, "Invalid credentials", HttpStatus.UNAUTHORIZED);
+            return createResponse(null, ERROR_INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED);
         }
 
         // Get contract from service
@@ -682,12 +695,12 @@ public class ContractController {
         if (authenticatedUser.getUserAccountType() == UserAccountType.REQUESTER) {
             // Requesters can only view driver details for their own contracts
             if (!contract.getRequester().getUserId().equals(userId)) {
-                return createResponse(null, "You are not authorized to view driver details for this contract", HttpStatus.FORBIDDEN);
+                return createResponse(null, ERROR_NOT_AUTHORIZED_TO_VIEW_DRIVER, HttpStatus.FORBIDDEN);
             }
         } else if (authenticatedUser.getUserAccountType() == UserAccountType.DRIVER) {
             // Drivers can only view their own details
             if (contract.getDriver() == null || !contract.getDriver().getUserId().equals(userId)) {
-                return createResponse(null, "You are not authorized to view driver details for this contract", HttpStatus.FORBIDDEN);
+                return createResponse(null, ERROR_NOT_AUTHORIZED_TO_VIEW_DRIVER, HttpStatus.FORBIDDEN);
             }
         } else {
             // Invalid user type
