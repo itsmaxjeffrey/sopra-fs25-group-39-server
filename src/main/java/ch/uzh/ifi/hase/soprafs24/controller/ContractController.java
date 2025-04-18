@@ -43,6 +43,7 @@ import ch.uzh.ifi.hase.soprafs24.service.ContractPollingService;
 import ch.uzh.ifi.hase.soprafs24.service.ContractService;
 import ch.uzh.ifi.hase.soprafs24.service.LocationService;
 import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
+import ch.uzh.ifi.hase.soprafs24.rest.mapper.UserDTOMapper;
 
 @RestController
 public class ContractController {
@@ -52,18 +53,21 @@ public class ContractController {
     private final LocationService locationService;
     private final ContractPollingService contractPollingService;
     private final AuthorizationService authorizationService;
+    private final UserDTOMapper userDTOMapper;
 
     public ContractController(
             ContractService contractService, 
             LocationService locationService, 
             ContractPollingService contractPollingService, 
             UserRepository userRepository,
-            AuthorizationService authorizationService) {
+            AuthorizationService authorizationService,
+            UserDTOMapper userDTOMapper) {
         this.contractService = contractService;
         this.locationService = locationService;
         this.contractPollingService = contractPollingService;
         this.userRepository = userRepository;
         this.authorizationService = authorizationService;
+        this.userDTOMapper = userDTOMapper;
     }
 
     /**
@@ -688,5 +692,85 @@ public class ContractController {
 
         // If authorized, delete the contract
         contractService.deleteContract(contractId);
+    }
+
+    /**
+     * Get driver details for a specific contract
+     * 
+     * Example request:
+     * GET /api/v1/contracts/123/driver
+     * 
+     * @param contractId The ID of the contract
+     * @param userId User ID from header
+     * @param token Authentication token from header
+     * @return The driver details if authorized and driver is assigned
+     */
+    @GetMapping("/api/v1/contracts/{contractId}/driver")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public ResponseEntity<Object> getContractDriver(
+            @PathVariable Long contractId,
+            @RequestHeader("UserId") Long userId,
+            @RequestHeader("Authorization") String token) {
+        
+        // Authenticate user
+        User authenticatedUser = authorizationService.authenticateUser(userId, token);
+        if (authenticatedUser == null) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Invalid credentials");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
+
+        // Get contract from service
+        Contract contract;
+        try {
+            contract = contractService.getContractById(contractId);
+        } catch (ResponseStatusException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Contract not found");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+        
+        // Check if user is authorized to view the driver details
+        if (authenticatedUser.getUserAccountType() == UserAccountType.REQUESTER) {
+            // Requesters can only view driver details for their own contracts
+            if (!contract.getRequester().getUserId().equals(userId)) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "You are not authorized to view driver details for this contract");
+                response.put("timestamp", System.currentTimeMillis());
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            }
+        } else if (authenticatedUser.getUserAccountType() == UserAccountType.DRIVER) {
+            // Drivers can only view their own details
+            if (contract.getDriver() == null || !contract.getDriver().getUserId().equals(userId)) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "You are not authorized to view driver details for this contract");
+                response.put("timestamp", System.currentTimeMillis());
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+            }
+        } else {
+            // Invalid user type
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Invalid user account type");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+        }
+
+        // Check if driver is assigned
+        if (contract.getDriver() == null) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "No driver assigned to this contract");
+            response.put("timestamp", System.currentTimeMillis());
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+
+        // Create response with driver details
+        Map<String, Object> response = new HashMap<>();
+        response.put("driver", userDTOMapper.convertToDTO(contract.getDriver()));
+        response.put("timestamp", System.currentTimeMillis());
+        
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
