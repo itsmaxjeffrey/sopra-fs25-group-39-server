@@ -14,6 +14,9 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractCancelDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractPutDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractPostDTO;
 import ch.uzh.ifi.hase.soprafs24.security.authorization.service.AuthorizationService;
+import ch.uzh.ifi.hase.soprafs24.rest.mapper.UserDTOMapper;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.response.AuthenticatedUserDTO;
+import ch.uzh.ifi.hase.soprafs24.user.service.UserService;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,6 +38,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -65,6 +69,12 @@ public class ContractControllerTest {
 
     @MockBean
     private AuthorizationService authorizationService;
+
+    @MockBean
+    private UserDTOMapper userDTOMapper;
+
+    @MockBean
+    private UserService userService;
 
     private static final Long TEST_USER_ID = 1L;
     private static final String TEST_TOKEN = "test-token";
@@ -1031,6 +1041,44 @@ public class ContractControllerTest {
                 .header("Authorization", TEST_TOKEN)
                 .content(asJsonString(contractPostDTO)))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void getContractDriver_successfulAsRequester() throws Exception {
+        // Setup test data
+        Requester requester = new Requester();
+        requester.setUserId(1L);
+        requester.setUsername("requester");
+        requester.setToken("requester-token");
+        requester.setUserAccountType(UserAccountType.REQUESTER);
+
+        Driver driver = new Driver();
+        driver.setUserId(2L);
+        driver.setUsername("driver");
+        driver.setToken("driver-token");
+
+        Contract contract = new Contract();
+        contract.setContractId(1L);
+        contract.setRequester(requester);
+        contract.setDriver(driver);
+
+        AuthenticatedUserDTO driverDTO = new AuthenticatedUserDTO();
+        driverDTO.setUserId(2L);
+        driverDTO.setUsername("driver");
+
+        // Mock service responses
+        when(contractService.getContractById(1L)).thenReturn(contract);
+        when(authorizationService.authenticateUser(1L, "requester-token")).thenReturn(requester);
+        when(userDTOMapper.convertToDTO(driver)).thenReturn(driverDTO);
+
+        // Perform request
+        mockMvc.perform(get("/api/v1/contracts/1/driver")
+                .header("UserId", "1")
+                .header("Authorization", "requester-token"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.driver.userId").value(2L))
+                .andExpect(jsonPath("$.driver.username").value("driver"))
+                .andExpect(jsonPath("$.timestamp").exists());
     }
 
     /**

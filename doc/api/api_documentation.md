@@ -94,6 +94,7 @@ Common authentication error codes:
 | No ❌ | No ❌ | `/api/v1/contracts/{id}/collateral` | POST | `id <string>`, `collateralAmount <number>` | Path, Body | 200, 400, 403, 409 | Updated contract with collateral | Provide contract collateral | S21 | 
 | No ❌ | Yes ✅ | `/api/v1/users/{userId}/contracts` | GET | `userId <string>`, `status <string>` (optional) | Path, Query | 200 | List of contracts for a specific user| Get user's contracts with optional status filtering | S12 | 
 | No ❌ | Yes ✅ | `/api/v1/contracts/{id}` | DELETE | `id <string>` | Path | 204, 403, 409 | None | Delete a contract (soft delete) | S8 | 
+| No ❌ | Yes ✅ | `/api/v1/contracts/{id}/driver` | GET | `id <string>` | Path | 200, 403, 404 | Driver details object | Get driver details for a specific contract | S12 | 
 
 ### User Contracts Details
 The GET `/api/v1/users/{userId}/contracts` endpoint supports the following parameters:
