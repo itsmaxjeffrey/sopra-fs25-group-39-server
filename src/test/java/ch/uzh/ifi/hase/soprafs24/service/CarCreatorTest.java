@@ -62,7 +62,7 @@ class CarCreatorTest {
     }
 
     @Test
-    public void createCarFromDTO_success() {
+    void createCarFromDTO_success() {
         // when
         Car createdCar = carCreator.createCarFromDTO(testCarDTO);
 
@@ -82,7 +82,7 @@ class CarCreatorTest {
     }
 
     @Test
-    public void createCar_success() {
+    void createCar_success() {
         // when
         Car createdCar = carCreator.createCar(testCar);
 
@@ -101,7 +101,7 @@ class CarCreatorTest {
     }
 
     @Test
-    public void createCar_validationFailure_throwsException() {
+    void createCar_validationFailure_throwsException() {
         // given
         doThrow(new RuntimeException("Validation failed")).when(carValidator).validateCar(any(Car.class));
 

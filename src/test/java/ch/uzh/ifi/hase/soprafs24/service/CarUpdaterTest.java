@@ -76,7 +76,7 @@ class CarUpdaterTest {
     }
 
     @Test
-    public void updateAndSave_success() {
+    void updateAndSave_success() {
         // when
         Car result = carUpdater.updateAndSave(existingCar, carUpdates);
 
@@ -96,7 +96,7 @@ class CarUpdaterTest {
     }
 
     @Test
-    public void updateAndSave_validationFailure_throwsException() {
+    void updateAndSave_validationFailure_throwsException() {
         // given
         doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid car data"))
             .when(carValidator).validateCar(any(Car.class));
@@ -110,7 +110,7 @@ class CarUpdaterTest {
     }
 
     @Test
-    public void updateAndSave_nullUpdates_throwsException() {
+    void updateAndSave_nullUpdates_throwsException() {
         // when/then
         assertThrows(IllegalArgumentException.class, () -> carUpdater.updateAndSave(existingCar, null));
         verify(carDTOMapper, never()).convertCarDTOToEntity(any(CarDTO.class));
@@ -120,7 +120,7 @@ class CarUpdaterTest {
     }
 
     @Test
-    public void updateAndSave_partialUpdates_success() {
+    void updateAndSave_partialUpdates_success() {
         // Arrange
         CarDTO partialUpdates = new CarDTO();
         partialUpdates.setCarModel("Tesla Model 3");

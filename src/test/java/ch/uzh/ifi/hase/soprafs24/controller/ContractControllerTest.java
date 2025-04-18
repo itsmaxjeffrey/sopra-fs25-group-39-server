@@ -80,7 +80,7 @@ class ContractControllerTest {
     private static final String TEST_TOKEN = "test-token";
 
     @Test
-    public void getAllContracts_success() throws Exception {
+    void getAllContracts_success() throws Exception {
         // given
         Contract contract = new Contract();
         contract.setContractId(1L);
@@ -105,7 +105,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void getAllContracts_unauthorized() throws Exception {
+    void getAllContracts_unauthorized() throws Exception {
         // given
         given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(null);
 
@@ -120,7 +120,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void getContractById_success() throws Exception {
+    void getContractById_success() throws Exception {
         // given
         Contract contract = new Contract();
         contract.setContractId(1L);
@@ -153,7 +153,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void getContractById_requesterAccessOwnContract_success() throws Exception {
+    void getContractById_requesterAccessOwnContract_success() throws Exception {
         // given
         Contract contract = new Contract();
         contract.setContractId(1L);
@@ -186,7 +186,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void getContractById_requesterAccessOtherContract_throwsException() throws Exception {
+    void getContractById_requesterAccessOtherContract_throwsException() throws Exception {
         // given
         Contract contract = new Contract();
         contract.setContractId(1L);
@@ -217,7 +217,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void getContractById_driverAccessUnassignedContract_success() throws Exception {
+    void getContractById_driverAccessUnassignedContract_success() throws Exception {
         // given
         Contract contract = new Contract();
         contract.setContractId(1L);
@@ -248,7 +248,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void getContractById_driverAccessAssignedContract_success() throws Exception {
+    void getContractById_driverAccessAssignedContract_success() throws Exception {
         // given
         Contract contract = new Contract();
         contract.setContractId(1L);
@@ -282,7 +282,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void getContractById_driverAccessOtherDriverContract_throwsException() throws Exception {
+    void getContractById_driverAccessOtherDriverContract_throwsException() throws Exception {
         // given
         Contract contract = new Contract();
         contract.setContractId(1L);
@@ -313,7 +313,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void getContractById_driverAccessOfferedContract_success() throws Exception {
+    void getContractById_driverAccessOfferedContract_success() throws Exception {
         // given
         Contract contract = new Contract();
         contract.setContractId(1L);
@@ -345,7 +345,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void updateContract_success() throws Exception {
+    void updateContract_success() throws Exception {
         // given
         ContractPutDTO contractPutDTO = new ContractPutDTO();
         contractPutDTO.setTitle("Updated Contract");
@@ -390,7 +390,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void cancelContract_success() throws Exception {
+    void cancelContract_success() throws Exception {
         // given
         ContractCancelDTO contractCancelDTO = new ContractCancelDTO();
         contractCancelDTO.setReason("Test cancellation reason");
@@ -436,7 +436,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void cancelContract_badRequest_notAccepted() throws Exception {
+    void cancelContract_badRequest_notAccepted() throws Exception {
         // given
         ContractCancelDTO contractCancelDTO = new ContractCancelDTO();
         contractCancelDTO.setReason("Test cancellation reason");
@@ -472,7 +472,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void cancelContract_unauthorized() throws Exception {
+    void cancelContract_unauthorized() throws Exception {
         // given
         ContractCancelDTO contractCancelDTO = new ContractCancelDTO();
         contractCancelDTO.setReason("Test cancellation reason");
@@ -492,7 +492,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void cancelContract_forbidden_driver() throws Exception {
+    void cancelContract_forbidden_driver() throws Exception {
         // given
         ContractCancelDTO contractCancelDTO = new ContractCancelDTO();
         contractCancelDTO.setReason("Test cancellation reason");
@@ -517,7 +517,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void cancelContract_forbidden_otherRequester() throws Exception {
+    void cancelContract_forbidden_otherRequester() throws Exception {
         // given
         ContractCancelDTO contractCancelDTO = new ContractCancelDTO();
         contractCancelDTO.setReason("Test cancellation reason");
@@ -552,7 +552,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void cancelContract_badRequest_missingReason() throws Exception {
+    void cancelContract_badRequest_missingReason() throws Exception {
         // given
         ContractCancelDTO contractCancelDTO = new ContractCancelDTO();
         contractCancelDTO.setReason(""); // Empty reason
@@ -589,7 +589,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void fulfillContract_success_requester() throws Exception {
+    void fulfillContract_success_requester() throws Exception {
         // given
         Contract contract = new Contract();
         contract.setContractId(1L);
@@ -628,7 +628,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void fulfillContract_success_driver() throws Exception {
+    void fulfillContract_success_driver() throws Exception {
         // given
         Contract contract = new Contract();
         contract.setContractId(1L);
@@ -667,7 +667,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void fulfillContract_unauthorized() throws Exception {
+    void fulfillContract_unauthorized() throws Exception {
         // given
         given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(null);
 
@@ -682,7 +682,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void fulfillContract_forbidden_otherRequester() throws Exception {
+    void fulfillContract_forbidden_otherRequester() throws Exception {
         // given
         Contract contract = new Contract();
         contract.setContractId(1L);
@@ -712,7 +712,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void fulfillContract_forbidden_otherDriver() throws Exception {
+    void fulfillContract_forbidden_otherDriver() throws Exception {
         // given
         Contract contract = new Contract();
         contract.setContractId(1L);
@@ -742,7 +742,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void getUserContracts_success_requester() throws Exception {
+    void getUserContracts_success_requester() throws Exception {
         // given
         Contract contract = new Contract();
         contract.setContractId(1L);
@@ -776,7 +776,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void getUserContracts_success_driver() throws Exception {
+    void getUserContracts_success_driver() throws Exception {
         // given
         Contract contract = new Contract();
         contract.setContractId(1L);
@@ -816,7 +816,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void getUserContracts_unauthorized() throws Exception {
+    void getUserContracts_unauthorized() throws Exception {
         // given
         given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(null);
 
@@ -831,7 +831,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void getUserContracts_forbidden_otherUser() throws Exception {
+    void getUserContracts_forbidden_otherUser() throws Exception {
         // given
         User authenticatedUser = new User();
         authenticatedUser.setUserId(TEST_USER_ID);
@@ -849,7 +849,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void getUserContracts_userNotFound() throws Exception {
+    void getUserContracts_userNotFound() throws Exception {
         // given
         User authenticatedUser = new User();
         authenticatedUser.setUserId(TEST_USER_ID);
@@ -866,7 +866,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void getAllContracts_missingUserIdHeader_throwsException() throws Exception {
+    void getAllContracts_missingUserIdHeader_throwsException() throws Exception {
         // when/then
         mockMvc.perform(get("/api/v1/contracts")
                 .header("Authorization", TEST_TOKEN)
@@ -875,7 +875,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void getAllContracts_missingTokenHeader_throwsException() throws Exception {
+    void getAllContracts_missingTokenHeader_throwsException() throws Exception {
         // when/then
         mockMvc.perform(get("/api/v1/contracts")
                 .header("UserId", TEST_USER_ID)
@@ -884,7 +884,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void getAllContracts_invalidUserId_throwsException() throws Exception {
+    void getAllContracts_invalidUserId_throwsException() throws Exception {
         // given
         given(authorizationService.authenticateUser(999L, TEST_TOKEN)).willReturn(null);
 
@@ -899,7 +899,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void getAllContracts_invalidToken_throwsException() throws Exception {
+    void getAllContracts_invalidToken_throwsException() throws Exception {
         // given
         given(authorizationService.authenticateUser(TEST_USER_ID, "invalid-token")).willReturn(null);
 
@@ -914,7 +914,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void getAllContracts_tokenMismatch_throwsException() throws Exception {
+    void getAllContracts_tokenMismatch_throwsException() throws Exception {
         // given
         User user = new User();
         user.setUserId(TEST_USER_ID);
@@ -932,7 +932,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void getAllContracts_authenticatedUser_success() throws Exception {
+    void getAllContracts_authenticatedUser_success() throws Exception {
         // given
         Contract contract = new Contract();
         contract.setContractId(1L);
@@ -961,7 +961,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void createContract_unauthorized() throws Exception {
+    void createContract_unauthorized() throws Exception {
         // Setup test data
         ContractPostDTO contractPostDTO = new ContractPostDTO();
         contractPostDTO.setTitle("Test Contract");
@@ -981,7 +981,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void createContract_forbidden() throws Exception {
+    void createContract_forbidden() throws Exception {
         // Setup test data
         ContractPostDTO contractPostDTO = new ContractPostDTO();
         contractPostDTO.setTitle("Test Contract");
@@ -1004,7 +1004,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void createContract_missingHeaders() throws Exception {
+    void createContract_missingHeaders() throws Exception {
         // Setup test data
         ContractPostDTO contractPostDTO = new ContractPostDTO();
         contractPostDTO.setTitle("Test Contract");
@@ -1017,7 +1017,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void createContract_invalidData() throws Exception {
+    void createContract_invalidData() throws Exception {
         // Setup test data with invalid values
         ContractPostDTO contractPostDTO = new ContractPostDTO();
         contractPostDTO.setTitle(""); // Empty title
@@ -1044,7 +1044,7 @@ class ContractControllerTest {
     }
 
     @Test
-    public void getContractDriver_successfulAsRequester() throws Exception {
+    void getContractDriver_successfulAsRequester() throws Exception {
         // Setup test data
         Requester requester = new Requester();
         requester.setUserId(1L);
