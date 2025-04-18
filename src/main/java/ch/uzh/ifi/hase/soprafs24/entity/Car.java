@@ -11,10 +11,14 @@ import javax.persistence.Table;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Entity
 @Table(name = "CARS")
 @Getter @Setter
+@EqualsAndHashCode
+@ToString
 public class Car implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -22,7 +26,6 @@ public class Car implements Serializable {
     @Id
     @GeneratedValue
     private Long carId;
-
 
     @Column
     private String carModel;
@@ -44,6 +47,4 @@ public class Car implements Serializable {
 
     @OneToOne(mappedBy = "car")
     private Driver driver;
-
-
 }

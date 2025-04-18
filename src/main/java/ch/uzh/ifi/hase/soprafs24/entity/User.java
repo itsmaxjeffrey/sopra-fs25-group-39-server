@@ -23,6 +23,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
  * Internal User Representation
@@ -38,6 +40,8 @@ import lombok.Setter;
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "USERS")
 @Getter @Setter
+@EqualsAndHashCode
+@ToString
 public class User implements Serializable {
 
   private static final long serialVersionUID = 1L;
