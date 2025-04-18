@@ -1,36 +1,35 @@
 package ch.uzh.ifi.hase.soprafs24.service;
+
 import ch.uzh.ifi.hase.soprafs24.security.authentication.controller.AuthController;
 import ch.uzh.ifi.hase.soprafs24.security.authorization.service.AuthorizationService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestHeader;
-
 import ch.uzh.ifi.hase.soprafs24.entity.Rating;
 import ch.uzh.ifi.hase.soprafs24.repository.RatingRepository;
 
+/**
+ * Service class for handling rating-related operations.
+ * Provides methods for managing and retrieving ratings.
+ */
 @Service
 public class RatingService {
+    private final RatingRepository ratingRepository;
 
-    private final AuthorizationService authorizationService;
-
-    private final CarUpdater carUpdater;
-
-    private final AuthController authController;
-
-    @Autowired
-    private RatingRepository ratingRepository;
-
-    RatingService(AuthController authController, CarUpdater carUpdater, AuthorizationService authorizationService) {
-        this.authController = authController;
-        this.carUpdater = carUpdater;
-        this.authorizationService = authorizationService;
+    public RatingService(
+            AuthController authController, 
+            CarUpdater carUpdater, 
+            AuthorizationService authorizationService,
+            RatingRepository ratingRepository) {
+        this.ratingRepository = ratingRepository;
     }
     
+    /**
+     * Retrieves a rating by its ID.
+     * 
+     * @param ratingId The ID of the rating to retrieve
+     * @return The rating with the specified ID
+     * @throws IllegalArgumentException if ratingId is null or not positive
+     */
     public Rating getRatingById(Long ratingId) {
-        // Implement the logic to retrieve a rating by its ID
-        // This is just a placeholder implementation
-
-        //authorize 
         if (ratingId == null) {
             throw new IllegalArgumentException("Rating ID cannot be null");
         }

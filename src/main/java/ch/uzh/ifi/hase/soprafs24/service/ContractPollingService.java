@@ -6,16 +6,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.stereotype.Service;
 import ch.uzh.ifi.hase.soprafs24.entity.Contract;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractFilterDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.ContractDTOMapper;
 
-/*
+/**
  * ContractPollingService is responsible for handling long polling requests from drivers
  * who want to receive (almost) real-time updates about contracts based on filters. 
  * 
@@ -28,15 +25,11 @@ import ch.uzh.ifi.hase.soprafs24.rest.mapper.ContractDTOMapper;
  * are added to the system. The goal is to provide an efficient, real-time experience without overwhelming the backend 
  * with constant client polling.
  */
-
-
-@RestController
-@RequestMapping("/api/v1/map/proposals/realtime")
+@Service
 public class ContractPollingService {
-
-    @Autowired
+    private static final int POLLING_TIMEOUT_SECONDS = 180;
+    
     private final ContractService contractService;
-
     // A thread-safe list to hold waiting clients and their filters
     private final List<WaitingClient> waitingClients = new CopyOnWriteArrayList<>();
 
@@ -44,27 +37,33 @@ public class ContractPollingService {
         this.contractService = contractService;
     }
 
-    // Store all waiting Drivers and their filters 
+    /**
+     * Inner class to store waiting clients and their filters
+     */
     public static class WaitingClient {
-        public final CompletableFuture<List<ContractGetDTO>> future;
-        public final ContractFilterDTO filterDTO;
+        private final CompletableFuture<List<ContractGetDTO>> future;
+        private final ContractFilterDTO filterDTO;
 
         public WaitingClient(CompletableFuture<List<ContractGetDTO>> future, ContractFilterDTO filterDTO) {
             this.future = future;
             this.filterDTO = filterDTO;
         }
-
     }
 
-    public CompletableFuture<List<ContractGetDTO>> pollNewContracts( Double lat, Double lng, ContractFilterDTO filterDTO) {
-        
+    /**
+     * Poll for new contracts that match the given filters
+     * @param lat Latitude for location-based filtering
+     * @param lng Longitude for location-based filtering
+     * @param filterDTO Filter criteria for contracts
+     * @return CompletableFuture containing the list of matching contracts
+     */
+    public CompletableFuture<List<ContractGetDTO>> pollNewContracts(Double lat, Double lng, ContractFilterDTO filterDTO) {
         CompletableFuture<List<ContractGetDTO>> future = new CompletableFuture<>();
-
         WaitingClient client = new WaitingClient(future, filterDTO);
         waitingClients.add(client);
 
-        // Set Timout when Driver does not get an update for 3 minutes
-        CompletableFuture.delayedExecutor(180, TimeUnit.SECONDS).execute(() -> {
+        // Set timeout when Driver does not get an update for 3 minutes
+        CompletableFuture.delayedExecutor(POLLING_TIMEOUT_SECONDS, TimeUnit.SECONDS).execute(() -> {
             if (!future.isDone()) {
                 future.complete(List.of());
                 waitingClients.remove(client);
@@ -81,18 +80,20 @@ public class ContractPollingService {
                     .map(ContractDTOMapper.INSTANCE::convertContractEntityToContractGetDTO)
                     .collect(Collectors.toList())
             );
-        } else {
-            // If no contracts are found initially, do not complete the future immediately
-            // The connection will remain open until a matching contract is added
-            // We don't complete the future right now, and we'll rely on the update mechanism
         }
+        // If no contracts are found initially, the future will remain incomplete
+        // until a matching contract is added via updateFutures
 
         return future;
     }
 
-    // Method to update clients when new contracts are added
+    /**
+     * Update all waiting clients when a new contract is added
+     * @param contract The newly added contract
+     * @param lat Latitude for location-based filtering
+     * @param lng Longitude for location-based filtering
+     */
     public void updateFutures(Contract contract, Double lat, Double lng) {
-
         // For each waiting client, check if the new contract matches their filters
         List<ContractGetDTO> contractDTOs = waitingClients.stream()
             .map(client -> {
@@ -104,13 +105,10 @@ public class ContractPollingService {
             .flatMap(List::stream)
             .collect(Collectors.toList());
 
-        // Notify all waiting clients with the updated contract list and see if it matches their filters
+        // Notify all waiting clients with the updated contract list
         List<WaitingClient> clientsToNotify = new CopyOnWriteArrayList<>(waitingClients);
-
-        // Complete all futures of drivers that were "interested" in newly added contract
         for (WaitingClient client : clientsToNotify) {
             client.future.complete(contractDTOs);
         }
     }
-
 }
