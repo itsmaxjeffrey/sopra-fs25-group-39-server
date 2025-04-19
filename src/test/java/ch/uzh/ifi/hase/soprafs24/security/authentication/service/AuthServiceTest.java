@@ -20,7 +20,7 @@ import ch.uzh.ifi.hase.soprafs24.security.authentication.dto.request.BaseUserLog
 import ch.uzh.ifi.hase.soprafs24.security.authorization.service.AuthorizationService;
 import ch.uzh.ifi.hase.soprafs24.security.registration.service.TokenService;
 
-public class AuthServiceTest {
+class AuthServiceTest {
 
     @Mock
     private UserRepository userRepository;
@@ -38,7 +38,7 @@ public class AuthServiceTest {
     private BaseUserLoginDTO testLoginDTO;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         MockitoAnnotations.openMocks(this);
         
         // Create test user
@@ -54,7 +54,7 @@ public class AuthServiceTest {
     }
 
     @Test
-    public void loginUser_success() {
+    void loginUser_success() {
         // given
         when(userRepository.findByUsername(any())).thenReturn(Optional.of(testUser));
         when(tokenService.generateToken()).thenReturn("new-token");
@@ -70,7 +70,7 @@ public class AuthServiceTest {
     }
 
     @Test
-    public void loginUser_userNotFound() {
+    void loginUser_userNotFound() {
         // given
         when(userRepository.findByUsername(any())).thenReturn(Optional.empty());
 
@@ -81,7 +81,7 @@ public class AuthServiceTest {
     }
 
     @Test
-    public void loginUser_wrongPassword() {
+    void loginUser_wrongPassword() {
         // given
         when(userRepository.findByUsername(any())).thenReturn(Optional.of(testUser));
         testLoginDTO.setPassword("wrong-password");
@@ -93,7 +93,7 @@ public class AuthServiceTest {
     }
 
     @Test
-    public void logoutUser_success() {
+    void logoutUser_success() {
         // given
         when(authorizationService.authenticateUser(any(), any())).thenReturn(testUser);
         when(userRepository.save(any())).thenReturn(testUser);
@@ -107,7 +107,7 @@ public class AuthServiceTest {
     }
 
     @Test
-    public void logoutUser_invalidToken() {
+    void logoutUser_invalidToken() {
         // given
         when(authorizationService.authenticateUser(any(), any())).thenReturn(null);
 

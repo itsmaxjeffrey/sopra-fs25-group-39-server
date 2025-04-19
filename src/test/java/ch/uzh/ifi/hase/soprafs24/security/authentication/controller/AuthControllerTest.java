@@ -24,7 +24,7 @@ import ch.uzh.ifi.hase.soprafs24.user.mapper.UserDTOMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(AuthController.class)
-public class AuthControllerTest {
+class AuthControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -42,7 +42,7 @@ public class AuthControllerTest {
     private BaseUserLoginDTO testLoginDTO;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         // Create test user
         testUser = new User();
         testUser.setUsername("testuser");
@@ -56,7 +56,7 @@ public class AuthControllerTest {
     }
 
     @Test
-    public void loginUser_success() throws Exception {
+    void loginUser_success() throws Exception {
         // given
         when(authService.loginUser(any())).thenReturn(testUser);
         when(userDTOMapper.convertToDTO(any())).thenReturn(new AuthenticatedUserDTO());
@@ -69,7 +69,7 @@ public class AuthControllerTest {
     }
 
     @Test
-    public void logoutUser_success() throws Exception {
+    void logoutUser_success() throws Exception {
         // given
         Mockito.doNothing().when(authService).logoutUser(any(), any());
 
@@ -82,7 +82,7 @@ public class AuthControllerTest {
     }
 
     @Test
-    public void logoutUser_missingHeaders_unauthorized() throws Exception {
+    void logoutUser_missingHeaders_unauthorized() throws Exception {
         // when/then
         mockMvc.perform(post("/api/v1/auth/logout"))
                 .andExpect(status().isBadRequest());

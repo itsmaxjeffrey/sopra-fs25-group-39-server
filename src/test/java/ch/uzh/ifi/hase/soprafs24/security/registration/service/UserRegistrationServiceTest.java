@@ -22,7 +22,7 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
 import ch.uzh.ifi.hase.soprafs24.security.registration.dto.DriverRegisterDTO;
 import ch.uzh.ifi.hase.soprafs24.security.registration.dto.RequesterRegisterDTO;
 
-public class UserRegistrationServiceTest {
+class UserRegistrationServiceTest {
 
     @Mock
     private UserRepository userRepository;
@@ -47,7 +47,7 @@ public class UserRegistrationServiceTest {
     private Requester testRequester;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         MockitoAnnotations.openMocks(this);
         
         // Create test driver
@@ -80,7 +80,7 @@ public class UserRegistrationServiceTest {
     }
 
     @Test
-    public void registerDriver_success() {
+    void registerDriver_success() {
         // given
         when(userRepository.existsByUsername(any())).thenReturn(false);
         when(userRepository.existsByEmail(any())).thenReturn(false);
@@ -100,7 +100,7 @@ public class UserRegistrationServiceTest {
     }
 
     @Test
-    public void registerRequester_success() {
+    void registerRequester_success() {
         // given
         when(userRepository.existsByUsername(any())).thenReturn(false);
         when(userRepository.existsByEmail(any())).thenReturn(false);
@@ -120,7 +120,7 @@ public class UserRegistrationServiceTest {
     }
 
     @Test
-    public void registerUser_nullUserData() {
+    void registerUser_nullUserData() {
         // when/then
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
             () -> userRegistrationService.registerUser(null, null, null));
@@ -128,7 +128,7 @@ public class UserRegistrationServiceTest {
     }
 
     @Test
-    public void registerUser_missingAccountType() {
+    void registerUser_missingAccountType() {
         // given
         driverRegisterDTO.setUserAccountType(null);
 
@@ -139,7 +139,7 @@ public class UserRegistrationServiceTest {
     }
 
     @Test
-    public void registerUser_duplicateUsername() {
+    void registerUser_duplicateUsername() {
         // given
         when(userRepository.existsByUsername(any())).thenReturn(true);
 
@@ -150,7 +150,7 @@ public class UserRegistrationServiceTest {
     }
 
     @Test
-    public void registerUser_duplicateEmail() {
+    void registerUser_duplicateEmail() {
         // given
         when(userRepository.existsByUsername(any())).thenReturn(false);
         when(userRepository.existsByEmail(any())).thenReturn(true);
@@ -162,7 +162,7 @@ public class UserRegistrationServiceTest {
     }
 
     @Test
-    public void registerUser_duplicatePhoneNumber() {
+    void registerUser_duplicatePhoneNumber() {
         // given
         when(userRepository.existsByUsername(any())).thenReturn(false);
         when(userRepository.existsByEmail(any())).thenReturn(false);

@@ -23,7 +23,7 @@ import ch.uzh.ifi.hase.soprafs24.user.dto.request.update.DriverUpdateDTO;
 import ch.uzh.ifi.hase.soprafs24.user.dto.request.update.RequesterUpdateDTO;
 import ch.uzh.ifi.hase.soprafs24.user.mapper.UserUpdateDTOMapper;
 
-public class UserServiceTest {
+class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
@@ -52,7 +52,7 @@ public class UserServiceTest {
     private BaseUserUpdateDTO testUpdateDTO;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         MockitoAnnotations.openMocks(this);
         
         // Create test user
@@ -80,7 +80,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void getUser_success() {
+    void getUser_success() {
         // given
         when(authorizationService.authenticateUser(1L, "valid-token")).thenReturn(testUser);
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
@@ -95,7 +95,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void getUser_unauthorized() {
+    void getUser_unauthorized() {
         // given
         when(authorizationService.authenticateUser(1L, "invalid-token")).thenReturn(null);
 
@@ -105,7 +105,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void getUser_notFound() {
+    void getUser_notFound() {
         // given
         when(authorizationService.authenticateUser(1L, "valid-token")).thenReturn(testUser);
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
@@ -116,7 +116,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void editUser_driver_success() {
+    void editUser_driver_success() {
         // given
         DriverUpdateDTO driverUpdateDTO = new DriverUpdateDTO();
         driverUpdateDTO.setUserAccountType(UserAccountType.DRIVER);
@@ -139,7 +139,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void editUser_requester_success() {
+    void editUser_requester_success() {
         // given
         RequesterUpdateDTO requesterUpdateDTO = new RequesterUpdateDTO();
         requesterUpdateDTO.setUserAccountType(UserAccountType.REQUESTER);
@@ -162,7 +162,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void deleteUser_success() {
+    void deleteUser_success() {
         // given
         when(authorizationService.authenticateUser(1L, "valid-token")).thenReturn(testUser);
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
@@ -176,7 +176,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void deleteUser_unauthorized() {
+    void deleteUser_unauthorized() {
         // given
         when(authorizationService.authenticateUser(1L, "invalid-token")).thenReturn(null);
 
@@ -186,7 +186,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void deleteUser_notFound() {
+    void deleteUser_notFound() {
         // given
         when(authorizationService.authenticateUser(1L, "valid-token")).thenReturn(null);
 

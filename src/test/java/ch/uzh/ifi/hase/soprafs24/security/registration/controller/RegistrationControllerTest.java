@@ -23,7 +23,7 @@ import ch.uzh.ifi.hase.soprafs24.user.mapper.UserDTOMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(RegistrationController.class)
-public class RegistrationControllerTest {
+class RegistrationControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -38,7 +38,7 @@ public class RegistrationControllerTest {
     private UserRegistrationRequestDTO testRequestDTO;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         // Create test user
         testUser = new User();
         testUser.setUsername("testuser");
@@ -54,7 +54,7 @@ public class RegistrationControllerTest {
     }
 
     @Test
-    public void registerUser_success() throws Exception {
+    void registerUser_success() throws Exception {
         // given
         when(userRegistrationService.registerUser(any(), any(), any())).thenReturn(testUser);
         when(userDTOMapper.convertToDTO(any())).thenReturn(new AuthenticatedUserDTO());
@@ -67,7 +67,7 @@ public class RegistrationControllerTest {
     }
 
     @Test
-    public void registerUser_missingUserData() throws Exception {
+    void registerUser_missingUserData() throws Exception {
         // given
         testRequestDTO.setUser(null);
 

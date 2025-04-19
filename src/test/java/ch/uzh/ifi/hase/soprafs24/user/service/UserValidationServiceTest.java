@@ -19,7 +19,7 @@ import ch.uzh.ifi.hase.soprafs24.user.dto.request.update.BaseUserUpdateDTO;
 import ch.uzh.ifi.hase.soprafs24.user.dto.request.update.DriverUpdateDTO;
 import ch.uzh.ifi.hase.soprafs24.user.dto.request.update.RequesterUpdateDTO;
 
-public class UserValidationServiceTest {
+class UserValidationServiceTest {
 
     @Mock
     private UserRepository userRepository;
@@ -31,7 +31,7 @@ public class UserValidationServiceTest {
     private BaseUserUpdateDTO testUpdateDTO;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         MockitoAnnotations.openMocks(this);
         
         // Create test user
@@ -51,7 +51,7 @@ public class UserValidationServiceTest {
     }
 
     @Test
-    public void validateUniqueFields_noConflicts_success() {
+    void validateUniqueFields_noConflicts_success() {
         // given
         when(userRepository.existsByUsernameAndUserIdNot(any(), any())).thenReturn(false);
         when(userRepository.existsByEmailAndUserIdNot(any(), any())).thenReturn(false);
@@ -63,7 +63,7 @@ public class UserValidationServiceTest {
     }
 
     @Test
-    public void validateUniqueFields_duplicateUsername() {
+    void validateUniqueFields_duplicateUsername() {
         // given
         when(userRepository.existsByUsernameAndUserIdNot(any(), any())).thenReturn(true);
 
@@ -75,7 +75,7 @@ public class UserValidationServiceTest {
     }
 
     @Test
-    public void validateUniqueFields_duplicateEmail() {
+    void validateUniqueFields_duplicateEmail() {
         // given
         when(userRepository.existsByUsernameAndUserIdNot(any(), any())).thenReturn(false);
         when(userRepository.existsByEmailAndUserIdNot(any(), any())).thenReturn(true);
@@ -88,7 +88,7 @@ public class UserValidationServiceTest {
     }
 
     @Test
-    public void validateUniqueFields_duplicatePhoneNumber() {
+    void validateUniqueFields_duplicatePhoneNumber() {
         // given
         when(userRepository.existsByUsernameAndUserIdNot(any(), any())).thenReturn(false);
         when(userRepository.existsByEmailAndUserIdNot(any(), any())).thenReturn(false);
@@ -102,7 +102,7 @@ public class UserValidationServiceTest {
     }
 
     @Test
-    public void validateUserAccountType_sameType_success() {
+    void validateUserAccountType_sameType_success() {
         // given
         DriverUpdateDTO driverUpdateDTO = new DriverUpdateDTO();
         driverUpdateDTO.setUserAccountType(UserAccountType.DRIVER);
@@ -113,7 +113,7 @@ public class UserValidationServiceTest {
     }
 
     @Test
-    public void validateUserAccountType_differentType() {
+    void validateUserAccountType_differentType() {
         // given
         RequesterUpdateDTO requesterUpdateDTO = new RequesterUpdateDTO();
         requesterUpdateDTO.setUserAccountType(UserAccountType.REQUESTER);
@@ -126,7 +126,7 @@ public class UserValidationServiceTest {
     }
 
     @Test
-    public void validateEditPermission_sameUser_success() {
+    void validateEditPermission_sameUser_success() {
         // given
         testUpdateDTO.setUserId(1L);
 
@@ -136,7 +136,7 @@ public class UserValidationServiceTest {
     }
 
     @Test
-    public void validateEditPermission_differentUser() {
+    void validateEditPermission_differentUser() {
         // given
         testUpdateDTO.setUserId(2L);
 

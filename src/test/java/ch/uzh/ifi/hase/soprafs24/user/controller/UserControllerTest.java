@@ -30,7 +30,7 @@ import ch.uzh.ifi.hase.soprafs24.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(UserController.class)
-public class UserControllerTest {
+class UserControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -53,7 +53,7 @@ public class UserControllerTest {
     private PublicUserDTO testPublicDTO;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         // Create test user
         testUser = new User();
         testUser.setUserId(1L);
@@ -75,7 +75,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void getUserById_ownProfile_success() throws Exception {
+    void getUserById_ownProfile_success() throws Exception {
         // given
         when(userService.getUserById(1L, "valid-token", 1L)).thenReturn(testUser);
         when(userDTOMapper.convertToDTO(any(User.class))).thenReturn(testAuthDTO);
@@ -90,7 +90,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void getUserById_otherProfile_success() throws Exception {
+    void getUserById_otherProfile_success() throws Exception {
         // given
         when(userService.getUserById(1L, "valid-token", 2L)).thenReturn(testUser);
         when(publicUserDTOMapper.convertToPublicUserDTO(any(User.class))).thenReturn(testPublicDTO);
@@ -105,7 +105,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void getUserById_unauthorized() throws Exception {
+    void getUserById_unauthorized() throws Exception {
         // given
         when(userService.getUserById(1L, "invalid-token", 1L))
             .thenThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized"));
@@ -119,7 +119,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void updateUser_success() throws Exception {
+    void updateUser_success() throws Exception {
         // given
         when(userService.editUser(eq(1L), eq("valid-token"), any(BaseUserUpdateDTO.class))).thenReturn(testUser);
         when(userDTOMapper.convertToDTO(any(User.class))).thenReturn(testAuthDTO);
@@ -135,7 +135,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void updateUser_unauthorized() throws Exception {
+    void updateUser_unauthorized() throws Exception {
         // given
         when(userService.editUser(eq(1L), eq("invalid-token"), any(BaseUserUpdateDTO.class)))
             .thenThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized"));
@@ -150,7 +150,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void deleteUser_success() throws Exception {
+    void deleteUser_success() throws Exception {
         // given
         doNothing().when(userService).deleteUser(1L, "valid-token");
 
@@ -161,7 +161,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void deleteUser_unauthorized() throws Exception {
+    void deleteUser_unauthorized() throws Exception {
         // given
         doThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized"))
             .when(userService).deleteUser(1L, "invalid-token");

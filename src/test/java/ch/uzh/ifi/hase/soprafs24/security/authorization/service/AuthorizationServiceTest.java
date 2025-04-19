@@ -16,7 +16,7 @@ import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 
-public class AuthorizationServiceTest {
+class AuthorizationServiceTest {
 
     @Mock
     private UserRepository userRepository;
@@ -27,7 +27,7 @@ public class AuthorizationServiceTest {
     private User testUser;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         MockitoAnnotations.openMocks(this);
         
         // Create test user
@@ -38,7 +38,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void authenticateUser_success() {
+    void authenticateUser_success() {
         // given
         when(userRepository.findById(any())).thenReturn(Optional.of(testUser));
 
@@ -51,7 +51,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void authenticateUser_nullToken() {
+    void authenticateUser_nullToken() {
         // when
         User result = authorizationService.authenticateUser(1L, null);
 
@@ -60,7 +60,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void authenticateUser_emptyToken() {
+    void authenticateUser_emptyToken() {
         // when
         User result = authorizationService.authenticateUser(1L, "");
 
@@ -69,7 +69,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void authenticateUser_userNotFound() {
+    void authenticateUser_userNotFound() {
         // given
         when(userRepository.findById(any())).thenReturn(Optional.empty());
 
@@ -81,7 +81,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void authenticateUser_invalidToken() {
+    void authenticateUser_invalidToken() {
         // given
         when(userRepository.findById(any())).thenReturn(Optional.of(testUser));
 
@@ -93,7 +93,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void authorizeUser_success() {
+    void authorizeUser_success() {
         // given
         when(userRepository.findById(any())).thenReturn(Optional.of(testUser));
 
@@ -105,7 +105,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void authorizeUser_wrongAccountType() {
+    void authorizeUser_wrongAccountType() {
         // given
         when(userRepository.findById(any())).thenReturn(Optional.of(testUser));
 
@@ -117,7 +117,7 @@ public class AuthorizationServiceTest {
     }
 
     @Test
-    public void authorizeUser_invalidToken() {
+    void authorizeUser_invalidToken() {
         // given
         when(userRepository.findById(any())).thenReturn(Optional.of(testUser));
 
