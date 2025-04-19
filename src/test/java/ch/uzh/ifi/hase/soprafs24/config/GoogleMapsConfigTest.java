@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.config;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,10 +26,15 @@ class GoogleMapsConfigTest {
     private GoogleMapsConfig googleMapsConfig;
     private static final String VALID_API_KEY = "valid-api-key-that-is-long-enough";
     private static final String SHORT_API_KEY = "too-short";
+    private String originalEnvValue;
 
     @BeforeEach
     void setup() {
         googleMapsConfig = new GoogleMapsConfig(environment);
+        // Store original environment variable value
+        originalEnvValue = System.getenv(GoogleMapsConfig.GOOGLE_MAPS_API_KEY_NAME);
+        // Clear the environment variable for testing
+        System.clearProperty(GoogleMapsConfig.GOOGLE_MAPS_API_KEY_NAME);
     }
 
     @Test
@@ -39,9 +45,6 @@ class GoogleMapsConfigTest {
         String apiKey = googleMapsConfig.googleMapsApiKey();
         assertNotNull(apiKey);
         assertEquals(VALID_API_KEY, apiKey);
-        
-        // Clean up
-        System.clearProperty(GoogleMapsConfig.GOOGLE_MAPS_API_KEY_NAME);
     }
 
     @Test
@@ -137,6 +140,16 @@ class GoogleMapsConfigTest {
             assertThrows(IllegalStateException.class, () -> {
                 googleMapsConfig.googleMapsApiKey();
             });
+        }
+    }
+
+    @AfterEach
+    void cleanup() {
+        // Restore original environment variable value
+        if (originalEnvValue != null) {
+            System.setProperty(GoogleMapsConfig.GOOGLE_MAPS_API_KEY_NAME, originalEnvValue);
+        } else {
+            System.clearProperty(GoogleMapsConfig.GOOGLE_MAPS_API_KEY_NAME);
         }
     }
 } 
