@@ -26,27 +26,19 @@ class GoogleMapsConfigTest {
     private GoogleMapsConfig googleMapsConfig;
     private static final String VALID_API_KEY = "valid-api-key-that-is-long-enough";
     private static final String SHORT_API_KEY = "too-short";
-    private String originalEnvValue;
-    private String originalPropertyValue;
+    private MockedStatic<PropertiesLoaderUtils> propertiesLoaderUtilsMock;
 
     @BeforeEach
     void setup() {
         googleMapsConfig = new GoogleMapsConfig(environment);
-        // Store original values
-        originalEnvValue = System.getenv(GoogleMapsConfig.GOOGLE_MAPS_API_KEY_NAME);
-        originalPropertyValue = System.getProperty(GoogleMapsConfig.GOOGLE_MAPS_API_KEY_NAME);
-        
-        // Clear both environment variable and system property for testing
-        System.clearProperty(GoogleMapsConfig.GOOGLE_MAPS_API_KEY_NAME);
-        if (originalEnvValue != null) {
-            System.clearProperty(GoogleMapsConfig.GOOGLE_MAPS_API_KEY_NAME);
-        }
+        propertiesLoaderUtilsMock = mockStatic(PropertiesLoaderUtils.class);
     }
 
     @Test
     void testApiKeyFromEnvironmentVariable() {
-        // Set up environment variable
-        System.setProperty(GoogleMapsConfig.GOOGLE_MAPS_API_KEY_NAME, VALID_API_KEY);
+        // Mock environment to return API key
+        when(environment.getProperty(GoogleMapsConfig.GOOGLE_MAPS_API_KEY_NAME))
+            .thenReturn(VALID_API_KEY);
         
         String apiKey = googleMapsConfig.googleMapsApiKey();
         assertNotNull(apiKey);
@@ -66,7 +58,7 @@ class GoogleMapsConfigTest {
 
     @Test
     void testApiKeyFromEnvLocalFile() throws IOException {
-        // Mock environment to return null first
+        // Mock environment to return null
         when(environment.getProperty(GoogleMapsConfig.GOOGLE_MAPS_API_KEY_NAME))
             .thenReturn(null);
         
@@ -75,14 +67,12 @@ class GoogleMapsConfigTest {
         props.setProperty(GoogleMapsConfig.GOOGLE_MAPS_API_KEY_NAME, VALID_API_KEY);
         
         // Mock the static method
-        try (MockedStatic<PropertiesLoaderUtils> utilities = mockStatic(PropertiesLoaderUtils.class)) {
-            utilities.when(() -> PropertiesLoaderUtils.loadProperties(any(ClassPathResource.class)))
-                    .thenReturn(props);
-            
-            String apiKey = googleMapsConfig.googleMapsApiKey();
-            assertNotNull(apiKey);
-            assertEquals(VALID_API_KEY, apiKey);
-        }
+        propertiesLoaderUtilsMock.when(() -> PropertiesLoaderUtils.loadProperties(any(ClassPathResource.class)))
+                .thenReturn(props);
+        
+        String apiKey = googleMapsConfig.googleMapsApiKey();
+        assertNotNull(apiKey);
+        assertEquals(VALID_API_KEY, apiKey);
     }
 
     @Test
@@ -91,6 +81,10 @@ class GoogleMapsConfigTest {
         when(environment.getProperty(GoogleMapsConfig.GOOGLE_MAPS_API_KEY_NAME))
             .thenReturn(null);
         
+        // Mock PropertiesLoaderUtils to return empty properties
+        propertiesLoaderUtilsMock.when(() -> PropertiesLoaderUtils.loadProperties(any(ClassPathResource.class)))
+                .thenReturn(new Properties());
+        
         assertThrows(IllegalStateException.class, () -> {
             googleMapsConfig.googleMapsApiKey();
         });
@@ -98,7 +92,7 @@ class GoogleMapsConfigTest {
 
     @Test
     void testApiKeyTooShort() {
-        // Mock environment to return a short API key
+        // Mock environment to return short API key
         when(environment.getProperty(GoogleMapsConfig.GOOGLE_MAPS_API_KEY_NAME))
             .thenReturn(SHORT_API_KEY);
         
@@ -120,9 +114,14 @@ class GoogleMapsConfigTest {
 
     @Test
     void testApiKeyNull() {
-        // Mock environment to return null
+        // Mock environment to return null for all possible ways to get the API key
         when(environment.getProperty(GoogleMapsConfig.GOOGLE_MAPS_API_KEY_NAME))
             .thenReturn(null);
+        
+        // Mock PropertiesLoaderUtils to return empty properties
+        Properties emptyProps = new Properties();
+        propertiesLoaderUtilsMock.when(() -> PropertiesLoaderUtils.loadProperties(any(ClassPathResource.class)))
+                .thenReturn(emptyProps);
         
         assertThrows(IllegalStateException.class, () -> {
             googleMapsConfig.googleMapsApiKey();
@@ -136,29 +135,16 @@ class GoogleMapsConfigTest {
             .thenReturn(null);
         
         // Mock the static method to throw IOException
-        try (MockedStatic<PropertiesLoaderUtils> utilities = mockStatic(PropertiesLoaderUtils.class)) {
-            utilities.when(() -> PropertiesLoaderUtils.loadProperties(any(ClassPathResource.class)))
-                    .thenThrow(new IOException("Test exception"));
-            
-            assertThrows(IllegalStateException.class, () -> {
-                googleMapsConfig.googleMapsApiKey();
-            });
-        }
+        propertiesLoaderUtilsMock.when(() -> PropertiesLoaderUtils.loadProperties(any(ClassPathResource.class)))
+                .thenThrow(new IOException("Test exception"));
+        
+        assertThrows(IllegalStateException.class, () -> {
+            googleMapsConfig.googleMapsApiKey();
+        });
     }
 
     @AfterEach
     void cleanup() {
-        // Restore original values
-        if (originalPropertyValue != null) {
-            System.setProperty(GoogleMapsConfig.GOOGLE_MAPS_API_KEY_NAME, originalPropertyValue);
-        } else {
-            System.clearProperty(GoogleMapsConfig.GOOGLE_MAPS_API_KEY_NAME);
-        }
-        
-        if (originalEnvValue != null) {
-            System.setProperty(GoogleMapsConfig.GOOGLE_MAPS_API_KEY_NAME, originalEnvValue);
-        } else {
-            System.clearProperty(GoogleMapsConfig.GOOGLE_MAPS_API_KEY_NAME);
-        }
+        propertiesLoaderUtilsMock.close();
     }
 } 
