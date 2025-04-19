@@ -12,7 +12,6 @@ import ch.uzh.ifi.hase.soprafs24.security.authorization.service.AuthorizationSer
 import ch.uzh.ifi.hase.soprafs24.user.dto.request.update.BaseUserUpdateDTO;
 import ch.uzh.ifi.hase.soprafs24.user.dto.request.update.DriverUpdateDTO;
 import ch.uzh.ifi.hase.soprafs24.user.dto.request.update.RequesterUpdateDTO;
-import ch.uzh.ifi.hase.soprafs24.user.mapper.UserUpdateDTOMapper;
 
 /**
  * Main service for user operations
@@ -28,7 +27,6 @@ public class UserService extends AbstractUserService {
     public UserService(
             UserRepository userRepository, 
             AuthorizationService authorizationService,
-            UserUpdateDTOMapper userUpdateDTOMapper,
             UserValidationService validationService,
             DriverService driverService,
             RequesterService requesterService) {

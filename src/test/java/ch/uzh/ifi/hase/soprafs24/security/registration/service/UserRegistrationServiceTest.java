@@ -105,7 +105,7 @@ class UserRegistrationServiceTest {
         when(userRepository.existsByUsername(any())).thenReturn(false);
         when(userRepository.existsByEmail(any())).thenReturn(false);
         when(userRepository.existsByPhoneNumber(any())).thenReturn(false);
-        when(requesterRegistrationService.registerRequester(any())).thenReturn(testRequester);
+        when(requesterRegistrationService.registerRequester()).thenReturn(testRequester);
         when(tokenService.generateToken()).thenReturn("test-token");
         when(userRepository.save(any())).thenReturn(testRequester);
 

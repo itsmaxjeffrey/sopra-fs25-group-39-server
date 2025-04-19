@@ -34,13 +34,11 @@ public class UserValidationService {
      * Validates username uniqueness
      */
     private void validateUniqueUsername(BaseUserUpdateDTO updates, User existingUser) {
-        if (updates.getUsername() != null && !updates.getUsername().isEmpty() && 
-            !updates.getUsername().equals(existingUser.getUsername())) {
-            
-            // This should check if any OTHER user has this username
-            if (userRepository.existsByUsernameAndUserIdNot(updates.getUsername(), existingUser.getUserId())) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "Username is already taken");
-            }
+        if (updates.getUsername() != null && 
+            !updates.getUsername().isEmpty() && 
+            !updates.getUsername().equals(existingUser.getUsername()) &&
+            userRepository.existsByUsernameAndUserIdNot(updates.getUsername(), existingUser.getUserId())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username is already taken");
         }
     }
     
@@ -48,13 +46,11 @@ public class UserValidationService {
      * Validates email uniqueness
      */
     private void validateUniqueEmail(BaseUserUpdateDTO updates, User existingUser) {
-        if (updates.getEmail() != null && !updates.getEmail().isEmpty() && 
-            !updates.getEmail().equals(existingUser.getEmail())) {
-            
-            // This should check if any OTHER user has this email
-            if (userRepository.existsByEmailAndUserIdNot(updates.getEmail(), existingUser.getUserId())) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "Email is already taken");
-            }
+        if (updates.getEmail() != null && 
+            !updates.getEmail().isEmpty() && 
+            !updates.getEmail().equals(existingUser.getEmail()) &&
+            userRepository.existsByEmailAndUserIdNot(updates.getEmail(), existingUser.getUserId())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email is already taken");
         }
     }
     
@@ -62,13 +58,11 @@ public class UserValidationService {
      * Validates phone number uniqueness
      */
     private void validateUniquePhoneNumber(BaseUserUpdateDTO updates, User existingUser) {
-        if (updates.getPhoneNumber() != null && !updates.getPhoneNumber().isEmpty() && 
-            !updates.getPhoneNumber().equals(existingUser.getPhoneNumber())) {
-            
-            // This should check if any OTHER user has this phone number
-            if (userRepository.existsByPhoneNumberAndUserIdNot(updates.getPhoneNumber(), existingUser.getUserId())) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "Phone number is already taken");
-            }
+        if (updates.getPhoneNumber() != null && 
+            !updates.getPhoneNumber().isEmpty() && 
+            !updates.getPhoneNumber().equals(existingUser.getPhoneNumber()) &&
+            userRepository.existsByPhoneNumberAndUserIdNot(updates.getPhoneNumber(), existingUser.getUserId())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Phone number is already taken");
         }
     }
     

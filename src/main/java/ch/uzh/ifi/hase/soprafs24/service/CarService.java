@@ -9,7 +9,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Car;
 import ch.uzh.ifi.hase.soprafs24.repository.CarRepository;
-import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.CarDTO;
 
 @Service
@@ -23,7 +22,6 @@ public class CarService {
     private final CarUpdater carUpdater;
     
     public CarService(CarRepository carRepository,
-                      UserRepository userRepository,
                       CarCreator carCreator,
                       CarUpdater carUpdater) {
         this.carRepository = carRepository;
