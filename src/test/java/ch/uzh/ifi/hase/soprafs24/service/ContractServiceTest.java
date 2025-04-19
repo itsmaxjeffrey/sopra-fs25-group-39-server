@@ -28,7 +28,10 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 class ContractServiceTest {
 
@@ -1186,5 +1189,151 @@ class ContractServiceTest {
 
         // when/then -> no exception should be thrown
         assertDoesNotThrow(() -> contractService.updateContract(1L, contractUpdates));
+    }
+
+    @Test
+    void updateContract_partialUpdates_success() {
+        // given
+        Contract existingContract = new Contract();
+        existingContract.setContractId(1L);
+        existingContract.setTitle("Original Title");
+        existingContract.setMass(100.0f);
+        existingContract.setVolume(10.0f);
+        existingContract.setFragile(false);
+        existingContract.setCoolingRequired(false);
+        existingContract.setRideAlong(false);
+        existingContract.setManPower(2);
+        existingContract.setContractDescription("Original Description");
+        existingContract.setPrice(100.0f);
+        existingContract.setCollateral(50.0f);
+        existingContract.setMoveDateTime(LocalDateTime.now().plusDays(1));
+        existingContract.setContractStatus(ContractStatus.REQUESTED);
+
+        Contract partialUpdates = new Contract();
+        partialUpdates.setTitle("Updated Title");
+        partialUpdates.setMass(200.0f);
+        // Other fields remain null/unchanged
+
+        Mockito.when(contractRepository.findById(1L)).thenReturn(Optional.of(existingContract));
+        Mockito.when(contractRepository.save(Mockito.any())).thenReturn(existingContract);
+
+        // when
+        Contract updatedContract = contractService.updateContract(1L, partialUpdates);
+
+        // then
+        assertEquals("Updated Title", updatedContract.getTitle());
+        assertEquals(200.0f, updatedContract.getMass());
+        assertEquals(10.0f, updatedContract.getVolume()); // Should remain unchanged
+        assertFalse(updatedContract.isFragile()); // Should remain unchanged
+        assertEquals(2, updatedContract.getManPower()); // Should remain unchanged
+        assertEquals("Original Description", updatedContract.getContractDescription()); // Should remain unchanged
+        assertEquals(100.0f, updatedContract.getPrice()); // Should remain unchanged
+        assertEquals(50.0f, updatedContract.getCollateral()); // Should remain unchanged
+        assertEquals(ContractStatus.REQUESTED, updatedContract.getContractStatus()); // Should remain unchanged
+    }
+
+    @Test
+    void getContracts_withLocationFilter_success() {
+        // given
+        Contract contract1 = new Contract();
+        contract1.setFromAddress(testFromLocation);
+        contract1.setPrice(100.0f);
+        contract1.setMass(50.0f);
+        contract1.setVolume(5.0f);
+        contract1.setManPower(2);
+        contract1.setFragile(false);
+        contract1.setCoolingRequired(false);
+        contract1.setRideAlong(false);
+        contract1.setMoveDateTime(LocalDateTime.now().plusDays(1));
+
+        Contract contract2 = new Contract();
+        contract2.setFromAddress(testToLocation);
+        contract2.setPrice(200.0f);
+        contract2.setMass(100.0f);
+        contract2.setVolume(10.0f);
+        contract2.setManPower(3);
+        contract2.setFragile(true);
+        contract2.setCoolingRequired(true);
+        contract2.setRideAlong(true);
+        contract2.setMoveDateTime(LocalDateTime.now().plusDays(2));
+
+        List<Contract> allContracts = Arrays.asList(contract1, contract2);
+
+        ContractFilterDTO filters = new ContractFilterDTO();
+        filters.setRadius(1.0); // 1km radius
+
+        Mockito.when(contractRepository.findAll()).thenReturn(allContracts);
+        Mockito.when(googleMapsService.calculateDistance(47.3769, 8.5417, 47.3769, 8.5417))
+            .thenReturn(0.5); // Within radius
+        Mockito.when(googleMapsService.calculateDistance(47.3769, 8.5417, 47.3770, 8.5418))
+            .thenReturn(2.0); // Outside radius
+
+        // when
+        List<Contract> result = contractService.getContracts(47.3769, 8.5417, filters);
+
+        // then
+        assertEquals(1, result.size());
+        assertTrue(result.contains(contract1));
+        assertFalse(result.contains(contract2));
+
+        verify(contractRepository).findAll();
+        verify(googleMapsService, times(2)).calculateDistance(anyDouble(), anyDouble(), anyDouble(), anyDouble());
+    }
+
+    @Test
+    void getContracts_withAllFilters_success() {
+        // given
+        Contract contract1 = new Contract();
+        contract1.setFromAddress(testFromLocation);
+        contract1.setPrice(100.0f);
+        contract1.setMass(50.0f);
+        contract1.setVolume(5.0f);
+        contract1.setManPower(2);
+        contract1.setFragile(false);
+        contract1.setCoolingRequired(false);
+        contract1.setRideAlong(false);
+        contract1.setMoveDateTime(LocalDateTime.now().plusDays(1));
+
+        Contract contract2 = new Contract();
+        contract2.setFromAddress(testToLocation);
+        contract2.setPrice(200.0f);
+        contract2.setMass(100.0f);
+        contract2.setVolume(10.0f);
+        contract2.setManPower(3);
+        contract2.setFragile(true);
+        contract2.setCoolingRequired(true);
+        contract2.setRideAlong(true);
+        contract2.setMoveDateTime(LocalDateTime.now().plusDays(2));
+
+        List<Contract> allContracts = Arrays.asList(contract1, contract2);
+
+        ContractFilterDTO filters = new ContractFilterDTO();
+        filters.setPrice(250.0); // Increased to allow both contracts
+        filters.setWeight(150.0); // Increased to allow both contracts
+        filters.setHeight(3.0); // Increased to allow both contracts
+        filters.setLength(3.0); // Increased to allow both contracts
+        filters.setWidth(3.0); // Increased to allow both contracts
+        filters.setRequiredPeople(3); // Increased to allow both contracts
+        filters.setFragile(null); // Set to null to not filter by fragile
+        filters.setCoolingRequired(null); // Set to null to not filter by cooling
+        filters.setRideAlong(null); // Set to null to not filter by ride along
+        filters.setMoveDate(null); // Set to null to not filter by date
+        filters.setRadius(1.0);
+
+        Mockito.when(contractRepository.findAll()).thenReturn(allContracts);
+        Mockito.when(googleMapsService.calculateDistance(anyDouble(), anyDouble(), anyDouble(), anyDouble()))
+            .thenReturn(0.5) // First call for contract1
+            .thenReturn(2.0); // Second call for contract2
+
+        // when
+        List<Contract> result = contractService.getContracts(47.3769, 8.5417, filters);
+
+        // then
+        assertEquals(1, result.size());
+        assertTrue(result.contains(contract1));
+        assertFalse(result.contains(contract2));
+
+        verify(contractRepository).findAll();
+        verify(googleMapsService, times(2)).calculateDistance(anyDouble(), anyDouble(), anyDouble(), anyDouble());
     }
 } 
