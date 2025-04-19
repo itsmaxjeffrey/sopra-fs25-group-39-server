@@ -5,7 +5,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +19,8 @@ import ch.uzh.ifi.hase.soprafs24.security.authentication.dto.request.BaseUserLog
 import ch.uzh.ifi.hase.soprafs24.security.authentication.dto.response.AuthenticatedUserDTO;
 import ch.uzh.ifi.hase.soprafs24.security.authentication.service.AuthService;
 import ch.uzh.ifi.hase.soprafs24.user.mapper.UserDTOMapper;
+import ch.uzh.ifi.hase.soprafs24.security.registration.service.UserRegistrationService;
+
 
 /**
  * Auth Controller
@@ -38,12 +39,9 @@ public class AuthController {
     // @Autowired
     private final UserDTOMapper userDTOMapper;
 
-    public AuthController(
-        AuthService authService,
-        UserDTOMapper userDTOMapper) {
+    public AuthController(AuthService authService, UserDTOMapper userDTOMapper, UserRegistrationService userRegistrationService) {
             this.authService = authService;
             this.userRegistrationService = userRegistrationService;
-            
             this.userDTOMapper = userDTOMapper;
     }
 

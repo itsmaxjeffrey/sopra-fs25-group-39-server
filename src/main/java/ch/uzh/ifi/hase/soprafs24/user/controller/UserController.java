@@ -45,23 +45,23 @@ public class UserController {
         @RequestHeader("UserId") Long userId, 
         @RequestHeader("Authorization") String token, 
         @PathVariable("paramUserId") Long paramUserId) {
-        try {
-            User targetUser = userService.getUserById(userId, token, paramUserId);
+            try {
+                User targetUser = userService.getUserById(userId, token, paramUserId);
 
-            if (userId.equals(paramUserId)) {
-                AuthenticatedUserDTO fullUserDTO = UserDTOMapper.INSTANCE.convertToDTO(targetUser);
-                return ResponseEntity.ok(fullUserDTO);
-            } else {
-                PublicUserDTO publicUserDTO = publicUserDTOMapper.convertToPublicUserDTO(targetUser);
-                return ResponseEntity.ok(publicUserDTO);
+                if (userId.equals(paramUserId)) {
+                    AuthenticatedUserDTO fullUserDTO = UserDTOMapper.INSTANCE.convertToDTO(targetUser);
+                    return ResponseEntity.ok(fullUserDTO);
+                } else {
+                    PublicUserDTO publicUserDTO = publicUserDTOMapper.convertToPublicUserDTO(targetUser);
+                    return ResponseEntity.ok(publicUserDTO);
+                }
+            } catch (ResponseStatusException e) {
+                return ResponseEntity.status(e.getRawStatusCode())
+                    .body(Map.of("message", e.getReason()));
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", e.getMessage()));
             }
-        } catch (ResponseStatusException e) {
-            return ResponseEntity.status(e.getRawStatusCode())
-                .body(Map.of("message", e.getReason()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("message", e.getMessage()));
-        }
     }
 
     @PutMapping("/{userId}")
