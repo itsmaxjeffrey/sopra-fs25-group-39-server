@@ -101,8 +101,8 @@ class ContractServiceTest {
         Mockito.when(offerRepository.findByContract_ContractId(Mockito.any())).thenReturn(Collections.emptyList());
     }
 
-    /*@Test
-    public void createContract_validInputs_success() {
+    @Test
+    void createContract_validInputs_success() {
         // given
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.of(testRequester));
 
@@ -117,9 +117,9 @@ class ContractServiceTest {
         assertEquals(testContract.getTitle(), createdContract.getTitle());
         assertEquals(testContract.getMass(), createdContract.getMass());
         assertEquals(testContract.getVolume(), createdContract.getVolume());
-        assertEquals(testContract.getFragile(), createdContract.getFragile());
-        assertEquals(testContract.getCoolingRequired(), createdContract.getCoolingRequired());
-        assertEquals(testContract.getRideAlong(), createdContract.getRideAlong());
+        assertEquals(testContract.isFragile(), createdContract.isFragile());
+        assertEquals(testContract.isCoolingRequired(), createdContract.isCoolingRequired());
+        assertEquals(testContract.isRideAlong(), createdContract.isRideAlong());
         assertEquals(testContract.getManPower(), createdContract.getManPower());
         assertEquals(testContract.getContractDescription(), createdContract.getContractDescription());
         assertEquals(testContract.getPrice(), createdContract.getPrice());
@@ -130,7 +130,6 @@ class ContractServiceTest {
         assertEquals(testFromLocation, createdContract.getFromAddress());
         assertEquals(testToLocation, createdContract.getToAddress());
     }
-    */
 
     @Test
     void createContract_requesterNotFound_throwsException() {
