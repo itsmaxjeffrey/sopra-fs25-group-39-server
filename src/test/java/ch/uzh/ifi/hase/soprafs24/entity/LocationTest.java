@@ -56,19 +56,19 @@ class LocationTest {
         Location location2 = new Location();
         
         // Test equals with null
-        assertFalse(location1.equals(null));
+        assertNotEquals(location1, null);
         
         // Test equals with same object
-        assertTrue(location1.equals(location1));
+        assertEquals(location1, location1);
         
         // Test equals with different objects but same ID
         location1.setId(1L);
         location2.setId(1L);
-        assertTrue(location1.equals(location2));
+        assertEquals(location1, location2);
         
         // Test equals with different IDs
         location2.setId(2L);
-        assertFalse(location1.equals(location2));
+        assertNotEquals(location1, location2);
     }
 
     @Test

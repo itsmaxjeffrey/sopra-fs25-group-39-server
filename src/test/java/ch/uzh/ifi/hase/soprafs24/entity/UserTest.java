@@ -176,19 +176,19 @@ class UserTest {
         User user2 = new User();
         
         // Test equals with null
-        assertFalse(user1.equals(null));
+        assertNotEquals(user1, null);
         
         // Test equals with same object
-        assertTrue(user1.equals(user1));
+        assertEquals(user1, user1);
         
         // Test equals with different objects but same ID
         user1.setUserId(1L);
         user2.setUserId(1L);
-        assertTrue(user1.equals(user2));
+        assertEquals(user1, user2);
         
         // Test equals with different IDs
         user2.setUserId(2L);
-        assertFalse(user1.equals(user2));
+        assertNotEquals(user1, user2);
     }
 
     @Test

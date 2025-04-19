@@ -42,7 +42,6 @@ class BaseUserRegisterDTOTest {
     @Test
     void testJsonTypeInfoAnnotation() {
         // Test that the JsonTypeInfo annotation is properly set up
-        BaseUserRegisterDTO dto = new BaseUserRegisterDTO();
-        assertNotNull(dto.getClass().getAnnotation(com.fasterxml.jackson.annotation.JsonTypeInfo.class));
+        assertNotNull(BaseUserRegisterDTO.class.getAnnotation(com.fasterxml.jackson.annotation.JsonTypeInfo.class));
     }
 } 

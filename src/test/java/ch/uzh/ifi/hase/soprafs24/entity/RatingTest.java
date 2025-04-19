@@ -75,19 +75,19 @@ class RatingTest {
         Rating rating2 = new Rating();
         
         // Test equals with null
-        assertFalse(rating1.equals(null));
+        assertNotEquals(rating1, null);
         
         // Test equals with same object
-        assertTrue(rating1.equals(rating1));
+        assertEquals(rating1, rating1);
         
         // Test equals with different objects but same ID
         rating1.setRatingId(1L);
         rating2.setRatingId(1L);
-        assertTrue(rating1.equals(rating2));
+        assertEquals(rating1, rating2);
         
         // Test equals with different IDs
         rating2.setRatingId(2L);
-        assertFalse(rating1.equals(rating2));
+        assertNotEquals(rating1, rating2);
     }
 
     @Test

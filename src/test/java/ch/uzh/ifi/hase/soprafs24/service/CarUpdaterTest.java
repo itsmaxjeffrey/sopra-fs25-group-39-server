@@ -141,13 +141,13 @@ class CarUpdaterTest {
         when(carRepository.save(expectedCar)).thenReturn(expectedCar);
 
         // Act
-        Car updatedCar = carUpdater.updateAndSave(existingCar, partialUpdates);
+        Car resultCar = carUpdater.updateAndSave(existingCar, partialUpdates);
 
         // Assert
-        assertNotNull(updatedCar);
-        assertEquals("Tesla Model 3", updatedCar.getCarModel());
-        assertEquals(4.5f, updatedCar.getSpace()); // Should keep original value
-        assertEquals(500.0f, updatedCar.getSupportedWeight()); // Should keep original value
+        assertNotNull(resultCar);
+        assertEquals("Tesla Model 3", resultCar.getCarModel());
+        assertEquals(4.5f, resultCar.getSpace()); // Should keep original value
+        assertEquals(500.0f, resultCar.getSupportedWeight()); // Should keep original value
         verify(carValidator).validateCar(expectedCar);
         verify(carRepository).save(expectedCar);
     }
