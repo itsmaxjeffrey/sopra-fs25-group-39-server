@@ -27,6 +27,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -482,5 +483,198 @@ class OfferServiceTest {
         });
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
         assertEquals("Offer not found", exception.getReason());
+    }
+
+    @Test
+    void testUpdateOfferStatus_OfferNotFound() {
+        // given
+        Long offerId = 1L;
+        when(offerRepository.findById(offerId)).thenReturn(Optional.empty());
+
+        // when/then
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            offerService.updateOfferStatus(offerId, OfferStatus.ACCEPTED);
+        });
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
+        assertEquals("Offer not found", exception.getReason());
+    }
+
+    @Test
+    void testUpdateOfferStatus_NotInCreatedState() {
+        // given
+        Long offerId = 1L;
+        Offer offer = new Offer();
+        offer.setOfferId(offerId);
+        offer.setOfferStatus(OfferStatus.ACCEPTED);
+        when(offerRepository.findById(offerId)).thenReturn(Optional.of(offer));
+
+        // when/then
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            offerService.updateOfferStatus(offerId, OfferStatus.REJECTED);
+        });
+        assertEquals(HttpStatus.CONFLICT, exception.getStatus());
+        assertEquals("Only CREATED offers can be modified", exception.getReason());
+    }
+
+    @Test
+    void testUpdateOfferStatus_AcceptOffer_ContractNotOffered() {
+        // given
+        Long offerId = 1L;
+        Offer offer = new Offer();
+        offer.setOfferId(offerId);
+        offer.setOfferStatus(OfferStatus.CREATED);
+        
+        Contract contract = new Contract();
+        contract.setContractStatus(ContractStatus.REQUESTED);
+        offer.setContract(contract);
+        
+        when(offerRepository.findById(offerId)).thenReturn(Optional.of(offer));
+
+        // when/then
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            offerService.updateOfferStatus(offerId, OfferStatus.ACCEPTED);
+        });
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals("Offers can only be accepted for OFFERED contracts", exception.getReason());
+    }
+
+    @Test
+    void testUpdateOfferStatus_AcceptOffer_Success() {
+        // given
+        Long offerId = 1L;
+        Long contractId = 2L;
+        
+        // Setup main offer
+        Offer offer = new Offer();
+        offer.setOfferId(offerId);
+        offer.setOfferStatus(OfferStatus.CREATED);
+        
+        Contract contract = new Contract();
+        contract.setContractId(contractId);
+        contract.setContractStatus(ContractStatus.OFFERED);
+        offer.setContract(contract);
+        
+        // Setup other offers to be rejected
+        Offer otherOffer1 = new Offer();
+        otherOffer1.setOfferId(3L);
+        otherOffer1.setOfferStatus(OfferStatus.CREATED);
+        otherOffer1.setContract(contract);
+        
+        Offer otherOffer2 = new Offer();
+        otherOffer2.setOfferId(4L);
+        otherOffer2.setOfferStatus(OfferStatus.CREATED);
+        otherOffer2.setContract(contract);
+        
+        when(offerRepository.findById(offerId)).thenReturn(Optional.of(offer));
+        when(offerRepository.findByContract_ContractIdAndOfferStatus(contractId, OfferStatus.CREATED))
+            .thenReturn(Arrays.asList(otherOffer1, otherOffer2));
+        when(offerRepository.save(any(Offer.class))).thenAnswer(i -> i.getArgument(0));
+        when(contractRepository.save(any(Contract.class))).thenAnswer(i -> i.getArgument(0));
+        when(offerDTOMapper.convertEntityToOfferGetDTO(any(Offer.class))).thenReturn(new OfferGetDTO());
+
+        // when
+        OfferGetDTO result = offerService.updateOfferStatus(offerId, OfferStatus.ACCEPTED);
+
+        // then
+        assertNotNull(result);
+        assertEquals(OfferStatus.ACCEPTED, offer.getOfferStatus());
+        assertEquals(ContractStatus.ACCEPTED, contract.getContractStatus());
+        assertEquals(offer, contract.getAcceptedOffer());
+        assertNotNull(contract.getAcceptedDateTime());
+        
+        // Verify other offers were rejected
+        assertEquals(OfferStatus.REJECTED, otherOffer1.getOfferStatus());
+        assertEquals(OfferStatus.REJECTED, otherOffer2.getOfferStatus());
+        
+        verify(offerRepository, times(3)).save(any(Offer.class)); // main offer + 2 other offers
+        verify(contractRepository).save(contract);
+        verify(offerDTOMapper).convertEntityToOfferGetDTO(offer);
+    }
+
+    @Test
+    void testAcceptOffer_OfferNotFound() {
+        // given
+        Long offerId = 1L;
+        when(offerRepository.findById(offerId)).thenReturn(Optional.empty());
+
+        // when/then
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            offerService.acceptOffer(offerId);
+        });
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
+        assertEquals("Offer not found", exception.getReason());
+    }
+
+    @Test
+    void testAcceptOffer_ContractNotOffered() {
+        // given
+        Long offerId = 1L;
+        Offer offer = new Offer();
+        offer.setOfferId(offerId);
+        
+        Contract contract = new Contract();
+        contract.setContractStatus(ContractStatus.REQUESTED);
+        offer.setContract(contract);
+        
+        when(offerRepository.findById(offerId)).thenReturn(Optional.of(offer));
+
+        // when/then
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            offerService.acceptOffer(offerId);
+        });
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals("Offers can only be accepted for OFFERED contracts", exception.getReason());
+    }
+
+    @Test
+    void testAcceptOffer_Success() {
+        // given
+        Long offerId = 1L;
+        Long contractId = 2L;
+        
+        // Setup main offer
+        Offer offer = new Offer();
+        offer.setOfferId(offerId);
+        
+        Contract contract = new Contract();
+        contract.setContractId(contractId);
+        contract.setContractStatus(ContractStatus.OFFERED);
+        offer.setContract(contract);
+        
+        // Setup other offers to be rejected
+        Offer otherOffer1 = new Offer();
+        otherOffer1.setOfferId(3L);
+        otherOffer1.setOfferStatus(OfferStatus.CREATED);
+        otherOffer1.setContract(contract);
+        
+        Offer otherOffer2 = new Offer();
+        otherOffer2.setOfferId(4L);
+        otherOffer2.setOfferStatus(OfferStatus.CREATED);
+        otherOffer2.setContract(contract);
+        
+        when(offerRepository.findById(offerId)).thenReturn(Optional.of(offer));
+        when(offerRepository.findByContract_ContractIdAndOfferStatus(contractId, OfferStatus.CREATED))
+            .thenReturn(Arrays.asList(otherOffer1, otherOffer2));
+        when(offerRepository.save(any(Offer.class))).thenAnswer(i -> i.getArgument(0));
+        when(contractRepository.save(any(Contract.class))).thenAnswer(i -> i.getArgument(0));
+        when(offerDTOMapper.convertEntityToOfferGetDTO(any(Offer.class))).thenReturn(new OfferGetDTO());
+
+        // when
+        OfferGetDTO result = offerService.acceptOffer(offerId);
+
+        // then
+        assertNotNull(result);
+        assertEquals(OfferStatus.ACCEPTED, offer.getOfferStatus());
+        assertEquals(ContractStatus.ACCEPTED, contract.getContractStatus());
+        assertEquals(offer, contract.getAcceptedOffer());
+        assertNotNull(contract.getAcceptedDateTime());
+        
+        // Verify other offers were rejected
+        assertEquals(OfferStatus.REJECTED, otherOffer1.getOfferStatus());
+        assertEquals(OfferStatus.REJECTED, otherOffer2.getOfferStatus());
+        
+        verify(offerRepository, times(3)).save(any(Offer.class)); // main offer + 2 other offers
+        verify(contractRepository).save(contract);
+        verify(offerDTOMapper).convertEntityToOfferGetDTO(offer);
     }
 }
