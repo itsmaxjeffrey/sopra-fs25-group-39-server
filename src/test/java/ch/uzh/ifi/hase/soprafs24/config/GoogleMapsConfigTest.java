@@ -27,14 +27,20 @@ class GoogleMapsConfigTest {
     private static final String VALID_API_KEY = "valid-api-key-that-is-long-enough";
     private static final String SHORT_API_KEY = "too-short";
     private String originalEnvValue;
+    private String originalPropertyValue;
 
     @BeforeEach
     void setup() {
         googleMapsConfig = new GoogleMapsConfig(environment);
-        // Store original environment variable value
+        // Store original values
         originalEnvValue = System.getenv(GoogleMapsConfig.GOOGLE_MAPS_API_KEY_NAME);
-        // Clear the environment variable for testing
+        originalPropertyValue = System.getProperty(GoogleMapsConfig.GOOGLE_MAPS_API_KEY_NAME);
+        
+        // Clear both environment variable and system property for testing
         System.clearProperty(GoogleMapsConfig.GOOGLE_MAPS_API_KEY_NAME);
+        if (originalEnvValue != null) {
+            System.clearProperty(GoogleMapsConfig.GOOGLE_MAPS_API_KEY_NAME);
+        }
     }
 
     @Test
@@ -84,9 +90,6 @@ class GoogleMapsConfigTest {
         // Mock environment to return null
         when(environment.getProperty(GoogleMapsConfig.GOOGLE_MAPS_API_KEY_NAME))
             .thenReturn(null);
-        
-        // Clear any system properties
-        System.clearProperty(GoogleMapsConfig.GOOGLE_MAPS_API_KEY_NAME);
         
         assertThrows(IllegalStateException.class, () -> {
             googleMapsConfig.googleMapsApiKey();
@@ -145,7 +148,13 @@ class GoogleMapsConfigTest {
 
     @AfterEach
     void cleanup() {
-        // Restore original environment variable value
+        // Restore original values
+        if (originalPropertyValue != null) {
+            System.setProperty(GoogleMapsConfig.GOOGLE_MAPS_API_KEY_NAME, originalPropertyValue);
+        } else {
+            System.clearProperty(GoogleMapsConfig.GOOGLE_MAPS_API_KEY_NAME);
+        }
+        
         if (originalEnvValue != null) {
             System.setProperty(GoogleMapsConfig.GOOGLE_MAPS_API_KEY_NAME, originalEnvValue);
         } else {
