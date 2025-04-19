@@ -640,7 +640,7 @@ public class ContractController {
         // Convert to DTOs
         List<ContractGetDTO> contractDTOs = contracts.stream()
             .map(ContractDTOMapper.INSTANCE::convertContractEntityToContractGetDTO)
-            .collect(Collectors.toList());
+            .toList();
 
         return createResponse(contractDTOs, null, HttpStatus.OK);
     }

@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -84,7 +83,6 @@ public class OfferController {
      */
     @GetMapping("/api/v1/offers")
     @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
     public ResponseEntity<Object> getOffers(
             @RequestHeader("UserId") Long userId,
             @RequestHeader("Authorization") String token,
@@ -136,7 +134,6 @@ public class OfferController {
      */
     @GetMapping("/api/v1/offers/{offerId}")
     @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
     public ResponseEntity<Object> getOffer(
             @PathVariable Long offerId,
             @RequestHeader("UserId") Long userId,
@@ -178,7 +175,6 @@ public class OfferController {
      */
     @GetMapping("/api/v1/contracts/{contractId}/offers")
     @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
     public ResponseEntity<Object> getOffersByContract(
             @PathVariable Long contractId,
             @RequestHeader("UserId") Long userId,
@@ -230,7 +226,6 @@ public class OfferController {
      */
     @PostMapping("/api/v1/offers")
     @ResponseStatus(HttpStatus.CREATED)
-    @ResponseBody
     public ResponseEntity<Object> createOffer(
             @RequestHeader("UserId") Long userId,
             @RequestHeader("Authorization") String token,
@@ -423,7 +418,6 @@ public class OfferController {
      */
     @GetMapping("/api/v1/users/{driverId}/offers")
     @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
     public ResponseEntity<Object> getOffersByDriver(
             @PathVariable Long driverId,
             @RequestHeader("UserId") Long userId,
