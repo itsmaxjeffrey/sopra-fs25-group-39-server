@@ -108,19 +108,19 @@ class CarTest {
         Car car2 = new Car();
         
         // Test equals with null
-        assertFalse(car1.equals(null));
+        assertNotEquals(car1, null);
         
         // Test equals with same object
-        assertTrue(car1.equals(car1));
+        assertEquals(car1, car1);
         
         // Test equals with different objects but same ID
         car1.setCarId(1L);
         car2.setCarId(1L);
-        assertTrue(car1.equals(car2));
+        assertEquals(car1, car2);
         
         // Test equals with different IDs
         car2.setCarId(2L);
-        assertFalse(car1.equals(car2));
+        assertNotEquals(car1, car2);
     }
 
     @Test

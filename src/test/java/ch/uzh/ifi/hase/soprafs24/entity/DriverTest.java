@@ -91,19 +91,19 @@ class DriverTest {
         Driver driver2 = new Driver();
         
         // Test equals with null
-        assertFalse(driver1.equals(null));
+        assertNotEquals(driver1, null);
         
         // Test equals with same object
-        assertTrue(driver1.equals(driver1));
+        assertEquals(driver1, driver1);
         
         // Test equals with different objects but same ID
         driver1.setUserId(1L);
         driver2.setUserId(1L);
-        assertTrue(driver1.equals(driver2));
+        assertEquals(driver1, driver2);
         
         // Test equals with different IDs
         driver2.setUserId(2L);
-        assertFalse(driver1.equals(driver2));
+        assertNotEquals(driver1, driver2);
     }
 
     @Test

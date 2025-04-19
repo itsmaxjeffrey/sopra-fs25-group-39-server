@@ -76,7 +76,7 @@ public class UserRegistrationService {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                         "Requester registration requires RequesterRegisterDTO");
                 }
-                newUser = requesterRegistrationService.registerRequester((RequesterRegisterDTO) baseUserRegisterDTO);
+                newUser = requesterRegistrationService.registerRequester();
             }
 
             //if user account type unknown

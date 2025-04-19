@@ -141,7 +141,7 @@ class CarUpdaterTest {
         when(carRepository.save(expectedCar)).thenReturn(expectedCar);
 
         // Act
-        Car updatedCar = carUpdater.updateAndSave(existingCar, partialUpdates);
+        Car resultCar = carUpdater.updateAndSave(existingCar, partialUpdates);
 
         // Assert
         assertNotNull(updatedCar);

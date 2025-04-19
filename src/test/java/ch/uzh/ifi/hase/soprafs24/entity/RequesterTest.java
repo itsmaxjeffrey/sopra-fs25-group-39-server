@@ -65,19 +65,19 @@ class RequesterTest {
         Requester requester2 = new Requester();
         
         // Test equals with null
-        assertFalse(requester1.equals(null));
+        assertNotEquals(requester1, null);
         
         // Test equals with same object
-        assertTrue(requester1.equals(requester1));
+        assertEquals(requester1, requester1);
         
         // Test equals with different objects but same ID
         requester1.setUserId(1L);
         requester2.setUserId(1L);
-        assertTrue(requester1.equals(requester2));
+        assertEquals(requester1, requester2);
         
         // Test equals with different IDs
         requester2.setUserId(2L);
-        assertFalse(requester1.equals(requester2));
+        assertNotEquals(requester1, requester2);
     }
 
     @Test

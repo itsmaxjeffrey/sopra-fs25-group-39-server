@@ -304,7 +304,8 @@ public class ContractService {
         if (contractUpdates.getPrice() > 0) {
             existingContract.setPrice(contractUpdates.getPrice());
         }
-        if (contractUpdates.getCollateral() >= 0) {
+        // Only update collateral if it's explicitly set to a non-negative value
+        if (contractUpdates.getCollateral() > 0) {
             existingContract.setCollateral(contractUpdates.getCollateral());
         }
         if (contractUpdates.getFromAddress() != null) {

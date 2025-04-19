@@ -159,16 +159,29 @@ class ContractControllerTest {
         contract.setContractId(1L);
         contract.setTitle("Test Contract");
         contract.setContractStatus(ContractStatus.REQUESTED);
+        contract.setMoveDateTime(LocalDateTime.now().plusDays(1));
+        contract.setMass(100.0f);
+        contract.setVolume(10.0f);
+        contract.setPrice(50.0f);
+        contract.setCollateral(25.0f);
+        contract.setManPower(2);
+        contract.setContractDescription("Test contract description");
+        contract.setFragile(true);
+        contract.setCoolingRequired(false);
+        contract.setRideAlong(true);
         
         // Set up the requester
         Requester requester = new Requester();
         requester.setUserId(TEST_USER_ID);
+        requester.setUsername("testrequester");
+        requester.setUserAccountType(UserAccountType.REQUESTER);
         contract.setRequester(requester);
 
         // Set up authenticated user as requester
         User authenticatedUser = new User();
         authenticatedUser.setUserId(TEST_USER_ID);
         authenticatedUser.setUserAccountType(UserAccountType.REQUESTER);
+        authenticatedUser.setUsername("testrequester");
 
         given(contractService.getContractById(1L)).willReturn(contract);
         given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(authenticatedUser);
@@ -182,6 +195,17 @@ class ContractControllerTest {
                 .andExpect(jsonPath("$.contract.contractId", is(contract.getContractId().intValue())))
                 .andExpect(jsonPath("$.contract.title", is(contract.getTitle())))
                 .andExpect(jsonPath("$.contract.contractStatus", is("REQUESTED")))
+                .andExpect(jsonPath("$.contract.moveDateTime").exists())
+                .andExpect(jsonPath("$.contract.mass", is(100.0)))
+                .andExpect(jsonPath("$.contract.volume", is(10.0)))
+                .andExpect(jsonPath("$.contract.price", is(50.0)))
+                .andExpect(jsonPath("$.contract.collateral", is(25.0)))
+                .andExpect(jsonPath("$.contract.manPower", is(2)))
+                .andExpect(jsonPath("$.contract.contractDescription", is("Test contract description")))
+                .andExpect(jsonPath("$.contract.fragile", is(true)))
+                .andExpect(jsonPath("$.contract.coolingRequired", is(false)))
+                .andExpect(jsonPath("$.contract.rideAlong", is(true)))
+                .andExpect(jsonPath("$.contract.requesterId", is(TEST_USER_ID.intValue())))
                 .andExpect(jsonPath("$.timestamp", notNullValue()));
     }
 
