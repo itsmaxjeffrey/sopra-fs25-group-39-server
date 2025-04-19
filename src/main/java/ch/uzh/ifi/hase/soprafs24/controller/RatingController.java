@@ -28,6 +28,11 @@ public class RatingController {
     private final RatingService ratingService;
     private final AuthorizationService authorizationService;
 
+    // Error message constants
+    private static final String ERROR_USER_NOT_AUTHORIZED = "User is not authorized";
+    private static final String ERROR_RATING_NOT_FOUND = "Rating not found";
+    private static final String MESSAGE_RATING_DELETED = "Rating deleted successfully";
+
     public RatingController(RatingService ratingService, AuthorizationService authorizationService) {
         this.ratingService = ratingService;
         this.authorizationService = authorizationService;
@@ -55,11 +60,11 @@ public class RatingController {
     @GetMapping("/{id}")
     public ResponseEntity<Object> getRatingById(@PathVariable Long id, @RequestHeader("userId") Long userId, @RequestHeader("Authorization") String token) {
         if (authorizationService.authenticateUser(userId, token) == null) {
-            return createResponse(null, "User is not authorized", HttpStatus.UNAUTHORIZED);
+            return createResponse(null, ERROR_USER_NOT_AUTHORIZED, HttpStatus.UNAUTHORIZED);
         }
         Rating rating = ratingService.getRatingById(id);
         if (rating == null) {
-            return createResponse(null, "Rating not found", HttpStatus.NOT_FOUND);
+            return createResponse(null, ERROR_RATING_NOT_FOUND, HttpStatus.NOT_FOUND);
         }
         return createResponse(rating, null, HttpStatus.OK);
     }
@@ -78,7 +83,7 @@ public class RatingController {
         
         // Authenticate user
         if (authorizationService.authenticateUser(requestUserId, token) == null) {
-            return createResponse(null, "User is not authorized", HttpStatus.UNAUTHORIZED);
+            return createResponse(null, ERROR_USER_NOT_AUTHORIZED, HttpStatus.UNAUTHORIZED);
         }
 
         // Get ratings from service
@@ -100,7 +105,7 @@ public class RatingController {
         
         // Authenticate user
         if (authorizationService.authenticateUser(userId, token) == null) {
-            return createResponse(null, "User is not authorized", HttpStatus.UNAUTHORIZED);
+            return createResponse(null, ERROR_USER_NOT_AUTHORIZED, HttpStatus.UNAUTHORIZED);
         }
 
         // Get ratings from service
@@ -116,7 +121,7 @@ public class RatingController {
         
         // Authenticate user
         if (authorizationService.authenticateUser(userId, token) == null) {
-            return createResponse(null, "User is not authorized", HttpStatus.UNAUTHORIZED);
+            return createResponse(null, ERROR_USER_NOT_AUTHORIZED, HttpStatus.UNAUTHORIZED);
         }
 
         try {
@@ -137,7 +142,7 @@ public class RatingController {
         
         // Authenticate user
         if (authorizationService.authenticateUser(userId, token) == null) {
-            return createResponse(null, "User is not authorized", HttpStatus.UNAUTHORIZED);
+            return createResponse(null, ERROR_USER_NOT_AUTHORIZED, HttpStatus.UNAUTHORIZED);
         }
 
         try {
@@ -157,13 +162,13 @@ public class RatingController {
         
         // Authenticate user
         if (authorizationService.authenticateUser(userId, token) == null) {
-            return createResponse(null, "User is not authorized", HttpStatus.UNAUTHORIZED);
+            return createResponse(null, ERROR_USER_NOT_AUTHORIZED, HttpStatus.UNAUTHORIZED);
         }
 
         try {
             // Delete rating
             ratingService.deleteRating(id, userId);
-            return createResponse(null, "Rating deleted successfully", HttpStatus.OK);
+            return createResponse(null, MESSAGE_RATING_DELETED, HttpStatus.OK);
         } catch (ResponseStatusException e) {
             return createResponse(null, e.getReason(), e.getStatus());
         }
@@ -183,7 +188,7 @@ public class RatingController {
         
         // Authenticate user
         if (authorizationService.authenticateUser(requestUserId, token) == null) {
-            return createResponse(null, "User is not authorized", HttpStatus.UNAUTHORIZED);
+            return createResponse(null, ERROR_USER_NOT_AUTHORIZED, HttpStatus.UNAUTHORIZED);
         }
 
         // Get average rating from service

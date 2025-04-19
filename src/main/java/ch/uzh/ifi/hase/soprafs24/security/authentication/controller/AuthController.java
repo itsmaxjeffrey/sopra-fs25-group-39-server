@@ -15,7 +15,6 @@ import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.security.authentication.dto.request.BaseUserLoginDTO;
 import ch.uzh.ifi.hase.soprafs24.security.authentication.dto.response.AuthenticatedUserDTO;
 import ch.uzh.ifi.hase.soprafs24.security.authentication.service.AuthService;
-import ch.uzh.ifi.hase.soprafs24.security.registration.service.UserRegistrationService;
 import ch.uzh.ifi.hase.soprafs24.user.mapper.UserDTOMapper;
 
 /**
@@ -32,7 +31,6 @@ public class AuthController {
 
     public AuthController(
         AuthService authService,
-        UserRegistrationService userRegistrationService,
         UserDTOMapper userDTOMapper) {
             this.authService = authService;
             this.userDTOMapper = userDTOMapper;
