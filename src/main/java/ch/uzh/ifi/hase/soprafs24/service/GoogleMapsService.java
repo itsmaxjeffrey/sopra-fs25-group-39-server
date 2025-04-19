@@ -10,6 +10,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ch.uzh.ifi.hase.soprafs24.exceptions.GoogleMapsException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -71,60 +72,60 @@ public class GoogleMapsService {
         
         if (responseBody == null) {
             log.error("Distance Matrix API returned null response body");
-            throw new RuntimeException("Failed to calculate distance: null response");
+            throw new GoogleMapsException("Failed to calculate distance: null response");
         }
 
         if (responseBody.containsKey("error_message")) {
             String errorMessage = (String) responseBody.get("error_message");
             log.error("Distance Matrix API error: {}", errorMessage);
-            throw new RuntimeException("Failed to calculate distance: " + errorMessage);
+            throw new GoogleMapsException("Failed to calculate distance: " + errorMessage);
         }
 
         if (!responseBody.containsKey("rows")) {
             log.error("Distance Matrix API response missing 'rows' field: {}", responseBody);
-            throw new RuntimeException("Failed to calculate distance: invalid response format");
+            throw new GoogleMapsException("Failed to calculate distance: invalid response format");
         }
 
         Object rowsObj = responseBody.get("rows");
         if (rowsObj == null) {
             log.error("Distance Matrix API response 'rows' is null");
-            throw new RuntimeException("Failed to calculate distance: null rows");
+            throw new GoogleMapsException("Failed to calculate distance: null rows");
         }
 
         Object[] rows = rowsObj instanceof List ? ((List<?>)rowsObj).toArray() : (Object[])rowsObj;
         if (rows.length == 0) {
             log.error("Distance Matrix API response 'rows' is empty");
-            throw new RuntimeException("Failed to calculate distance: empty rows");
+            throw new GoogleMapsException("Failed to calculate distance: empty rows");
         }
 
         Map<String, Object> row = (Map<String, Object>)rows[0];
         if (!row.containsKey("elements")) {
             log.error("Distance Matrix API response missing 'elements' field: {}", row);
-            throw new RuntimeException("Failed to calculate distance: invalid row format");
+            throw new GoogleMapsException("Failed to calculate distance: invalid row format");
         }
 
         Object elementsObj = row.get("elements");
         if (elementsObj == null) {
             log.error("Distance Matrix API response 'elements' is null");
-            throw new RuntimeException("Failed to calculate distance: null elements");
+            throw new GoogleMapsException("Failed to calculate distance: null elements");
         }
 
         Object[] elements = elementsObj instanceof List ? ((List<?>)elementsObj).toArray() : (Object[])elementsObj;
         if (elements.length == 0) {
             log.error("Distance Matrix API response 'elements' is empty");
-            throw new RuntimeException("Failed to calculate distance: empty elements");
+            throw new GoogleMapsException("Failed to calculate distance: empty elements");
         }
 
         Map<String, Object> element = (Map<String, Object>)elements[0];
         if (!element.containsKey("distance")) {
             log.error("Distance Matrix API response missing 'distance' field: {}", element);
-            throw new RuntimeException("Failed to calculate distance: invalid element format");
+            throw new GoogleMapsException("Failed to calculate distance: invalid element format");
         }
 
         Map<String, Object> distance = (Map<String, Object>)element.get("distance");
         if (!distance.containsKey("value")) {
             log.error("Distance Matrix API response missing 'value' field in distance: {}", distance);
-            throw new RuntimeException("Failed to calculate distance: invalid distance format");
+            throw new GoogleMapsException("Failed to calculate distance: invalid distance format");
         }
 
         double result = ((Number)distance.get("value")).doubleValue() / 1000.0;
@@ -162,48 +163,48 @@ public class GoogleMapsService {
         
         if (responseBody == null) {
             log.error("Geocoding API returned null response body");
-            throw new RuntimeException("Failed to geocode address: null response");
+            throw new GoogleMapsException("Failed to geocode address: null response");
         }
 
         if (responseBody.containsKey("error_message")) {
             String errorMessage = (String) responseBody.get("error_message");
             log.error("Geocoding API error: {}", errorMessage);
-            throw new RuntimeException("Failed to geocode address: " + errorMessage);
+            throw new GoogleMapsException("Failed to geocode address: " + errorMessage);
         }
 
         if (!responseBody.containsKey("results")) {
             log.error("Geocoding API response missing 'results' field: {}", responseBody);
-            throw new RuntimeException("Failed to geocode address: invalid response format");
+            throw new GoogleMapsException("Failed to geocode address: invalid response format");
         }
 
         Object resultsObj = responseBody.get("results");
         if (resultsObj == null) {
             log.error("Geocoding API response 'results' is null");
-            throw new RuntimeException("Failed to geocode address: null results");
+            throw new GoogleMapsException("Failed to geocode address: null results");
         }
 
         Object[] results = resultsObj instanceof List ? ((List<?>)resultsObj).toArray() : (Object[])resultsObj;
         if (results.length == 0) {
             log.error("Geocoding API response 'results' is empty");
-            throw new RuntimeException("Failed to geocode address: empty results");
+            throw new GoogleMapsException("Failed to geocode address: empty results");
         }
 
         Map<String, Object> result = (Map<String, Object>)results[0];
         if (!result.containsKey("geometry")) {
             log.error("Geocoding API response missing 'geometry' field: {}", result);
-            throw new RuntimeException("Failed to geocode address: invalid result format");
+            throw new GoogleMapsException("Failed to geocode address: invalid result format");
         }
 
         Map<String, Object> geometry = (Map<String, Object>)result.get("geometry");
         if (!geometry.containsKey("location")) {
             log.error("Geocoding API response missing 'location' field: {}", geometry);
-            throw new RuntimeException("Failed to geocode address: invalid geometry format");
+            throw new GoogleMapsException("Failed to geocode address: invalid geometry format");
         }
 
         Map<String, Object> location = (Map<String, Object>)geometry.get("location");
         if (!location.containsKey("lat") || !location.containsKey("lng")) {
             log.error("Geocoding API response missing 'lat' or 'lng' field: {}", location);
-            throw new RuntimeException("Failed to geocode address: invalid location format");
+            throw new GoogleMapsException("Failed to geocode address: invalid location format");
         }
 
         double[] coordinates = new double[] {
