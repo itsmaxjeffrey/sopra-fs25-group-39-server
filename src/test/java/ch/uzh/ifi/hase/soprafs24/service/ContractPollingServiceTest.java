@@ -55,7 +55,7 @@ class ContractPollingServiceTest {
     }    
     
     @Test
-    void testPollNewContracts_FiltersOutNonMatchingContracts() throws Exception {
+    void testPollNewContracts_FiltersOutNonMatchingContracts() {
         // Given
         Contract lowPriceContract = new Contract();
         lowPriceContract.setPrice(10.0f);
@@ -133,7 +133,7 @@ class ContractPollingServiceTest {
 
 
     @Test
-    void testUpdateFutures_NoMatchingContracts() throws Exception {
+    void testUpdateFutures_NoMatchingContracts() {
         Contract contract = new Contract();
         ContractFilterDTO filterDTO = new ContractFilterDTO();
         filterDTO.setPrice(50.0);
