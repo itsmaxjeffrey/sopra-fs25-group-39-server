@@ -6,6 +6,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
@@ -190,5 +193,399 @@ class GoogleMapsServiceTest {
         assertThrows(RuntimeException.class, () -> {
             googleMapsService.calculateDistance(47.3769, 8.5417, 47.3770, 8.5418);
         });
+    }
+
+    @Test
+    void testCalculateDistance_NullResponse() {
+        // given
+        ResponseEntity<Map<String, Object>> response = new ResponseEntity<>(null, HttpStatus.OK);
+        doReturn(response).when(restTemplate).exchange(
+            eq("https://maps.googleapis.com/maps/api/distancematrix/json?origins={origins}&destinations={destinations}&key={key}"),
+            eq(HttpMethod.GET),
+            eq(null),
+            any(ParameterizedTypeReference.class),
+            any(Map.class)
+        );
+
+        // when/then
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            googleMapsService.calculateDistance(47.3769, 8.5417, 47.3770, 8.5418);
+        });
+        assertEquals("Failed to calculate distance: null response", exception.getMessage());
+    }
+
+    @Test
+    void testCalculateDistance_ErrorInResponse() {
+        // given
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("error_message", "Invalid API key");
+        ResponseEntity<Map<String, Object>> response = new ResponseEntity<>(responseBody, HttpStatus.OK);
+        doReturn(response).when(restTemplate).exchange(
+            eq("https://maps.googleapis.com/maps/api/distancematrix/json?origins={origins}&destinations={destinations}&key={key}"),
+            eq(HttpMethod.GET),
+            eq(null),
+            any(ParameterizedTypeReference.class),
+            any(Map.class)
+        );
+
+        // when/then
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            googleMapsService.calculateDistance(47.3769, 8.5417, 47.3770, 8.5418);
+        });
+        assertEquals("Failed to calculate distance: Invalid API key", exception.getMessage());
+    }
+
+    @Test
+    void testCalculateDistance_MissingRows() {
+        // given
+        Map<String, Object> responseBody = new HashMap<>();
+        ResponseEntity<Map<String, Object>> response = new ResponseEntity<>(responseBody, HttpStatus.OK);
+        doReturn(response).when(restTemplate).exchange(
+            eq("https://maps.googleapis.com/maps/api/distancematrix/json?origins={origins}&destinations={destinations}&key={key}"),
+            eq(HttpMethod.GET),
+            eq(null),
+            any(ParameterizedTypeReference.class),
+            any(Map.class)
+        );
+
+        // when/then
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            googleMapsService.calculateDistance(47.3769, 8.5417, 47.3770, 8.5418);
+        });
+        assertEquals("Failed to calculate distance: invalid response format", exception.getMessage());
+    }
+
+    @Test
+    void testCalculateDistance_NullRows() {
+        // given
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("rows", null);
+        ResponseEntity<Map<String, Object>> response = new ResponseEntity<>(responseBody, HttpStatus.OK);
+        doReturn(response).when(restTemplate).exchange(
+            eq("https://maps.googleapis.com/maps/api/distancematrix/json?origins={origins}&destinations={destinations}&key={key}"),
+            eq(HttpMethod.GET),
+            eq(null),
+            any(ParameterizedTypeReference.class),
+            any(Map.class)
+        );
+
+        // when/then
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            googleMapsService.calculateDistance(47.3769, 8.5417, 47.3770, 8.5418);
+        });
+        assertEquals("Failed to calculate distance: null rows", exception.getMessage());
+    }
+
+    @Test
+    void testCalculateDistance_EmptyRows() {
+        // given
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("rows", new ArrayList<>());
+        ResponseEntity<Map<String, Object>> response = new ResponseEntity<>(responseBody, HttpStatus.OK);
+        doReturn(response).when(restTemplate).exchange(
+            eq("https://maps.googleapis.com/maps/api/distancematrix/json?origins={origins}&destinations={destinations}&key={key}"),
+            eq(HttpMethod.GET),
+            eq(null),
+            any(ParameterizedTypeReference.class),
+            any(Map.class)
+        );
+
+        // when/then
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            googleMapsService.calculateDistance(47.3769, 8.5417, 47.3770, 8.5418);
+        });
+        assertEquals("Failed to calculate distance: empty rows", exception.getMessage());
+    }
+
+    @Test
+    void testCalculateDistance_MissingElements() {
+        // given
+        Map<String, Object> row = new HashMap<>();
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("rows", Collections.singletonList(row));
+        ResponseEntity<Map<String, Object>> response = new ResponseEntity<>(responseBody, HttpStatus.OK);
+        doReturn(response).when(restTemplate).exchange(
+            eq("https://maps.googleapis.com/maps/api/distancematrix/json?origins={origins}&destinations={destinations}&key={key}"),
+            eq(HttpMethod.GET),
+            eq(null),
+            any(ParameterizedTypeReference.class),
+            any(Map.class)
+        );
+
+        // when/then
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            googleMapsService.calculateDistance(47.3769, 8.5417, 47.3770, 8.5418);
+        });
+        assertEquals("Failed to calculate distance: invalid row format", exception.getMessage());
+    }
+
+    @Test
+    void testCalculateDistance_NullElements() {
+        // given
+        Map<String, Object> row = new HashMap<>();
+        row.put("elements", null);
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("rows", Collections.singletonList(row));
+        ResponseEntity<Map<String, Object>> response = new ResponseEntity<>(responseBody, HttpStatus.OK);
+        doReturn(response).when(restTemplate).exchange(
+            eq("https://maps.googleapis.com/maps/api/distancematrix/json?origins={origins}&destinations={destinations}&key={key}"),
+            eq(HttpMethod.GET),
+            eq(null),
+            any(ParameterizedTypeReference.class),
+            any(Map.class)
+        );
+
+        // when/then
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            googleMapsService.calculateDistance(47.3769, 8.5417, 47.3770, 8.5418);
+        });
+        assertEquals("Failed to calculate distance: null elements", exception.getMessage());
+    }
+
+    @Test
+    void testCalculateDistance_EmptyElements() {
+        // given
+        Map<String, Object> row = new HashMap<>();
+        row.put("elements", new ArrayList<>());
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("rows", Collections.singletonList(row));
+        ResponseEntity<Map<String, Object>> response = new ResponseEntity<>(responseBody, HttpStatus.OK);
+        doReturn(response).when(restTemplate).exchange(
+            eq("https://maps.googleapis.com/maps/api/distancematrix/json?origins={origins}&destinations={destinations}&key={key}"),
+            eq(HttpMethod.GET),
+            eq(null),
+            any(ParameterizedTypeReference.class),
+            any(Map.class)
+        );
+
+        // when/then
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            googleMapsService.calculateDistance(47.3769, 8.5417, 47.3770, 8.5418);
+        });
+        assertEquals("Failed to calculate distance: empty elements", exception.getMessage());
+    }
+
+    @Test
+    void testCalculateDistance_MissingDistance() {
+        // given
+        Map<String, Object> element = new HashMap<>();
+        Map<String, Object> row = new HashMap<>();
+        row.put("elements", Collections.singletonList(element));
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("rows", Collections.singletonList(row));
+        ResponseEntity<Map<String, Object>> response = new ResponseEntity<>(responseBody, HttpStatus.OK);
+        doReturn(response).when(restTemplate).exchange(
+            eq("https://maps.googleapis.com/maps/api/distancematrix/json?origins={origins}&destinations={destinations}&key={key}"),
+            eq(HttpMethod.GET),
+            eq(null),
+            any(ParameterizedTypeReference.class),
+            any(Map.class)
+        );
+
+        // when/then
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            googleMapsService.calculateDistance(47.3769, 8.5417, 47.3770, 8.5418);
+        });
+        assertEquals("Failed to calculate distance: invalid element format", exception.getMessage());
+    }
+
+    @Test
+    void testCalculateDistance_MissingValue() {
+        // given
+        Map<String, Object> distance = new HashMap<>();
+        Map<String, Object> element = new HashMap<>();
+        element.put("distance", distance);
+        Map<String, Object> row = new HashMap<>();
+        row.put("elements", Collections.singletonList(element));
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("rows", Collections.singletonList(row));
+        ResponseEntity<Map<String, Object>> response = new ResponseEntity<>(responseBody, HttpStatus.OK);
+        doReturn(response).when(restTemplate).exchange(
+            eq("https://maps.googleapis.com/maps/api/distancematrix/json?origins={origins}&destinations={destinations}&key={key}"),
+            eq(HttpMethod.GET),
+            eq(null),
+            any(ParameterizedTypeReference.class),
+            any(Map.class)
+        );
+
+        // when/then
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            googleMapsService.calculateDistance(47.3769, 8.5417, 47.3770, 8.5418);
+        });
+        assertEquals("Failed to calculate distance: invalid distance format", exception.getMessage());
+    }
+
+    @Test
+    void testGeocodeAddress_NullResponse() {
+        // given
+        ResponseEntity<Map<String, Object>> response = new ResponseEntity<>(null, HttpStatus.OK);
+        doReturn(response).when(restTemplate).exchange(
+            eq("https://maps.googleapis.com/maps/api/geocode/json?address={address}&key={key}"),
+            eq(HttpMethod.GET),
+            eq(null),
+            any(ParameterizedTypeReference.class),
+            any(Map.class)
+        );
+
+        // when/then
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            googleMapsService.geocodeAddress("Zurich, Switzerland");
+        });
+        assertEquals("Failed to geocode address: null response", exception.getMessage());
+    }
+
+    @Test
+    void testGeocodeAddress_ErrorInResponse() {
+        // given
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("error_message", "Invalid API key");
+        ResponseEntity<Map<String, Object>> response = new ResponseEntity<>(responseBody, HttpStatus.OK);
+        doReturn(response).when(restTemplate).exchange(
+            eq("https://maps.googleapis.com/maps/api/geocode/json?address={address}&key={key}"),
+            eq(HttpMethod.GET),
+            eq(null),
+            any(ParameterizedTypeReference.class),
+            any(Map.class)
+        );
+
+        // when/then
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            googleMapsService.geocodeAddress("Zurich, Switzerland");
+        });
+        assertEquals("Failed to geocode address: Invalid API key", exception.getMessage());
+    }
+
+    @Test
+    void testGeocodeAddress_MissingResults() {
+        // given
+        Map<String, Object> responseBody = new HashMap<>();
+        ResponseEntity<Map<String, Object>> response = new ResponseEntity<>(responseBody, HttpStatus.OK);
+        doReturn(response).when(restTemplate).exchange(
+            eq("https://maps.googleapis.com/maps/api/geocode/json?address={address}&key={key}"),
+            eq(HttpMethod.GET),
+            eq(null),
+            any(ParameterizedTypeReference.class),
+            any(Map.class)
+        );
+
+        // when/then
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            googleMapsService.geocodeAddress("Zurich, Switzerland");
+        });
+        assertEquals("Failed to geocode address: invalid response format", exception.getMessage());
+    }
+
+    @Test
+    void testGeocodeAddress_NullResults() {
+        // given
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("results", null);
+        ResponseEntity<Map<String, Object>> response = new ResponseEntity<>(responseBody, HttpStatus.OK);
+        doReturn(response).when(restTemplate).exchange(
+            eq("https://maps.googleapis.com/maps/api/geocode/json?address={address}&key={key}"),
+            eq(HttpMethod.GET),
+            eq(null),
+            any(ParameterizedTypeReference.class),
+            any(Map.class)
+        );
+
+        // when/then
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            googleMapsService.geocodeAddress("Zurich, Switzerland");
+        });
+        assertEquals("Failed to geocode address: null results", exception.getMessage());
+    }
+
+    @Test
+    void testGeocodeAddress_EmptyResults() {
+        // given
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("results", new ArrayList<>());
+        ResponseEntity<Map<String, Object>> response = new ResponseEntity<>(responseBody, HttpStatus.OK);
+        doReturn(response).when(restTemplate).exchange(
+            eq("https://maps.googleapis.com/maps/api/geocode/json?address={address}&key={key}"),
+            eq(HttpMethod.GET),
+            eq(null),
+            any(ParameterizedTypeReference.class),
+            any(Map.class)
+        );
+
+        // when/then
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            googleMapsService.geocodeAddress("Zurich, Switzerland");
+        });
+        assertEquals("Failed to geocode address: empty results", exception.getMessage());
+    }
+
+    @Test
+    void testGeocodeAddress_MissingGeometry() {
+        // given
+        Map<String, Object> result = new HashMap<>();
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("results", Collections.singletonList(result));
+        ResponseEntity<Map<String, Object>> response = new ResponseEntity<>(responseBody, HttpStatus.OK);
+        doReturn(response).when(restTemplate).exchange(
+            eq("https://maps.googleapis.com/maps/api/geocode/json?address={address}&key={key}"),
+            eq(HttpMethod.GET),
+            eq(null),
+            any(ParameterizedTypeReference.class),
+            any(Map.class)
+        );
+
+        // when/then
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            googleMapsService.geocodeAddress("Zurich, Switzerland");
+        });
+        assertEquals("Failed to geocode address: invalid result format", exception.getMessage());
+    }
+
+    @Test
+    void testGeocodeAddress_MissingLocation() {
+        // given
+        Map<String, Object> geometry = new HashMap<>();
+        Map<String, Object> result = new HashMap<>();
+        result.put("geometry", geometry);
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("results", Collections.singletonList(result));
+        ResponseEntity<Map<String, Object>> response = new ResponseEntity<>(responseBody, HttpStatus.OK);
+        doReturn(response).when(restTemplate).exchange(
+            eq("https://maps.googleapis.com/maps/api/geocode/json?address={address}&key={key}"),
+            eq(HttpMethod.GET),
+            eq(null),
+            any(ParameterizedTypeReference.class),
+            any(Map.class)
+        );
+
+        // when/then
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            googleMapsService.geocodeAddress("Zurich, Switzerland");
+        });
+        assertEquals("Failed to geocode address: invalid geometry format", exception.getMessage());
+    }
+
+    @Test
+    void testGeocodeAddress_MissingCoordinates() {
+        // given
+        Map<String, Object> location = new HashMap<>();
+        Map<String, Object> geometry = new HashMap<>();
+        geometry.put("location", location);
+        Map<String, Object> result = new HashMap<>();
+        result.put("geometry", geometry);
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("results", Collections.singletonList(result));
+        ResponseEntity<Map<String, Object>> response = new ResponseEntity<>(responseBody, HttpStatus.OK);
+        doReturn(response).when(restTemplate).exchange(
+            eq("https://maps.googleapis.com/maps/api/geocode/json?address={address}&key={key}"),
+            eq(HttpMethod.GET),
+            eq(null),
+            any(ParameterizedTypeReference.class),
+            any(Map.class)
+        );
+
+        // when/then
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            googleMapsService.geocodeAddress("Zurich, Switzerland");
+        });
+        assertEquals("Failed to geocode address: invalid location format", exception.getMessage());
     }
 } 
