@@ -15,7 +15,7 @@ import java.util.Properties;
 @PropertySource(value = "file:.env.local", ignoreResourceNotFound = true)
 public class GoogleMapsConfig {
     private static final Logger log = LoggerFactory.getLogger(GoogleMapsConfig.class);
-    private static final String GOOGLE_MAPS_API_KEY_NAME = "GOOGLE_MAPS_API_KEY";
+    public static final String GOOGLE_MAPS_API_KEY_NAME = "GOOGLE_MAPS_API_KEY";
     
     private final Environment environment;
 
