@@ -1,7 +1,5 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
 
-
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,10 +10,14 @@ import javax.persistence.Table;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Entity
 @Table(name ="REQUESTERS")
 @Getter @Setter
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class Requester extends User {
 
     @OneToMany(mappedBy="requester",fetch = FetchType.LAZY)
@@ -23,13 +25,11 @@ public class Requester extends User {
     
     public void addContract(Contract contract){
         this.contracts.add(contract);
+        contract.setRequester(this);
     }
 
     public void removeContract(Contract contract){
-
         this.contracts.remove(contract);
         contract.setRequester(null);
     }
-
-
 }

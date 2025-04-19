@@ -558,6 +558,7 @@ public class ContractService {
             contractRepository.saveAll(contractsToComplete);
             contractRepository.saveAll(contractsToCancel);
             contractRepository.flush();
+            offerRepository.flush();
         }
     }
 

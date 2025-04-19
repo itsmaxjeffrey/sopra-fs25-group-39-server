@@ -94,6 +94,7 @@ Common authentication error codes:
 | No ❌ | No ❌ | `/api/v1/contracts/{id}/collateral` | POST | `id <string>`, `collateralAmount <number>` | Path, Body | 200, 400, 403, 409 | Updated contract with collateral | Provide contract collateral | S21 | 
 | No ❌ | Yes ✅ | `/api/v1/users/{userId}/contracts` | GET | `userId <string>`, `status <string>` (optional) | Path, Query | 200 | List of contracts for a specific user| Get user's contracts with optional status filtering | S12 | 
 | No ❌ | Yes ✅ | `/api/v1/contracts/{id}` | DELETE | `id <string>` | Path | 204, 403, 409 | None | Delete a contract (soft delete) | S8 | 
+| No ❌ | Yes ✅ | `/api/v1/contracts/{id}/driver` | GET | `id <string>` | Path | 200, 403, 404 | Driver details object | Get driver details for a specific contract | S12 | 
 
 ### User Contracts Details
 The GET `/api/v1/users/{userId}/contracts` endpoint supports the following parameters:
@@ -569,9 +570,100 @@ or
 
 | FE | BE | Mapping | Method | Parameter | Parameter Type | Status Code | Response | Description | User Story |
 |---------|--------|-----------|----------------|-------------|----------|-------------|-----------|-----------|-----------|
-| No ❌ | No ❌ | `/api/v1/contracts/{id}/driver-rating` | POST | `id <string>`, `rating <integer>`, `comment <string>`, `issues <boolean>`, `issueDetails <string>` | Path, Body | 200, 400, 403, 409 | Updated contract with rating | Requester rates driver | S9 |
-| No ❌ | No ❌ | `/api/v1/contracts/{id}/requester-rating` | POST | `id <string>`, `rating <integer>`, `comment <string>` | Path, Body | 200, 400, 403, 409 | Updated contract with requester rating | Driver rates requester | S18 | 
-| No ❌ | No ❌ | `/api/v1/users/{id}/ratings` | GET | `id <string>`, `role <string>` (driver/requester) | Path, Query | 200, 404 | List of ratings | Get user's ratings | S9, S18 |
+| No ❌ | Yes ✅ | `/api/v1/ratings/{id}` | GET | `id <string>`, `userId <string>`, `token <string>` | Path, Header | 200, 401, 404 | `{ "rating": {...}, "timestamp": 1234567890 }` | Get a specific rating by ID | S9, S18 |
+| No ❌ | Yes ✅ | `/api/v1/ratings` | POST | `ratingPostDTO <RatingPostDTO>`, `userId <string>`, `token <string>` | Body, Header | 201, 400, 401, 403 | `{ "rating": {...}, "timestamp": 1234567890 }` | Create a new rating | S9 |
+| No ❌ | Yes ✅ | `/api/v1/ratings/{id}` | PUT | `id <string>`, `ratingPutDTO <RatingPutDTO>`, `userId <string>`, `token <string>` | Path, Body, Header | 200, 400, 401, 403, 404 | `{ "rating": {...}, "timestamp": 1234567890 }` | Update an existing rating | S9, S18 |
+| No ❌ | Yes ✅ | `/api/v1/ratings/{id}` | DELETE | `id <string>`, `userId <string>`, `token <string>` | Path, Header | 200, 401, 403, 404 | `{ "message": "Rating deleted successfully", "timestamp": 1234567890 }` | Delete a rating | S9, S18 |
+| No ❌ | Yes ✅ | `/api/v1/ratings/users/{userId}/ratings` | GET | `userId <string>`, `requestUserId <string>`, `token <string>` | Path, Header | 200, 401 | `{ "ratings": [...], "timestamp": 1234567890 }` | Get all ratings for a specific user | S9, S18 |
+| No ❌ | Yes ✅ | `/api/v1/ratings/contracts/{contractId}/ratings` | GET | `contractId <string>`, `userId <string>`, `token <string>` | Path, Header | 200, 401 | `{ "ratings": [...], "timestamp": 1234567890 }` | Get all ratings for a specific contract | S9, S18 |
+| No ❌ | Yes ✅ | `/api/v1/ratings/users/{userId}/average-rating` | GET | `userId <string>`, `requestUserId <string>`, `token <string>` | Path, Header | 200, 401 | `{ "rating": 4.5, "timestamp": 1234567890 }` | Get average rating for a user | S9, S18 |
+
+### Rating DTOs
+
+#### RatingPostDTO
+```json
+{
+  "contractId": 123,
+  "ratingValue": 5,
+  "flagIssues": false,
+  "comment": "Great service!"
+}
+```
+
+#### RatingPutDTO
+```json
+{
+  "ratingValue": 4,
+  "flagIssues": true,
+  "comment": "Updated comment"
+}
+```
+
+### Response Formats
+
+#### Success Response (200/201)
+```json
+{
+  "rating": {
+    "ratingId": 1,
+    "fromUser": {
+      "userId": 123,
+      "username": "requester123"
+    },
+    "toUser": {
+      "userId": 456,
+      "username": "driver123"
+    },
+    "contract": {
+      "contractId": 789
+    },
+    "ratingValue": 5,
+    "flagIssues": false,
+    "comment": "Great service!"
+  },
+  "timestamp": 1234567890
+}
+```
+
+#### Error Response (400)
+```json
+{
+  "message": "Rating value must be between 1 and 5",
+  "timestamp": 1234567890
+}
+```
+
+#### Error Response (401)
+```json
+{
+  "message": "User is not authorized",
+  "timestamp": 1234567890
+}
+```
+
+#### Error Response (403)
+```json
+{
+  "message": "You can only rate your own contracts",
+  "timestamp": 1234567890
+}
+```
+
+#### Error Response (404)
+```json
+{
+  "message": "Rating not found",
+  "timestamp": 1234567890
+}
+```
+
+### Notes
+- All endpoints require authentication via UserId and Authorization headers
+- Rating values must be between 1 and 5
+- Only requesters can create ratings for their completed contracts
+- Users can only update or delete their own ratings
+- When a rating is deleted, the associated contract's status is reverted to COMPLETED
+- The average rating endpoint returns null if no ratings exist for the user
 
 ## Payment Management
 

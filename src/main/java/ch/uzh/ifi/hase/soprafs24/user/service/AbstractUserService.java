@@ -4,7 +4,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.exceptions.UserNotFoundException;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.security.authorization.service.AuthorizationService;
 import ch.uzh.ifi.hase.soprafs24.user.dto.request.update.BaseUserUpdateDTO;
@@ -39,7 +38,7 @@ public abstract class AbstractUserService {
      */
     protected User findUserById(Long userId) {
         return userRepository.findById(userId)
-            .orElseThrow(() -> new UserNotFoundException(userId));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
     }
 
     /**

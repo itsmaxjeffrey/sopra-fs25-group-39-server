@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestPropertySource(properties = {
     "google.maps.api.key=${GOOGLE_MAPS_API_KEY}"
 })
-public class GoogleMapsServiceIntegrationTest {
+class GoogleMapsServiceIntegrationTest {
 
     private static final Logger log = LoggerFactory.getLogger(GoogleMapsServiceIntegrationTest.class);
 

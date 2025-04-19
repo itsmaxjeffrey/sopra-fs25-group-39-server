@@ -33,7 +33,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
-public class OfferServiceTest {
+class OfferServiceTest {
 
     @Mock
     private OfferDTOMapper offerDTOMapper;
@@ -60,7 +60,7 @@ public class OfferServiceTest {
     private OfferPostDTO testOfferPostDTO;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         MockitoAnnotations.openMocks(this);
 
         // Create test contract
@@ -117,7 +117,7 @@ public class OfferServiceTest {
     }
 
     @Test
-    public void createOffer_success() {
+    void createOffer_success() {
         // given
         // Create a complete offer to be returned by the repository
         Offer savedOffer = new Offer();
@@ -154,7 +154,7 @@ public class OfferServiceTest {
         verify(offerRepository, times(1)).save(any());
     }
     @Test
-    public void createOffer_contractNotFound_throwsException() {
+    void createOffer_contractNotFound_throwsException() {
         // given
         when(contractRepository.findById(any())).thenReturn(Optional.empty());
 
@@ -169,7 +169,7 @@ public class OfferServiceTest {
     }
 
     @Test
-    public void createOffer_driverNotFound_throwsException() {
+    void createOffer_driverNotFound_throwsException() {
         // given
         when(userRepository.findById(any())).thenReturn(Optional.empty());
 
@@ -184,7 +184,7 @@ public class OfferServiceTest {
     }
 
     @Test
-    public void createOffer_userNotDriver_throwsException() {
+    void createOffer_userNotDriver_throwsException() {
         // given
         when(userRepository.findById(any())).thenReturn(Optional.of(new Requester()));
 
@@ -199,7 +199,7 @@ public class OfferServiceTest {
     }
 
     @Test
-    public void createOffer_offerAlreadyExists_throwsException() {
+    void createOffer_offerAlreadyExists_throwsException() {
         // given
         when(offerRepository.findByContract_ContractIdAndDriver_UserId(any(), any()))
             .thenReturn(Collections.singletonList(testOffer));
@@ -215,7 +215,7 @@ public class OfferServiceTest {
     }
 
     @Test
-    public void createOffer_contractInInvalidState_throwsException() {
+    void createOffer_contractInInvalidState_throwsException() {
         // given
         testContract.setContractStatus(ContractStatus.ACCEPTED);
         when(contractRepository.findById(any())).thenReturn(Optional.of(testContract));
@@ -231,7 +231,7 @@ public class OfferServiceTest {
     }
 
     @Test
-    public void acceptOffer_success() {
+    void acceptOffer_success() {
         // given
         testContract.setContractStatus(ContractStatus.OFFERED);
         testOffer.setOfferStatus(OfferStatus.CREATED);
@@ -270,7 +270,7 @@ public class OfferServiceTest {
     }
 
     @Test
-    public void acceptOffer_offerNotFound_throwsException() {
+    void acceptOffer_offerNotFound_throwsException() {
         // given
         when(offerRepository.findById(any())).thenReturn(Optional.empty());
 
@@ -283,7 +283,7 @@ public class OfferServiceTest {
     }
 
     @Test
-    public void acceptOffer_contractNotOffered_throwsException() {
+    void acceptOffer_contractNotOffered_throwsException() {
         // given
         testContract.setContractStatus(ContractStatus.REQUESTED);
         when(offerRepository.findById(any())).thenReturn(Optional.of(testOffer));
@@ -297,7 +297,7 @@ public class OfferServiceTest {
     }
 
     @Test
-    public void rejectOffer_success() {
+    void rejectOffer_success() {
         // given
         testContract.setContractStatus(ContractStatus.OFFERED);
         testOffer.setOfferStatus(OfferStatus.CREATED);
@@ -332,7 +332,7 @@ public class OfferServiceTest {
     }
 
     @Test
-    public void rejectOffer_offerNotFound_throwsException() {
+    void rejectOffer_offerNotFound_throwsException() {
         // given
         when(offerRepository.findById(any())).thenReturn(Optional.empty());
 
@@ -345,7 +345,7 @@ public class OfferServiceTest {
     }
 
     @Test
-    public void rejectOffer_contractNotRequestedOrOffered_throwsException() {
+    void rejectOffer_contractNotRequestedOrOffered_throwsException() {
         // given
         testContract.setContractStatus(ContractStatus.ACCEPTED);
         when(offerRepository.findById(any())).thenReturn(Optional.of(testOffer));
@@ -359,7 +359,7 @@ public class OfferServiceTest {
     }
 
     @Test
-    public void deleteOffer_success() {
+    void deleteOffer_success() {
         // given
         testContract.setContractStatus(ContractStatus.OFFERED);
         when(offerRepository.findById(any())).thenReturn(Optional.of(testOffer));
@@ -375,7 +375,7 @@ public class OfferServiceTest {
     }
 
     @Test
-    public void deleteOffer_offerNotFound_throwsException() {
+    void deleteOffer_offerNotFound_throwsException() {
         // given
         when(offerRepository.findById(any())).thenReturn(Optional.empty());
 
@@ -388,7 +388,7 @@ public class OfferServiceTest {
     }
 
     @Test
-    public void deleteOffer_acceptedOffer_throwsException() {
+    void deleteOffer_acceptedOffer_throwsException() {
         // given
         testOffer.setOfferStatus(OfferStatus.ACCEPTED);
         when(offerRepository.findById(any())).thenReturn(Optional.of(testOffer));
@@ -402,7 +402,7 @@ public class OfferServiceTest {
     }
 
     @Test
-    public void deleteOffer_rejectedOffer_throwsException() {
+    void deleteOffer_rejectedOffer_throwsException() {
         // given
         testOffer.setOfferStatus(OfferStatus.REJECTED);
         when(offerRepository.findById(any())).thenReturn(Optional.of(testOffer));
@@ -416,7 +416,7 @@ public class OfferServiceTest {
     }
 
     @Test
-    public void deleteOffer_acceptedContract_throwsException() {
+    void deleteOffer_acceptedContract_throwsException() {
         // given
         testContract.setContractStatus(ContractStatus.ACCEPTED);
         when(offerRepository.findById(any())).thenReturn(Optional.of(testOffer));
@@ -430,7 +430,7 @@ public class OfferServiceTest {
     }
 
     @Test
-    public void getOffers_success() {
+    void getOffers_success() {
         // given
         List<Offer> offers = Collections.singletonList(testOffer);
         when(offerRepository.findAll()).thenReturn(offers);
@@ -444,7 +444,7 @@ public class OfferServiceTest {
     }
 
     @Test
-    public void getOffers_withFilters_success() {
+    void getOffers_withFilters_success() {
         // given
         List<Offer> offers = Collections.singletonList(testOffer);
         when(offerRepository.findByContract_ContractIdAndDriver_UserIdAndOfferStatus(any(), any(), any()))
@@ -459,7 +459,7 @@ public class OfferServiceTest {
     }
 
     @Test
-    public void getOffer_success() {
+    void getOffer_success() {
         // given
         when(offerRepository.findById(any())).thenReturn(Optional.of(testOffer));
 
@@ -472,7 +472,7 @@ public class OfferServiceTest {
     }
 
     @Test
-    public void getOffer_notFound_throwsException() {
+    void getOffer_notFound_throwsException() {
         // given
         when(offerRepository.findById(any())).thenReturn(Optional.empty());
 

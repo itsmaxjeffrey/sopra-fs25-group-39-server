@@ -15,7 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 import ch.uzh.ifi.hase.soprafs24.entity.Car;
 import ch.uzh.ifi.hase.soprafs24.repository.CarRepository;
 
-public class CarValidatorTest {
+class CarValidatorTest {
 
     @Mock
     private CarRepository carRepository;
@@ -27,7 +27,7 @@ public class CarValidatorTest {
     private Car existingCar;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         MockitoAnnotations.openMocks(this);
 
         // Create test car
@@ -47,7 +47,7 @@ public class CarValidatorTest {
     }
 
     @Test
-    public void validateLicensePlate_uniquePlate_success() {
+    void validateLicensePlate_uniquePlate_success() {
         // given
         when(carRepository.findByLicensePlate(any())).thenReturn(null);
 
@@ -57,7 +57,7 @@ public class CarValidatorTest {
     }
 
     @Test
-    public void validateLicensePlate_duplicatePlate_throwsException() {
+    void validateLicensePlate_duplicatePlate_throwsException() {
         // given
         when(carRepository.findByLicensePlate(any())).thenReturn(existingCar);
 
@@ -71,7 +71,7 @@ public class CarValidatorTest {
     }
 
     @Test
-    public void validateLicensePlate_sameCarId_success() {
+    void validateLicensePlate_sameCarId_success() {
         // given
         testCar.setCarId(2L); // Same ID as existingCar
         when(carRepository.findByLicensePlate(any())).thenReturn(existingCar);
@@ -82,7 +82,7 @@ public class CarValidatorTest {
     }
 
     @Test
-    public void validateLicensePlate_nullLicensePlate_success() {
+    void validateLicensePlate_nullLicensePlate_success() {
         // given
         testCar.setLicensePlate(null);
 
@@ -92,7 +92,7 @@ public class CarValidatorTest {
     }
 
     @Test
-    public void validateLicensePlate_blankLicensePlate_success() {
+    void validateLicensePlate_blankLicensePlate_success() {
         // given
         testCar.setLicensePlate("   ");
 
@@ -102,7 +102,7 @@ public class CarValidatorTest {
     }
 
     @Test
-    public void validateCar_success() {
+    void validateCar_success() {
         // given
         when(carRepository.findByLicensePlate(any())).thenReturn(null);
 
@@ -112,7 +112,7 @@ public class CarValidatorTest {
     }
 
     @Test
-    public void validateCar_duplicateLicensePlate_throwsException() {
+    void validateCar_duplicateLicensePlate_throwsException() {
         // given
         when(carRepository.findByLicensePlate(any())).thenReturn(existingCar);
 

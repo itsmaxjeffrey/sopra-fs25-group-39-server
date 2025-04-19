@@ -16,7 +16,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.Car;
 import ch.uzh.ifi.hase.soprafs24.repository.CarRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.CarDTO;
 
-public class CarServiceTest {
+class CarServiceTest {
 
     @Mock
     private CarRepository carRepository;
@@ -34,7 +34,7 @@ public class CarServiceTest {
     private CarDTO testCarDTO;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         MockitoAnnotations.openMocks(this);
 
         // Create test car
@@ -58,7 +58,7 @@ public class CarServiceTest {
     }
 
     @Test
-    public void createCar_success() {
+    void createCar_success() {
         // given
         when(carCreator.createCar(any())).thenReturn(testCar);
 
@@ -79,7 +79,7 @@ public class CarServiceTest {
     }
 
     @Test
-    public void createCarFromDTO_success() {
+    void createCarFromDTO_success() {
         // given
         when(carCreator.createCarFromDTO(any())).thenReturn(testCar);
 
@@ -100,7 +100,7 @@ public class CarServiceTest {
     }
 
     @Test
-    public void updateCarFromDTO_existingCar_success() {
+    void updateCarFromDTO_existingCar_success() {
         // given
         when(carUpdater.updateAndSave(any(), any())).thenReturn(testCar);
 
@@ -121,7 +121,7 @@ public class CarServiceTest {
     }
 
     @Test
-    public void updateCarFromDTO_nullCar_createsNew() {
+    void updateCarFromDTO_nullCar_createsNew() {
         // given
         when(carCreator.createCarFromDTO(any())).thenReturn(testCar);
 
@@ -143,7 +143,7 @@ public class CarServiceTest {
     }
 
     @Test
-    public void getCarById_success() {
+    void getCarById_success() {
         // given
         when(carRepository.findById(any())).thenReturn(java.util.Optional.of(testCar));
 
@@ -164,7 +164,7 @@ public class CarServiceTest {
     }
 
     @Test
-    public void getCarById_notFound_throwsException() {
+    void getCarById_notFound_throwsException() {
         // given
         when(carRepository.findById(any())).thenReturn(java.util.Optional.empty());
 

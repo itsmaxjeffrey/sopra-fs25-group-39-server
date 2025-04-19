@@ -9,10 +9,14 @@ import javax.persistence.Table;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Entity
 @Table(name ="DRIVERS")
 @Getter @Setter
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class Driver extends User {
 
     @Column(nullable = false)
@@ -21,7 +25,7 @@ public class Driver extends User {
     @Column
     private String driverInsurancePath;
 
-    @OneToOne( orphanRemoval = true)
+    @OneToOne(orphanRemoval = true)
     @JoinColumn(name="car_id", referencedColumnName = "carId", nullable = false)
     private Car car;
 

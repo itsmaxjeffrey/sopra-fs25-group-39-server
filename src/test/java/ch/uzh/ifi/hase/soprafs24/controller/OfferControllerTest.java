@@ -34,7 +34,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-public class OfferControllerTest {
+class OfferControllerTest {
 
     @Mock
     private OfferService offerService;
@@ -60,7 +60,7 @@ public class OfferControllerTest {
     private Requester testRequesterEntity;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         MockitoAnnotations.openMocks(this);
 
         // Create test driver
@@ -116,7 +116,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void getOffers_noFilters_success() {
+    void getOffers_noFilters_success() {
         // given
         List<OfferGetDTO> offers = new ArrayList<>();
         when(offerService.getOffers(null, null, null)).thenReturn(offers);
@@ -131,7 +131,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void getOffers_withFilters_success() {
+    void getOffers_withFilters_success() {
         // given
         List<OfferGetDTO> offers = new ArrayList<>();
         when(offerService.getOffers(1L, 1L, OfferStatus.CREATED)).thenReturn(offers);
@@ -146,7 +146,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void getOffer_asDriver_success() {
+    void getOffer_asDriver_success() {
         // given
         when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(testDriver);
         when(offerService.getOffer(1L)).thenReturn(testOfferGetDTO);
@@ -165,7 +165,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void getOffer_asRequester_success() {
+    void getOffer_asRequester_success() {
         // given
         when(authorizationService.authenticateUser(1L, "test-token")).thenReturn(testRequester);
         when(offerService.getOffer(1L)).thenReturn(testOfferGetDTO);
@@ -184,7 +184,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void getOffer_unauthorized() {
+    void getOffer_unauthorized() {
         // given
         when(authorizationService.authenticateUser(any(), any())).thenReturn(null);
 
@@ -202,7 +202,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void getOffer_forbidden_wrongDriver() {
+    void getOffer_forbidden_wrongDriver() {
         // given
         testDriver.setUserId(3L); // Different driver ID than the offer's driver
         when(authorizationService.authenticateUser(3L, "test-token")).thenReturn(testDriver);
@@ -222,7 +222,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void getOffer_forbidden_wrongRequester() {
+    void getOffer_forbidden_wrongRequester() {
         // given
         testRequester.setUserId(3L); // Different requester ID than the contract's requester
         when(authorizationService.authenticateUser(3L, "test-token")).thenReturn(testRequester);
@@ -242,7 +242,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void getOffer_notFound() {
+    void getOffer_notFound() {
         // given
         when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(testDriver);
         when(offerService.getOffer(1L)).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Offer not found"));
@@ -252,7 +252,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void createOffer_success() {
+    void createOffer_success() {
         // given
         when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(testDriver);
         when(contractService.getContractById(anyLong())).thenReturn(testContract);
@@ -274,7 +274,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void createOffer_unauthorized_returns401() {
+    void createOffer_unauthorized_returns401() {
         // given
         when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(null);
 
@@ -292,7 +292,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void deleteOffer_success() {
+    void deleteOffer_success() {
         // given
         when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(testDriver);
         when(offerService.getOffer(1L)).thenReturn(testOfferGetDTO);
@@ -312,7 +312,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void deleteOffer_unauthorized_returns401() {
+    void deleteOffer_unauthorized_returns401() {
         // given
         when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(null);
 
@@ -330,7 +330,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void updateOfferStatus_success() {
+    void updateOfferStatus_success() {
         // given
         when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(testDriver);
         when(offerService.getOffer(1L)).thenReturn(testOfferGetDTO);
@@ -351,7 +351,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void updateOfferStatus_unauthorized_returns401() {
+    void updateOfferStatus_unauthorized_returns401() {
         // given
         when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(null);
 
@@ -369,7 +369,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void getOffersByContract_success() {
+    void getOffersByContract_success() {
         // given
         when(authorizationService.authenticateUser(1L, "test-token")).thenReturn(testRequester);
         when(offerService.getOffers(1L, null, null)).thenReturn(Collections.singletonList(testOfferGetDTO));
@@ -396,7 +396,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void getOffersByContract_unauthorized_returns401() {
+    void getOffersByContract_unauthorized_returns401() {
         // given
         when(authorizationService.authenticateUser(1L, "test-token")).thenReturn(null);
 
@@ -414,7 +414,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void createOffer_requesterCannotCreateOffer_forbidden() {
+    void createOffer_requesterCannotCreateOffer_forbidden() {
         // given
         when(authorizationService.authenticateUser(1L, "test-token")).thenReturn(testRequester);
 
@@ -432,7 +432,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void getOffersByDriver_success() {
+    void getOffersByDriver_success() {
         // given
         List<OfferGetDTO> offers = Collections.singletonList(testOfferGetDTO);
         when(offerService.getOffers(any(), any(), any())).thenReturn(offers);
@@ -453,7 +453,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void getOffersByDriver_withStatusFilter_success() {
+    void getOffersByDriver_withStatusFilter_success() {
         // given
         List<OfferGetDTO> offers = Collections.singletonList(testOfferGetDTO);
         when(offerService.getOffers(any(), any(), any())).thenReturn(offers);
@@ -474,7 +474,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void getOffersByDriver_unauthorized_returns401() {
+    void getOffersByDriver_unauthorized_returns401() {
         // given
         when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(null);
 
@@ -492,7 +492,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void getOffersByDriver_forbidden_wrongDriver_returns403() {
+    void getOffersByDriver_forbidden_wrongDriver_returns403() {
         // given
         when(authorizationService.authenticateUser(3L, "test-token")).thenReturn(testDriver);
 
@@ -510,7 +510,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void getOffersByDriver_forbidden_requester_returns403() {
+    void getOffersByDriver_forbidden_requester_returns403() {
         // given
         when(authorizationService.authenticateUser(1L, "test-token")).thenReturn(testRequester);
 
@@ -528,7 +528,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void getOffersByDriver_notFound_throwsException() {
+    void getOffersByDriver_notFound_throwsException() {
         // given
         when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(testDriver);
         when(offerService.getOffers(any(), any(), any()))
@@ -542,7 +542,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void getOffers_unauthorized_returns401() {
+    void getOffers_unauthorized_returns401() {
         // given
         when(authorizationService.authenticateUser(anyLong(), anyString())).thenReturn(null);
 
@@ -560,7 +560,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void getOffers_asDriver_canOnlySeeOwnOffers() {
+    void getOffers_asDriver_canOnlySeeOwnOffers() {
         // given
         User driver = new User();
         driver.setUserId(1L);
@@ -578,7 +578,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void getOffers_asRequester_canOnlySeeOwnContracts() {
+    void getOffers_asRequester_canOnlySeeOwnContracts() {
         // given
         User requester = new User();
         requester.setUserId(1L);
@@ -605,7 +605,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void getOffers_asRequester_canSeeAllOwnContracts() {
+    void getOffers_asRequester_canSeeAllOwnContracts() {
         // given
         User requester = new User();
         requester.setUserId(1L);
@@ -644,7 +644,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void getOffers_asDriver_withStatusFilter_success() {
+    void getOffers_asDriver_withStatusFilter_success() {
         // given
         User driver = new User();
         driver.setUserId(1L);
@@ -662,7 +662,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void getOffers_asRequester_withStatusFilter_success() {
+    void getOffers_asRequester_withStatusFilter_success() {
         // given
         User requester = new User();
         requester.setUserId(1L);
@@ -701,7 +701,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void updateOfferStatus_driverCanDeleteOwnOffer_success() {
+    void updateOfferStatus_driverCanDeleteOwnOffer_success() {
         // given
         when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(testDriver);
         when(offerService.getOffer(1L)).thenReturn(testOfferGetDTO);
@@ -722,7 +722,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void updateOfferStatus_driverCannotAcceptOwnOffer_forbidden() {
+    void updateOfferStatus_driverCannotAcceptOwnOffer_forbidden() {
         // given
         when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(testDriver);
         when(offerService.getOffer(1L)).thenReturn(testOfferGetDTO);
@@ -741,7 +741,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void updateOfferStatus_requesterCanAcceptOwnContractOffer_success() {
+    void updateOfferStatus_requesterCanAcceptOwnContractOffer_success() {
         // given
         when(authorizationService.authenticateUser(1L, "test-token")).thenReturn(testRequester);
         when(offerService.getOffer(1L)).thenReturn(testOfferGetDTO);
@@ -762,7 +762,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void updateOfferStatus_requesterCannotDeleteOffer_forbidden() {
+    void updateOfferStatus_requesterCannotDeleteOffer_forbidden() {
         // given
         when(authorizationService.authenticateUser(1L, "test-token")).thenReturn(testRequester);
         when(offerService.getOffer(1L)).thenReturn(testOfferGetDTO);
@@ -781,7 +781,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void deleteOffer_driverCanDeleteOwnOffer_success() {
+    void deleteOffer_driverCanDeleteOwnOffer_success() {
         // given
         when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(testDriver);
         when(offerService.getOffer(1L)).thenReturn(testOfferGetDTO);
@@ -801,7 +801,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void deleteOffer_requesterCannotDeleteOffer_forbidden() {
+    void deleteOffer_requesterCannotDeleteOffer_forbidden() {
         // given
         when(authorizationService.authenticateUser(1L, "test-token")).thenReturn(testRequester);
         when(offerService.getOffer(1L)).thenReturn(testOfferGetDTO);
@@ -820,7 +820,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void deleteOffer_driverCannotDeleteOtherDriverOffer_forbidden() {
+    void deleteOffer_driverCannotDeleteOtherDriverOffer_forbidden() {
         // given
         User otherDriver = new User();
         otherDriver.setUserId(3L);
@@ -850,7 +850,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void getOffersByContract_forbidden_wrongRequester() {
+    void getOffersByContract_forbidden_wrongRequester() {
         // given
         when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(testRequester);
         
@@ -874,7 +874,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void getOffersByContract_forbidden_invalidContractState() {
+    void getOffersByContract_forbidden_invalidContractState() {
         // given
         when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(testDriver);
         
@@ -896,7 +896,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void createOffer_badRequest_invalidContractState() {
+    void createOffer_badRequest_invalidContractState() {
         // given
         when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(testDriver);
         when(contractService.getContractById(anyLong())).thenReturn(testAcceptedContract);
@@ -913,7 +913,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void createOffer_conflict_duplicateOffer() {
+    void createOffer_conflict_duplicateOffer() {
         // given
         when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(testDriver);
         when(contractService.getContractById(anyLong())).thenReturn(testContract);
@@ -930,7 +930,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void deleteOffer_forbidden_acceptedOffer() {
+    void deleteOffer_forbidden_acceptedOffer() {
         // given
         when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(testDriver);
         when(offerService.getOffer(1L)).thenReturn(testOfferGetDTO);
@@ -947,7 +947,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void deleteOffer_notFound() {
+    void deleteOffer_notFound() {
         // given
         when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(testDriver);
         when(offerService.getOffer(1L)).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Offer not found"));
@@ -962,7 +962,7 @@ public class OfferControllerTest {
     }
 
     @Test
-    public void updateOfferStatus_badRequest_invalidContractState() {
+    void updateOfferStatus_badRequest_invalidContractState() {
         // given
         when(authorizationService.authenticateUser(1L, "test-token")).thenReturn(testRequester);
         when(offerService.getOffer(1L)).thenReturn(testOfferGetDTO);

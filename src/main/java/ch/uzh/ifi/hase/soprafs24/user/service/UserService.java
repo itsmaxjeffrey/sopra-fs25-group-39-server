@@ -80,11 +80,11 @@ public class UserService extends AbstractUserService {
      * Dispatches update to the appropriate service based on user type
      */
     private User updateUserByType(User existingUser, BaseUserUpdateDTO userUpdateDTO) {
-        if (existingUser instanceof Driver && userUpdateDTO instanceof DriverUpdateDTO) {
-            return driverService.updateDriverDetails((Driver) existingUser, (DriverUpdateDTO) userUpdateDTO);
+        if (existingUser instanceof Driver driver && userUpdateDTO instanceof DriverUpdateDTO driverUpdateDTO) {
+            return driverService.updateDriverDetails(driver, driverUpdateDTO);
         } 
-        else if (existingUser instanceof Requester && userUpdateDTO instanceof RequesterUpdateDTO) {
-            return requesterService.updateRequesterDetails((Requester) existingUser, (RequesterUpdateDTO) userUpdateDTO);
+        else if (existingUser instanceof Requester requester && userUpdateDTO instanceof RequesterUpdateDTO requesterUpdateDTO) {
+            return requesterService.updateRequesterDetails(requester, requesterUpdateDTO);
         }
         else {
             // Just update common fields for base User type

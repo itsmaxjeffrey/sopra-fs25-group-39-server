@@ -5,13 +5,10 @@ import org.springframework.stereotype.Service;
 import ch.uzh.ifi.hase.soprafs24.entity.Car;
 import ch.uzh.ifi.hase.soprafs24.entity.Driver;
 import ch.uzh.ifi.hase.soprafs24.entity.Location;
-import ch.uzh.ifi.hase.soprafs24.repository.CarRepository;
-import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.CarDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
 import ch.uzh.ifi.hase.soprafs24.security.registration.dto.DriverRegisterDTO;
 import ch.uzh.ifi.hase.soprafs24.service.CarService;
-import ch.uzh.ifi.hase.soprafs24.service.FileStorageService;
 import ch.uzh.ifi.hase.soprafs24.service.LocationService;
 
 
@@ -24,9 +21,6 @@ public class DriverRegistrationService {
 
 
     public DriverRegistrationService(
-        UserRepository userRepository, 
-        CarRepository carRepository,
-        FileStorageService fileStorageService, 
         CarService carService, 
         LocationService locationService) {
         this.carService = carService;

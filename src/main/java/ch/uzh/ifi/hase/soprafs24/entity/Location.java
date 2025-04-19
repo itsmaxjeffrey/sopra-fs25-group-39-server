@@ -10,11 +10,14 @@ import javax.persistence.Table;
 
 import lombok.Getter;
 import lombok.Setter;
-
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Entity
 @Table(name="LOCATION")
 @Getter @Setter
+@EqualsAndHashCode
+@ToString
 public class Location implements Serializable {
     
     private static final long serialVersionUID = 1L;

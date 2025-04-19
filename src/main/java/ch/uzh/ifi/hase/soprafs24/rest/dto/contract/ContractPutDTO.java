@@ -7,15 +7,15 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
 
 public class ContractPutDTO {
     private String title;
-    private float mass;
-    private float volume;
-    private boolean fragile;
-    private boolean coolingRequired;
-    private boolean rideAlong;
-    private int manPower;
+    private Float mass;
+    private Float volume;
+    private Boolean fragile;
+    private Boolean coolingRequired;
+    private Boolean rideAlong;
+    private Integer manPower;
     private String contractDescription;
-    private float price;
-    private float collateral;
+    private Float price;
+    private Float collateral;
     private LocationDTO fromLocation;
     private LocationDTO toLocation;
     private LocalDateTime moveDateTime;
@@ -30,51 +30,51 @@ public class ContractPutDTO {
         this.title = title;
     }
 
-    public float getMass() {
+    public Float getMass() {
         return mass;
     }
 
-    public void setMass(float mass) {
+    public void setMass(Float mass) {
         this.mass = mass;
     }
 
-    public float getVolume() {
+    public Float getVolume() {
         return volume;
     }
 
-    public void setVolume(float volume) {
+    public void setVolume(Float volume) {
         this.volume = volume;
     }
 
-    public boolean getFragile() {
+    public Boolean getFragile() {
         return fragile;
     }
 
-    public void setFragile(boolean fragile) {
+    public void setFragile(Boolean fragile) {
         this.fragile = fragile;
     }
 
-    public boolean getCoolingRequired() {
+    public Boolean getCoolingRequired() {
         return coolingRequired;
     }
 
-    public void setCoolingRequired(boolean coolingRequired) {
+    public void setCoolingRequired(Boolean coolingRequired) {
         this.coolingRequired = coolingRequired;
     }
 
-    public boolean getRideAlong() {
+    public Boolean getRideAlong() {
         return rideAlong;
     }
 
-    public void setRideAlong(boolean rideAlong) {
+    public void setRideAlong(Boolean rideAlong) {
         this.rideAlong = rideAlong;
     }
 
-    public int getManPower() {
+    public Integer getManPower() {
         return manPower;
     }
 
-    public void setManPower(int manPower) {
+    public void setManPower(Integer manPower) {
         this.manPower = manPower;
     }
 
@@ -86,19 +86,19 @@ public class ContractPutDTO {
         this.contractDescription = contractDescription;
     }
 
-    public float getPrice() {
+    public Float getPrice() {
         return price;
     }
 
-    public void setPrice(float price) {
+    public void setPrice(Float price) {
         this.price = price;
     }
 
-    public float getCollateral() {
+    public Float getCollateral() {
         return collateral;
     }
 
-    public void setCollateral(float collateral) {
+    public void setCollateral(Float collateral) {
         this.collateral = collateral;
     }
 

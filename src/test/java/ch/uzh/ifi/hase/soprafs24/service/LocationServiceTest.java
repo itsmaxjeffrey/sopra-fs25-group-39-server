@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class LocationServiceTest {
+class LocationServiceTest {
 
     @Mock
     private LocationRepository locationRepository;
@@ -33,7 +33,7 @@ public class LocationServiceTest {
     private LocationDTO testLocationDTO;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         MockitoAnnotations.openMocks(this);
 
         // Create test location
@@ -51,7 +51,7 @@ public class LocationServiceTest {
     }
 
     @Test
-    public void createLocation_validInput_success() {
+    void createLocation_validInput_success() {
         // given
         when(locationCreator.createLocation(any())).thenReturn(testLocation);
 
@@ -67,7 +67,7 @@ public class LocationServiceTest {
     }
 
     @Test
-    public void createLocationFromDTO_validInput_success() {
+    void createLocationFromDTO_validInput_success() {
         // given
         when(locationCreator.createLocationFromDTO(any())).thenReturn(testLocation);
 
@@ -83,7 +83,7 @@ public class LocationServiceTest {
     }
 
     @Test
-    public void updateLocationFromDTO_existingLocation_success() {
+    void updateLocationFromDTO_existingLocation_success() {
         // given
         when(locationUpdater.updateAndSaveLocation(any(), any())).thenReturn(testLocation);
 
@@ -99,7 +99,7 @@ public class LocationServiceTest {
     }
 
     @Test
-    public void updateLocationFromDTO_nullLocation_createsNew() {
+    void updateLocationFromDTO_nullLocation_createsNew() {
         // given
         when(locationCreator.createLocationFromDTO(any())).thenReturn(testLocation);
 
@@ -115,7 +115,7 @@ public class LocationServiceTest {
     }
 
     @Test
-    public void getLocationById_validId_success() {
+    void getLocationById_validId_success() {
         // given
         when(locationRepository.findById(any())).thenReturn(java.util.Optional.of(testLocation));
 
@@ -131,7 +131,7 @@ public class LocationServiceTest {
     }
 
     @Test
-    public void getLocationById_invalidId_throwsException() {
+    void getLocationById_invalidId_throwsException() {
         // given
         when(locationRepository.findById(any())).thenReturn(java.util.Optional.empty());
 

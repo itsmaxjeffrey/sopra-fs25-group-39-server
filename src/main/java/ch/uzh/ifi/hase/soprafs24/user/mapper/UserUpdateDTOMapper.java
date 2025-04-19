@@ -19,10 +19,10 @@ public interface UserUpdateDTOMapper {
     
     // Generic method to handle polymorphic user types
     default User convertToEntity(BaseUserUpdateDTO updateDTO) {
-        if (updateDTO instanceof DriverUpdateDTO) {
-            return convertToDriverEntity((DriverUpdateDTO) updateDTO);
-        } else if (updateDTO instanceof RequesterUpdateDTO) {
-            return convertToRequesterEntity((RequesterUpdateDTO) updateDTO);
+        if (updateDTO instanceof DriverUpdateDTO driverUpdateDTO) {
+            return convertToDriverEntity(driverUpdateDTO);
+        } else if (updateDTO instanceof RequesterUpdateDTO requesterUpdateDTO) {
+            return convertToRequesterEntity(requesterUpdateDTO);
         } else {
             return convertToBaseUserEntity(updateDTO);
         }

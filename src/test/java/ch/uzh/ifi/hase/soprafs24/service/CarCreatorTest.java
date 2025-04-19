@@ -15,7 +15,7 @@ import ch.uzh.ifi.hase.soprafs24.repository.CarRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.CarDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.CarDTOMapper;
 
-public class CarCreatorTest {
+class CarCreatorTest {
 
     @Mock
     private CarRepository carRepository;
@@ -33,7 +33,7 @@ public class CarCreatorTest {
     private CarDTO testCarDTO;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         MockitoAnnotations.openMocks(this);
 
         // Create test car
@@ -62,7 +62,7 @@ public class CarCreatorTest {
     }
 
     @Test
-    public void createCarFromDTO_success() {
+    void createCarFromDTO_success() {
         // when
         Car createdCar = carCreator.createCarFromDTO(testCarDTO);
 
@@ -82,7 +82,7 @@ public class CarCreatorTest {
     }
 
     @Test
-    public void createCar_success() {
+    void createCar_success() {
         // when
         Car createdCar = carCreator.createCar(testCar);
 
@@ -101,7 +101,7 @@ public class CarCreatorTest {
     }
 
     @Test
-    public void createCar_validationFailure_throwsException() {
+    void createCar_validationFailure_throwsException() {
         // given
         doThrow(new RuntimeException("Validation failed")).when(carValidator).validateCar(any(Car.class));
 

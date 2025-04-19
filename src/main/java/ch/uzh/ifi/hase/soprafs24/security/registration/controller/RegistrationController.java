@@ -6,6 +6,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.security.authentication.dto.response.AuthenticatedUserDTO;
@@ -17,6 +20,7 @@ import ch.uzh.ifi.hase.soprafs24.user.mapper.UserDTOMapper;
 @RequestMapping("/api/v1/auth")
 public class RegistrationController {
 
+    private final Logger log = LoggerFactory.getLogger(RegistrationController.class);
     private final UserDTOMapper userDTOMapper;
     private final UserRegistrationService userRegistrationService;
 
@@ -33,10 +37,13 @@ public class RegistrationController {
      */
     @PostMapping("/register")
     public ResponseEntity<Object> registerUser(@RequestBody UserRegistrationRequestDTO request) {
+        // Validate request
+        if (request == null || request.getUser() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User data is required");
+        }
         
-        //#DEBUG#
-        System.out.println("Received user account type: " + 
-        (request.getUser() != null ? request.getUser().getUserAccountType() : "NULL USER"));
+        log.debug("Received user account type: {}", 
+            request.getUser() != null ? request.getUser().getUserAccountType() : "NULL USER");
 
         // Register and login the user with file uploads
         User authenticatedUser = userRegistrationService.registerUser(

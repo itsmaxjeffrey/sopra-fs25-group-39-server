@@ -24,10 +24,14 @@ import org.hibernate.annotations.CreationTimestamp;
 import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Entity
 @Table(name="CONTRACTS")
 @Getter @Setter
+@EqualsAndHashCode
+@ToString
 public class Contract implements Serializable{
 
     private static final long serialVersionUID = 1L;
@@ -123,6 +127,7 @@ public class Contract implements Serializable{
 
     public void addOffer(Offer offer) {
         this.offers.add(offer);
+        offer.setContract(this);
     }
 
 }
