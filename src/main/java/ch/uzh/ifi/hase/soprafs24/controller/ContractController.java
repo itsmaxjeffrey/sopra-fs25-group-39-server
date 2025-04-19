@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -225,7 +224,7 @@ public class ContractController {
         // Convert to DTOs
         List<ContractGetDTO> contractDTOs = contracts.stream()
                 .map(ContractDTOMapper.INSTANCE::convertContractEntityToContractGetDTO)
-                .collect(Collectors.toList());
+                .toList();
 
         return createResponse(contractDTOs, null, HttpStatus.OK);
     }
@@ -494,11 +493,11 @@ public class ContractController {
         }
 
         // Check if both locations are provided and are the same
-        if (contractPutDTO.getFromLocation() != null && contractPutDTO.getToLocation() != null) {
-            if (contractPutDTO.getFromLocation().getLatitude().equals(contractPutDTO.getToLocation().getLatitude()) && 
-                contractPutDTO.getFromLocation().getLongitude().equals(contractPutDTO.getToLocation().getLongitude())) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "From and to locations cannot be the same");
-            }
+        if (contractPutDTO.getFromLocation() != null && 
+            contractPutDTO.getToLocation() != null && 
+            contractPutDTO.getFromLocation().getLatitude().equals(contractPutDTO.getToLocation().getLatitude()) && 
+            contractPutDTO.getFromLocation().getLongitude().equals(contractPutDTO.getToLocation().getLongitude())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "From and to locations cannot be the same");
         }
     }
 

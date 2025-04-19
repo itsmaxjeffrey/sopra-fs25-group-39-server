@@ -44,9 +44,9 @@ public class AuthController {
      * System determines the account type based on username
      */
     @PostMapping("/login")
-    public ResponseEntity<Object> loginUser(@RequestBody BaseUserLoginDTO BaseUserLoginDTO) {
+    public ResponseEntity<Object> loginUser(@RequestBody BaseUserLoginDTO baseUserLoginDTO) {
         // Login user
-        User authenticatedUser = authService.loginUser(BaseUserLoginDTO);
+        User authenticatedUser = authService.loginUser(baseUserLoginDTO);
         
         // Create response map with user data including authentication token
         AuthenticatedUserDTO response = createAuthenticatedUserResponse(authenticatedUser);
