@@ -10,6 +10,7 @@ import ch.uzh.ifi.hase.soprafs24.constant.OfferStatus;
 import ch.uzh.ifi.hase.soprafs24.repository.ContractRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.OfferRepository;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractFilterDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.eq;
 
 class ContractServiceTest {
 
@@ -38,6 +40,9 @@ class ContractServiceTest {
 
     @Mock
     private OfferRepository offerRepository;
+
+    @Mock
+    private GoogleMapsService googleMapsService;
 
     @InjectMocks
     private ContractService contractService;
@@ -964,5 +969,223 @@ class ContractServiceTest {
         assertNull(foundContracts.get(0).getDriver());
         Mockito.verify(contractRepository, Mockito.times(1))
             .findByDriver_UserId(1L);
+    }
+
+    @Test
+    void handleDriverDeletion_success() {
+        // given
+        Driver driver = new Driver();
+        driver.setUserId(2L);
+        
+        Contract contract = new Contract();
+        contract.setContractId(1L);
+        contract.setContractStatus(ContractStatus.OFFERED);
+        contract.setRequester(testRequester);
+        
+        Offer offer = new Offer();
+        offer.setOfferId(1L);
+        offer.setOfferStatus(OfferStatus.CREATED);
+        offer.setDriver(driver);
+        offer.setContract(contract);
+        
+        List<Offer> offers = Collections.singletonList(offer);
+        Mockito.when(offerRepository.findByDriver_UserId(2L)).thenReturn(offers);
+        Mockito.when(contractRepository.save(Mockito.any())).thenReturn(contract);
+        Mockito.when(offerRepository.save(Mockito.any())).thenReturn(offer);
+
+        // when
+        contractService.handleDriverDeletion(2L);
+
+        // then
+        Mockito.verify(offerRepository).save(Mockito.argThat(o -> 
+            o.getOfferStatus() == OfferStatus.REJECTED
+        ));
+        Mockito.verify(contractRepository).save(Mockito.argThat(c -> 
+            c.getContractStatus() == ContractStatus.REQUESTED
+        ));
+        Mockito.verify(offerRepository).flush();
+        Mockito.verify(contractRepository).flush();
+    }
+
+    @Test
+    void handleRequesterDeletion_success() {
+        // given
+        Contract contract = new Contract();
+        contract.setContractId(1L);
+        contract.setContractStatus(ContractStatus.REQUESTED);
+        contract.setRequester(testRequester);
+        
+        Offer offer = new Offer();
+        offer.setOfferId(1L);
+        offer.setOfferStatus(OfferStatus.CREATED);
+        offer.setContract(contract);
+        
+        List<Contract> contracts = Collections.singletonList(contract);
+        List<Offer> offers = Collections.singletonList(offer);
+        
+        Mockito.when(contractRepository.findByRequester_UserId(1L)).thenReturn(contracts);
+        Mockito.when(offerRepository.findByContract_ContractId(1L)).thenReturn(offers);
+        Mockito.when(contractRepository.save(Mockito.any())).thenReturn(contract);
+        Mockito.when(offerRepository.save(Mockito.any())).thenReturn(offer);
+
+        // when
+        contractService.handleRequesterDeletion(1L);
+
+        // then
+        Mockito.verify(offerRepository).save(Mockito.argThat(o -> 
+            o.getOfferStatus() == OfferStatus.REJECTED
+        ));
+        Mockito.verify(contractRepository).save(Mockito.argThat(c -> 
+            c.getContractStatus() == ContractStatus.DELETED
+        ));
+        Mockito.verify(offerRepository).flush();
+        Mockito.verify(contractRepository).flush();
+    }
+
+    @Test
+    void getContracts_withFilters_success() {
+        // Setup
+        ContractFilterDTO filter = new ContractFilterDTO();
+        filter.setPrice(100.0);
+        filter.setWeight(50.0);
+        filter.setHeight(2.0);
+        filter.setLength(3.0);
+        filter.setWidth(1.0);
+
+        Contract contract = new Contract();
+        contract.setPrice(100.0f);
+        contract.setMass(50.0f);
+        contract.setVolume(6.0f); // height * length * width = 2 * 3 * 1 = 6
+
+        Mockito.when(contractRepository.findAll()).thenReturn(Arrays.asList(contract));
+
+        // Execute
+        List<Contract> result = contractService.getContracts(47.3769, 8.5417, filter);
+
+        // Verify
+        assertEquals(1, result.size());
+        assertEquals(contract, result.get(0));
+    }
+
+    @Test
+    void getContracts_withFilters_noMatches() {
+        // Setup
+        ContractFilterDTO filter = new ContractFilterDTO();
+        filter.setPrice(50.0); // Set price lower than contract's price
+
+        Contract contract = new Contract();
+        contract.setPrice(100.0f);
+        contract.setMass(50.0f);
+        contract.setVolume(6.0f);
+
+        Mockito.when(contractRepository.findAll()).thenReturn(Arrays.asList(contract));
+
+        // Execute
+        List<Contract> result = contractService.getContracts(47.3769, 8.5417, filter);
+
+        // Verify
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void updateContractStatuses_success() {
+        // given
+        Contract acceptedContract = new Contract();
+        acceptedContract.setContractId(1L);
+        acceptedContract.setContractStatus(ContractStatus.ACCEPTED);
+        acceptedContract.setMoveDateTime(LocalDateTime.now().minusDays(1));
+
+        Contract requestedContract = new Contract();
+        requestedContract.setContractId(2L);
+        requestedContract.setContractStatus(ContractStatus.REQUESTED);
+        requestedContract.setMoveDateTime(LocalDateTime.now().minusDays(1));
+
+        Contract offeredContract = new Contract();
+        offeredContract.setContractId(3L);
+        offeredContract.setContractStatus(ContractStatus.OFFERED);
+        offeredContract.setMoveDateTime(LocalDateTime.now().minusDays(1));
+
+        Offer offer = new Offer();
+        offer.setOfferId(1L);
+        offer.setOfferStatus(OfferStatus.CREATED);
+        offer.setContract(offeredContract);
+
+        Mockito.when(contractRepository.findByContractStatusAndMoveDateTimeBefore(
+            eq(ContractStatus.ACCEPTED), Mockito.any())).thenReturn(Collections.singletonList(acceptedContract));
+        Mockito.when(contractRepository.findByContractStatusAndMoveDateTimeBefore(
+            eq(ContractStatus.REQUESTED), Mockito.any())).thenReturn(Collections.singletonList(requestedContract));
+        Mockito.when(contractRepository.findByContractStatusAndMoveDateTimeBefore(
+            eq(ContractStatus.OFFERED), Mockito.any())).thenReturn(Collections.singletonList(offeredContract));
+        Mockito.when(offerRepository.findByContract_ContractId(Mockito.any())).thenReturn(Collections.singletonList(offer));
+        Mockito.when(contractRepository.saveAll(Mockito.any())).thenReturn(Arrays.asList(acceptedContract, requestedContract, offeredContract));
+        Mockito.when(offerRepository.save(Mockito.any())).thenReturn(offer);
+
+        // when
+        contractService.updateContractStatuses();
+
+        // then
+        Mockito.verify(contractRepository).saveAll(Mockito.argThat(contracts -> {
+            for (Contract c : contracts) {
+                if (c.getContractStatus() == ContractStatus.COMPLETED) {
+                    return true;
+                }
+            }
+            return false;
+        }));
+        Mockito.verify(contractRepository).saveAll(Mockito.argThat(contracts -> {
+            for (Contract c : contracts) {
+                if (c.getContractStatus() != ContractStatus.CANCELED) {
+                    return false;
+                }
+            }
+            return true;
+        }));
+        Mockito.verify(offerRepository).save(Mockito.argThat(o -> 
+            o.getOfferStatus() == OfferStatus.REJECTED
+        ));
+        Mockito.verify(contractRepository).flush();
+        Mockito.verify(offerRepository).flush();
+    }
+
+    @Test
+    void validateContractData_validInputs_success() {
+        // given
+        Contract validContract = new Contract();
+        validContract.setPrice(100.0f);
+        validContract.setCollateral(50.0f);
+        validContract.setMass(10.0f);
+        validContract.setVolume(5.0f);
+        validContract.setManPower(2);
+        validContract.setMoveDateTime(LocalDateTime.now().plusDays(1));
+        validContract.setFromAddress(testFromLocation);
+        validContract.setToAddress(testToLocation);
+        validContract.setRequester(testRequester);
+
+        // Mock user repository to return the test requester
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(testRequester));
+
+        // when/then -> no exception should be thrown
+        assertDoesNotThrow(() -> contractService.createContract(validContract));
+    }
+
+    @Test
+    void validateContractUpdate_validInputs_success() {
+        // given
+        Contract existingContract = new Contract();
+        existingContract.setContractId(1L);
+        existingContract.setContractStatus(ContractStatus.REQUESTED);
+        existingContract.setRequester(testRequester);
+        existingContract.setMoveDateTime(LocalDateTime.now().plusDays(2));
+
+        Contract contractUpdates = new Contract();
+        contractUpdates.setTitle("Updated Title");
+        contractUpdates.setMoveDateTime(LocalDateTime.now().plusDays(3));
+        contractUpdates.setRequester(testRequester);
+
+        Mockito.when(contractRepository.findById(1L)).thenReturn(Optional.of(existingContract));
+        Mockito.when(contractRepository.save(Mockito.any())).thenReturn(existingContract);
+
+        // when/then -> no exception should be thrown
+        assertDoesNotThrow(() -> contractService.updateContract(1L, contractUpdates));
     }
 } 
