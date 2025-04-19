@@ -19,10 +19,10 @@ import lombok.ToString;
 @ToString(callSuper = true)
 public class Driver extends User {
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String driverLicensePath;
 
-    @Column
+    @Column(nullable = true)
     private String driverInsurancePath;
 
     @OneToOne(orphanRemoval = true)

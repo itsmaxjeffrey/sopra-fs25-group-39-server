@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -28,6 +30,9 @@ import ch.uzh.ifi.hase.soprafs24.service.FileStorageService;
 @RestController
 @RequestMapping("/api/v1/files")
 public class FileStorageController {
+
+    private static final Logger log = LoggerFactory.getLogger(FileStorageController.class); // Logger instance
+
 
     private static final List<String> ALLOWED_FILE_TYPES = Arrays.asList(
         "profile", "license", "insurance", "car", "misc"
@@ -72,6 +77,8 @@ public class FileStorageController {
         };
 
         String filePath = fileStorageService.storeFile(file, subdirectory);
+
+        log.info("File uploaded successfully. File path: {}", filePath);
         
         Map<String, String> response = new HashMap<>();
         response.put("filePath", filePath);
@@ -84,14 +91,13 @@ public class FileStorageController {
      * @param filePath The path of the file to download
      * @return The file resource
      */
-    @GetMapping("/download/{filePath:.+}")
-    public ResponseEntity<Resource> downloadFile(@PathVariable String filePath) {
-        // Load file as resource
+    @GetMapping("/download")
+    public ResponseEntity<Resource> downloadFile(@RequestParam String filePath) {
+        log.info("Attempting to download file: {}", filePath);
+    
         Resource resource = fileStorageService.loadFileAsResource(filePath);
-        
-        // Try to determine file's content type
         String contentType = "application/octet-stream";
-        
+    
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(contentType))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")

@@ -35,7 +35,7 @@ public class RegistrationController {
      * POST /api/v1/auth/register
      * User is automatically logged in after registration
      */
-    @PostMapping("/register/requester")
+    @PostMapping("/register")
     public ResponseEntity<Object> registerUser(@RequestBody UserRegistrationRequestDTO request) {
         // Validate request
         if (request == null || request.getUser() == null) {

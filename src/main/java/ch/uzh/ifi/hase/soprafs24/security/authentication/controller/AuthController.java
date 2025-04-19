@@ -74,6 +74,7 @@ public class AuthController {
         response.put("message", "Successfully logged out");
         response.put("timestamp", System.currentTimeMillis());
 
+
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     
