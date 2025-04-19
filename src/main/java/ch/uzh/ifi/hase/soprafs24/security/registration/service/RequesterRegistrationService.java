@@ -11,7 +11,6 @@ public class RequesterRegistrationService {
 
     public Requester registerRequester(
         RequesterRegisterDTO requesterRegisterDTO) {
-            Requester requester = new Requester();
-            return requester;
+            return new Requester();
     }
 }

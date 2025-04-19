@@ -25,10 +25,10 @@ import ch.uzh.ifi.hase.soprafs24.security.authentication.dto.response.Authentica
     
     // Use this method as the entry point for converting users
     default AuthenticatedUserDTO convertToDTO(User user) {
-        if (user instanceof Driver) {
-            return convertToDriverDTO((Driver) user);
-        } else if (user instanceof Requester) {
-            return convertToRequesterDTO((Requester) user);
+        if (user instanceof Driver driver) {
+            return convertToDriverDTO(driver);
+        } else if (user instanceof Requester requester) {
+            return convertToRequesterDTO(requester);
         } else {
             return convertToBaseUserDTO(user);
         }
