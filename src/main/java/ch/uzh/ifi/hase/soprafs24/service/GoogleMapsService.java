@@ -1,15 +1,15 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.core.ParameterizedTypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.ParameterizedTypeReference;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,11 +24,10 @@ public class GoogleMapsService {
     private static final String DISTANCE_MATRIX_URL = "https://maps.googleapis.com/maps/api/distancematrix/json";
     private static final String GEOCODING_URL = "https://maps.googleapis.com/maps/api/geocode/json";
 
-    @Autowired
-    public GoogleMapsService(String googleMapsApiKey) {
-        this.apiKey = googleMapsApiKey;
-        this.restTemplate = new RestTemplate();
-        log.info("GoogleMapsService initialized with API key: {}", googleMapsApiKey != null ? "***" : "null");
+    public GoogleMapsService(@Value("${google.maps.api.key}") String apiKey, RestTemplate restTemplate) {
+        this.apiKey = apiKey;
+        this.restTemplate = restTemplate;
+        log.info("GoogleMapsService initialized with API key: {}", apiKey != null ? "***" : "null");
     }
 
     public String getApiKey() {
