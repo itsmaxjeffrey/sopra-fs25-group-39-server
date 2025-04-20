@@ -23,7 +23,7 @@ public class AuthorizationService {
      * @return The authenticated User object if successful, null if authentication fails
      */
     public User authenticateUser(Long userId, String token) {
-        log.info("Authenticating user with userId={} and token={}", userId, token);
+        // log.info("Authenticating user with userId={} and token={}", userId, token);
 
         if (token == null || token.isEmpty() || userId == null) {
             return null;

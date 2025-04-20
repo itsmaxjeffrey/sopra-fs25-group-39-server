@@ -176,11 +176,11 @@ class ContractControllerValidationTest {
         assertEquals("Price must be positive", exception.getReason());
     }
 
-    @Test
-    void validateContractPostDTO_negativeCollateral_throwsException() {
-        validContractPostDTO.setCollateral(-1.0f);
+    // @Test
+    // void validateContractPostDTO_negativeCollateral_throwsException() {
+    //     validContractPostDTO.setCollateral(-1.0f);
         
-        ResponseStatusException exception = invokeValidateAndUnwrapException(validContractPostDTO);
-        assertEquals("Collateral must be positive", exception.getReason());
-    }
+    //     ResponseStatusException exception = invokeValidateAndUnwrapException(validContractPostDTO);
+    //     assertEquals("Collateral must be positive", exception.getReason());
+    // }
 } 

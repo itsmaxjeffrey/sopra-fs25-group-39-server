@@ -41,23 +41,23 @@ class CarTest {
     @Test
     void testSpace() {
         // Test initial state
-        assertEquals(0.0f, car.getSpace());
+        assertEquals(0.0f, car.getVolumeCapacity());
 
         // Test setting and getting space
         float space = 2.5f;
-        car.setSpace(space);
-        assertEquals(space, car.getSpace());
+        car.setVolumeCapacity(space);
+        assertEquals(space, car.getVolumeCapacity());
     }
 
     @Test
     void testSupportedWeight() {
         // Test initial state
-        assertEquals(0.0f, car.getSupportedWeight());
+        assertEquals(0.0f, car.getWeightCapacity());
 
         // Test setting and getting supportedWeight
         float weight = 500.0f;
-        car.setSupportedWeight(weight);
-        assertEquals(weight, car.getSupportedWeight());
+        car.setWeightCapacity(weight);
+        assertEquals(weight, car.getWeightCapacity());
     }
 
     @Test

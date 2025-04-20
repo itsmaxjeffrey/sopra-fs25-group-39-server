@@ -95,7 +95,6 @@ public class FileStorageService {
     }
 
     public Resource loadFileAsResource(String fileName) {
-        log.info("Attempting to download file: {}", fileName);
         try {
             Path filePath = this.fileStorageLocation.resolve(fileName).normalize();
             Resource resource = new UrlResource(filePath.toUri());

@@ -23,6 +23,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Contract;
 import ch.uzh.ifi.hase.soprafs24.entity.Location;
@@ -46,6 +48,9 @@ import ch.uzh.ifi.hase.soprafs24.rest.mapper.UserDTOMapper;
 
 @RestController
 public class ContractController {
+
+    private static final Logger log = LoggerFactory.getLogger(ContractController.class);
+
 
     // Error message constants
     private static final String ERROR_INVALID_CREDENTIALS = "Invalid credentials";
@@ -244,6 +249,8 @@ public class ContractController {
             @RequestHeader("Authorization") String token,
             @RequestBody ContractPostDTO contractPostDTO) {
         
+        log.info("Created new contract: {}", contractPostDTO);
+
         // Authenticate user
         User authenticatedUser = authorizationService.authenticateUser(userId, token);
         if (authenticatedUser == null) {
@@ -348,9 +355,9 @@ public class ContractController {
             }
         
             // Check if collateral is positive
-            if (contractPostDTO.getCollateral() <= 0) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Collateral must be positive");
-            }
+            // if (contractPostDTO.getCollateral() <= 0) {
+            //     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Collateral must be positive");
+            // }
         }
 
     /**

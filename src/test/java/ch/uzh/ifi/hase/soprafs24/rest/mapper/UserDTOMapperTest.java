@@ -81,8 +81,8 @@ class UserDTOMapperTest {
         Car car = new Car();
         car.setCarId(1L);
         car.setCarModel("Tesla Model 3");
-        car.setSpace(100.0f);
-        car.setSupportedWeight(500.0f);
+        car.setVolumeCapacity(100.0f);
+        car.setWeightCapacity(500.0f);
         car.setElectric(true);
         car.setLicensePlate("ZH123456");
         car.setCarPicturePath("/path/to/car.jpg");
@@ -120,8 +120,8 @@ class UserDTOMapperTest {
         assertNotNull(dto.getCarDTO());
         assertEquals(car.getCarId(), dto.getCarDTO().getCarId());
         assertEquals(car.getCarModel(), dto.getCarDTO().getCarModel());
-        assertEquals(car.getSpace(), dto.getCarDTO().getSpace());
-        assertEquals(car.getSupportedWeight(), dto.getCarDTO().getSupportedWeight());
+        assertEquals(car.getVolumeCapacity(), dto.getCarDTO().getVolumeCapacity());
+        assertEquals(car.getWeightCapacity(), dto.getCarDTO().getWeightCapacity());
         assertEquals(car.isElectric(), dto.getCarDTO().isElectric());
         assertEquals(car.getLicensePlate(), dto.getCarDTO().getLicensePlate());
         assertEquals(car.getCarPicturePath(), dto.getCarDTO().getCarPicturePath());

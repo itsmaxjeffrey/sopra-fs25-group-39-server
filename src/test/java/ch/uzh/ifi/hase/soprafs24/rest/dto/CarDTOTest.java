@@ -15,8 +15,8 @@ class CarDTOTest {
         // Test setting and getting all fields
         dto.setCarId(1L);
         dto.setCarModel("Tesla Model 3");
-        dto.setSpace(100.0f);
-        dto.setSupportedWeight(500.0f);
+        dto.setVolumeCapacity(100.0f);
+        dto.setWeightCapacity(500.0f);
         dto.setElectric(true);
         dto.setLicensePlate("ZH123456");
         dto.setCarPicturePath("/path/to/car.jpg");
@@ -24,8 +24,8 @@ class CarDTOTest {
 
         assertEquals(1L, dto.getCarId());
         assertEquals("Tesla Model 3", dto.getCarModel());
-        assertEquals(100.0f, dto.getSpace());
-        assertEquals(500.0f, dto.getSupportedWeight());
+        assertEquals(100.0f, dto.getVolumeCapacity());
+        assertEquals(500.0f, dto.getWeightCapacity());
         assertTrue(dto.isElectric());
         assertEquals("ZH123456", dto.getLicensePlate());
         assertEquals("/path/to/car.jpg", dto.getCarPicturePath());
@@ -54,10 +54,10 @@ class CarDTOTest {
     @Test
     void testZeroValues() {
         CarDTO dto = new CarDTO();
-        dto.setSpace(0.0f);
-        dto.setSupportedWeight(0.0f);
+        dto.setVolumeCapacity(0.0f);
+        dto.setWeightCapacity(0.0f);
 
-        assertEquals(0.0f, dto.getSpace());
-        assertEquals(0.0f, dto.getSupportedWeight());
+        assertEquals(0.0f, dto.getVolumeCapacity());
+        assertEquals(0.0f, dto.getWeightCapacity());
     }
 } 

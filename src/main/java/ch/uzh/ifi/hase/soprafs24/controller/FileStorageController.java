@@ -35,7 +35,7 @@ public class FileStorageController {
 
 
     private static final List<String> ALLOWED_FILE_TYPES = Arrays.asList(
-        "profile", "license", "insurance", "car", "misc"
+        "profile", "license", "insurance", "car", "misc", "proposal"
         );
 
     private final FileStorageService fileStorageService;
@@ -73,6 +73,7 @@ public class FileStorageController {
             case "license" -> "driver-licenses";
             case "insurance" -> "driver-insurances";
             case "car" -> "car-pictures";
+            case "proposal" -> "proposal-pictures";
             default -> "misc";
         };
 

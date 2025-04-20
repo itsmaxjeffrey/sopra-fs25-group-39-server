@@ -25,8 +25,8 @@ class DriverRegisterDTOTest {
         dto.setDriverInsurancePath("/path/to/insurance.jpg");
         dto.setCarPicturePath("/path/to/car.jpg");
         dto.setCarModel("Tesla Model 3");
-        dto.setSpace(100.0f);
-        dto.setSupportedWeight(500.0f);
+        dto.setVolumeCapacity(100.0f);
+        dto.setWeightCapacity(500.0f);
         dto.setElectric(true);
         dto.setLicensePlate("ZH123456");
         dto.setPreferredRange(50.0f);
@@ -42,8 +42,8 @@ class DriverRegisterDTOTest {
         assertEquals("/path/to/insurance.jpg", dto.getDriverInsurancePath());
         assertEquals("/path/to/car.jpg", dto.getCarPicturePath());
         assertEquals("Tesla Model 3", dto.getCarModel());
-        assertEquals(100.0f, dto.getSpace());
-        assertEquals(500.0f, dto.getSupportedWeight());
+        assertEquals(100.0f, dto.getVolumeCapacity());
+        assertEquals(500.0f, dto.getWeightCapacity());
         assertTrue(dto.isElectric());
         assertEquals("ZH123456", dto.getLicensePlate());
         assertEquals(50.0f, dto.getPreferredRange());
