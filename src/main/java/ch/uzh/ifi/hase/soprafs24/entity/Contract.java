@@ -31,7 +31,7 @@ import lombok.ToString;
 @Table(name="CONTRACTS")
 @Getter @Setter
 @EqualsAndHashCode
-@ToString
+@ToString(exclude = "requester")
 public class Contract implements Serializable{
 
     private static final long serialVersionUID = 1L;

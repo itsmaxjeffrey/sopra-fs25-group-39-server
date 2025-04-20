@@ -219,7 +219,10 @@ public class ContractController {
                         return createResponse(null, "Invalid moveDate format. Expected format: yyyy-MM-dd", HttpStatus.BAD_REQUEST);
                     }
                 }
+                log.info("Filters applied: {}", filterDTO);
+
             } catch (Exception e) {
+                log.error("Failed to parse filters: {}", filters, e);
                 return createResponse(null, "Invalid filters format", HttpStatus.BAD_REQUEST);
             }
         }
@@ -278,9 +281,17 @@ public class ContractController {
         contractInput.setRequester(ContractDTOMapper.INSTANCE.map(userId)); // Set the requester using the mapper
 
         // Initialize contract photos if not provided
-        if (contractInput.getContractPhotos() == null) {
-            contractInput.setContractPhotos(new ArrayList<>());
+        List<String> contractPhotos = new ArrayList<>();
+        if (contractPostDTO.getImagePath1() != null) {
+            contractPhotos.add(contractPostDTO.getImagePath1());
         }
+        if (contractPostDTO.getImagePath2() != null) {
+            contractPhotos.add(contractPostDTO.getImagePath2());
+        }
+        if (contractPostDTO.getImagePath3() != null) {
+            contractPhotos.add(contractPostDTO.getImagePath3());
+        }
+        contractInput.setContractPhotos(contractPhotos);
 
         // Create contract
         Contract createdContract = contractService.createContract(contractInput);

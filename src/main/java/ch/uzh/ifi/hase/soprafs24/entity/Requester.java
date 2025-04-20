@@ -17,7 +17,7 @@ import lombok.ToString;
 @Table(name ="REQUESTERS")
 @Getter @Setter
 @EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
+@ToString(callSuper = true, exclude = "contracts")
 public class Requester extends User {
 
     @OneToMany(mappedBy="requester",fetch = FetchType.LAZY)
