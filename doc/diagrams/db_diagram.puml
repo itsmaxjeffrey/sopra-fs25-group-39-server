@@ -1,0 +1,125 @@
+@startuml
+!theme plain
+hide circle
+skinparam linetype polyline  ' Changed from ortho to polyline
+skinparam classAttributeIconSize 0
+
+entity User {
+  + userId: Long <<PK>>
+  --
+  username: String <<unique>>
+  password: String
+  email: String <<unique>>
+  userAccountType: UserAccountType
+  creationDate: LocalDateTime
+  birthDate: LocalDate
+  profilePicturePath: String
+  walletBalance: Double
+  firstName: String
+  lastName: String
+  phoneNumber: String <<unique>>
+  userBio: String
+  token: String
+}
+
+entity Driver <<extends User>> {
+  --
+  driverLicensePath: String
+  driverInsurancePath: String
+  preferredRange: float
+  ' car_id: Long <<FK>>
+  ' location_id: Long <<FK>>
+}
+
+entity Requester <<extends User>> {
+  --
+}
+
+entity Car {
+  + carId: Long <<PK>>
+  --
+  carModel: String
+  space: float
+  supportedWeight: float
+  electric: boolean
+  licensePlate: String
+  carPicturePath: String
+}
+
+entity Offer {
+  + offerId: Long <<PK>>
+  --
+  offerStatus: OfferStatus
+  creationDateTime: LocalDateTime
+  ' contract_id: Long <<FK>>
+  ' driver_id: Long <<FK>>
+}
+
+entity Rating {
+  + ratingId: Long <<PK>>
+  --
+  ratingValue: Integer
+  flagIssues: boolean
+  comment: String
+  ' from_user_id: Long <<FK>>
+  ' to_user_id: Long <<FK>>
+  ' contract_id: Long <<FK>>
+}
+
+entity Contract {
+  + contractId: Long <<PK>>
+  --
+  contractStatus: ContractStatus
+  creationDateTime: LocalDateTime
+  title: String
+  acceptedDateTime: LocalDateTime
+  moveDateTime: LocalDateTime
+  mass: float
+  volume: float
+  fragile: boolean
+  coolingRequired: boolean
+  rideAlong: boolean
+  manPower: int
+  contractDescription: String
+  ' contractPhotos: List<String> (ElementCollection)
+  price: float
+  collateral: float
+  cancelReason: String
+  ' requester_id: Long <<FK>>
+  ' driver_id: Long <<FK>> (nullable)
+  ' from_address_id: Long <<FK>>
+  ' to_address_id: Long <<FK>>
+  ' accepted_offer_id: Long <<FK>>
+}
+
+entity Location {
+  + id: Long <<PK>>
+  --
+  formattedAddress: String
+  latitude: Double
+  longitude: Double
+}
+
+' Inheritance
+User <|-- Driver
+User <|-- Requester
+
+' Relationships
+Driver "1" --o "1" Car : owns >
+Driver "1" --o "1" Location : has current >
+Requester "1" ||--o{ Contract : requests >
+Contract }o--|| Driver : "0..1 assignedTo"
+Contract }o--|| Location : "fromAddress"
+Contract }o--|| Location : "toAddress"
+Contract "1" ||--o{ Offer : has >
+Contract "1" --o "0..1" Offer : "acceptedOffer"
+Offer }o--|| Contract : < belongsTo
+Offer }o--|| Driver : < madeBy
+User "1" ||--o{ Rating : "ratingsGiven (fromUser)"
+User "1" ||--o{ Rating : "ratingsReceived (toUser)"
+Rating }o--|| User : < fromUser
+Rating }o--|| User : < toUser
+Rating }o--|| Contract : < rates
+Contract "1" ||--o{ Rating : rates >
+
+@enduml
