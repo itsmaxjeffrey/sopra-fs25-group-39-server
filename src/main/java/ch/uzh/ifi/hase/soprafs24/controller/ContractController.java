@@ -1,5 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -7,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -209,8 +212,13 @@ public class ContractController {
         ContractFilterDTO filterDTO = null;
         if (filters != null && !filters.isEmpty()) {
             try {
-                filterDTO = new ObjectMapper().readValue(filters, ContractFilterDTO.class);
-                
+                filters = URLDecoder.decode(filters, StandardCharsets.UTF_8.name());
+
+                ObjectMapper objectMapper = new ObjectMapper();
+                objectMapper.registerModule(new JavaTimeModule()); // Register JavaTimeModule
+
+                filterDTO = objectMapper.readValue(filters, ContractFilterDTO.class);
+
                 // Validate moveDate format if provided
                 if (filterDTO.getMoveDate() != null) {
                     try {
@@ -229,7 +237,7 @@ public class ContractController {
 
         // Get filtered contracts from service
         List<Contract> contracts = contractService.getContracts(lat, lng, filterDTO);
-        
+
         // Convert to DTOs
         List<ContractGetDTO> contractDTOs = contracts.stream()
                 .map(ContractDTOMapper.INSTANCE::convertContractEntityToContractGetDTO)

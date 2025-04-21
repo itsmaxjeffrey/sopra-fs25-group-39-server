@@ -2,6 +2,8 @@ package ch.uzh.ifi.hase.soprafs24.rest.dto.contract;
 
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,5 +21,5 @@ public class ContractFilterDTO {
     private Boolean rideAlong;
     private String fromAddress;
     private String toAddress;
-    private LocalDate moveDate;
-} 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private LocalDate moveDate;} 
