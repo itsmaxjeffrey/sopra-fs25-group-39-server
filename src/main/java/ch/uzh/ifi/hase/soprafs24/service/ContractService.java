@@ -204,9 +204,17 @@ public class ContractService {
      * @return The contract entity
      */
     public Contract getContractById(Long contractId) {
-        return contractRepository.findById(contractId)
+        Contract contract = contractRepository.findById(contractId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
                 "Contract with ID " + contractId + " not found"));
+
+        // Log fetched addresses
+        String fromAddr = contract.getFromAddress() != null ? contract.getFromAddress().getFormattedAddress() : "<null>";
+        String toAddr = contract.getToAddress() != null ? contract.getToAddress().getFormattedAddress() : "<null>";
+        log.info("Fetched Contract ID: {}. From Address: '{}', To Address: '{}'", 
+                 contractId, fromAddr, toAddr);
+
+        return contract;
     }
 
     /**

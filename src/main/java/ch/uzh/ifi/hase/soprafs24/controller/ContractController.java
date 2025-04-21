@@ -403,7 +403,29 @@ public class ContractController {
 
         // Get contract from service
         Contract contract = contractService.getContractById(contractId);
-        
+
+        // *** Log the state of the fetched entity BEFORE mapping ***
+        String fetchedFromAddr = "<entity missing>";
+        Long fromId = null;
+        if (contract.getFromAddress() != null) {
+            fetchedFromAddr = contract.getFromAddress().getFormattedAddress() != null 
+                              ? contract.getFromAddress().getFormattedAddress() : "<address null>";
+            fromId = contract.getFromAddress().getId();
+        } else {
+            fetchedFromAddr = "<FromAddress null>";
+        }
+        String fetchedToAddr = "<entity missing>";
+        Long toId = null;
+        if (contract.getToAddress() != null) {
+            fetchedToAddr = contract.getToAddress().getFormattedAddress() != null 
+                            ? contract.getToAddress().getFormattedAddress() : "<address null>";
+            toId = contract.getToAddress().getId();
+        } else {
+            fetchedToAddr = "<ToAddress null>";
+        }
+        log.info("ContractController: Fetched Contract ID: {}. Entity From Address: '{}' (ID: {}), Entity To Address: '{}' (ID: {})",
+                 contractId, fetchedFromAddr, fromId, fetchedToAddr, toId);
+
         // Check if user is authorized to view the contract
         if (!isAuthorizedToAccessContract(authenticatedUser, contract, userId)) {
             return createResponse(null, ERROR_NOT_AUTHORIZED_TO_VIEW_CONTRACT, HttpStatus.FORBIDDEN);

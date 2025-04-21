@@ -3,6 +3,8 @@ package ch.uzh.ifi.hase.soprafs24.rest.dto.contract;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
 
@@ -19,7 +21,9 @@ public class ContractGetDTO {
     private float price;
     private float collateral;
     private Long requesterId;
+    @JsonProperty("fromLocation")
     private LocationDTO fromLocation;
+    @JsonProperty("toLocation")
     private LocationDTO toLocation;
     private LocalDateTime moveDateTime;
     private ContractStatus contractStatus;
