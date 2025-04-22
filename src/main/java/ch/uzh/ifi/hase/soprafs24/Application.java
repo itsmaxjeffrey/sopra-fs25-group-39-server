@@ -34,7 +34,10 @@ public class Application {
           @Override
           public void addCorsMappings(@NonNull CorsRegistry registry) {
               registry.addMapping("/**")
-                  .allowedOrigins("http://localhost:3000")      // <-- your client
+                  .allowedOrigins(
+                      "http://localhost:3000", // Development frontend
+                      "https://sopra-fs25-group-39-client.oa.r.appspot.com" // Production frontend
+                  )      
                   .allowedMethods("GET","POST","PUT","DELETE","OPTIONS")
                   .allowedHeaders("*")
                   .allowCredentials(true);                       // <-- enable cookies/withCredentials
