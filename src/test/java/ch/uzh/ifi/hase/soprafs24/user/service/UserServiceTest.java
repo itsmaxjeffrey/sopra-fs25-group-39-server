@@ -165,14 +165,26 @@ class UserServiceTest {
     void deleteUser_success() {
         // given
         when(authorizationService.authenticateUser(1L, "valid-token")).thenReturn(testUser);
-        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
-        doNothing().when(userRepository).delete(testUser);
+        when(userRepository.save(any(User.class))).thenReturn(testUser); // Mock the save method
 
         // when
         userService.deleteUser(1L, "valid-token");
 
         // then
-        verify(userRepository).delete(testUser);
+        // Verify that save is called instead of delete
+        verify(userRepository).save(testUser); 
+        // Optionally, verify that flush is also called
+        verify(userRepository).flush(); 
+        // Optionally, assert that user fields are anonymized
+        assertEquals("deleted_user_1", testUser.getUsername());
+        assertEquals("1@deleted.user", testUser.getEmail());
+        assertEquals("", testUser.getPassword());
+        assertNull(testUser.getToken());
+        assertEquals("Deleted", testUser.getFirstName());
+        assertEquals("User", testUser.getLastName());
+        assertEquals("deleted_1", testUser.getPhoneNumber());
+        assertNull(testUser.getBirthDate());
+        assertNull(testUser.getProfilePicturePath());
     }
 
     @Test
@@ -194,4 +206,4 @@ class UserServiceTest {
         assertThrows(ResponseStatusException.class, () -> 
             userService.deleteUser(1L, "valid-token"));
     }
-} 
+}

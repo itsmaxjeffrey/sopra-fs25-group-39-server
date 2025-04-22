@@ -2,6 +2,7 @@ package ch.uzh.ifi.hase.soprafs24.user.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -42,6 +43,8 @@ class DriverServiceTest {
 
     private Driver driver;
     private DriverUpdateDTO updates;
+    private Car initialCar;
+    private Location initialLocation;
 
     @BeforeEach
     void setup() {
@@ -55,12 +58,18 @@ class DriverServiceTest {
         driver.setDriverInsurancePath("old_insurance_path");
         driver.setPreferredRange(10.0f);
 
+        initialCar = new Car();
+        initialCar.setCarId(99L);
+        initialLocation = new Location();
+        initialLocation.setId(98L);
+        driver.setCar(initialCar);
+        driver.setLocation(initialLocation);
+
         updates = new DriverUpdateDTO();
     }
 
     @Test
     void testUpdateDriverDetails_AllFields() {
-        // given
         updates.setDriverLicensePath("new_license_path");
         updates.setDriverInsurancePath("new_insurance_path");
         updates.setPreferredRange(20.0f);
@@ -70,39 +79,36 @@ class DriverServiceTest {
         updates.setCar(carDTO);
         updates.setLocation(locationDTO);
 
-        Car car = new Car();
-        Location location = new Location();
-        when(carService.updateCarFromDTO(any(), any())).thenReturn(car);
-        when(locationService.updateLocationFromDTO(any(), any())).thenReturn(location);
+        Car updatedCar = new Car();
+        Location updatedLocation = new Location();
+        when(carService.updateCarFromDTO(eq(initialCar), any(CarDTO.class))).thenReturn(updatedCar);
+        when(locationService.updateLocationFromDTO(eq(initialLocation), any(LocationDTO.class))).thenReturn(updatedLocation);
 
-        // when
         Driver updatedDriver = driverService.updateDriverDetails(driver, updates);
 
-        // then
         assertEquals("new_license_path", updatedDriver.getDriverLicensePath());
         assertEquals("new_insurance_path", updatedDriver.getDriverInsurancePath());
         assertEquals(20.0f, updatedDriver.getPreferredRange());
-        assertEquals(car, updatedDriver.getCar());
-        assertEquals(location, updatedDriver.getLocation());
+        assertNotNull(updatedDriver.getCar());
+        assertSame(updatedCar, updatedDriver.getCar());
+        assertNotNull(updatedDriver.getLocation());
+        assertSame(updatedLocation, updatedDriver.getLocation());
 
-        verify(carService).updateCarFromDTO(any(), any());
-        verify(locationService).updateLocationFromDTO(any(), any());
+        verify(carService).updateCarFromDTO(eq(initialCar), any(CarDTO.class));
+        verify(locationService).updateLocationFromDTO(eq(initialLocation), any(LocationDTO.class));
     }
 
     @Test
     void testUpdateDriverDetails_NoUpdates() {
-        // given
-        // updates DTO is empty
-
-        // when
         Driver updatedDriver = driverService.updateDriverDetails(driver, updates);
 
-        // then
         assertEquals("old_license_path", updatedDriver.getDriverLicensePath());
         assertEquals("old_insurance_path", updatedDriver.getDriverInsurancePath());
         assertEquals(10.0f, updatedDriver.getPreferredRange());
-        assertNull(updatedDriver.getCar());
-        assertNull(updatedDriver.getLocation());
+        assertNotNull(updatedDriver.getCar());
+        assertSame(initialCar, updatedDriver.getCar());
+        assertNotNull(updatedDriver.getLocation());
+        assertSame(initialLocation, updatedDriver.getLocation());
 
         verify(carService, never()).updateCarFromDTO(any(), any());
         verify(locationService, never()).updateLocationFromDTO(any(), any());
@@ -110,18 +116,17 @@ class DriverServiceTest {
 
     @Test
     void testUpdateDriverDetails_OnlyLicense() {
-        // given
         updates.setDriverLicensePath("new_license_path");
 
-        // when
         Driver updatedDriver = driverService.updateDriverDetails(driver, updates);
 
-        // then
         assertEquals("new_license_path", updatedDriver.getDriverLicensePath());
         assertEquals("old_insurance_path", updatedDriver.getDriverInsurancePath());
         assertEquals(10.0f, updatedDriver.getPreferredRange());
-        assertNull(updatedDriver.getCar());
-        assertNull(updatedDriver.getLocation());
+        assertNotNull(updatedDriver.getCar());
+        assertSame(initialCar, updatedDriver.getCar());
+        assertNotNull(updatedDriver.getLocation());
+        assertSame(initialLocation, updatedDriver.getLocation());
 
         verify(carService, never()).updateCarFromDTO(any(), any());
         verify(locationService, never()).updateLocationFromDTO(any(), any());
@@ -129,18 +134,17 @@ class DriverServiceTest {
 
     @Test
     void testUpdateDriverDetails_OnlyInsurance() {
-        // given
         updates.setDriverInsurancePath("new_insurance_path");
 
-        // when
         Driver updatedDriver = driverService.updateDriverDetails(driver, updates);
 
-        // then
         assertEquals("old_license_path", updatedDriver.getDriverLicensePath());
         assertEquals("new_insurance_path", updatedDriver.getDriverInsurancePath());
         assertEquals(10.0f, updatedDriver.getPreferredRange());
-        assertNull(updatedDriver.getCar());
-        assertNull(updatedDriver.getLocation());
+        assertNotNull(updatedDriver.getCar());
+        assertSame(initialCar, updatedDriver.getCar());
+        assertNotNull(updatedDriver.getLocation());
+        assertSame(initialLocation, updatedDriver.getLocation());
 
         verify(carService, never()).updateCarFromDTO(any(), any());
         verify(locationService, never()).updateLocationFromDTO(any(), any());
@@ -148,18 +152,17 @@ class DriverServiceTest {
 
     @Test
     void testUpdateDriverDetails_OnlyPreferredRange() {
-        // given
         updates.setPreferredRange(30.0f);
 
-        // when
         Driver updatedDriver = driverService.updateDriverDetails(driver, updates);
 
-        // then
         assertEquals("old_license_path", updatedDriver.getDriverLicensePath());
         assertEquals("old_insurance_path", updatedDriver.getDriverInsurancePath());
         assertEquals(30.0f, updatedDriver.getPreferredRange());
-        assertNull(updatedDriver.getCar());
-        assertNull(updatedDriver.getLocation());
+        assertNotNull(updatedDriver.getCar());
+        assertSame(initialCar, updatedDriver.getCar());
+        assertNotNull(updatedDriver.getLocation());
+        assertSame(initialLocation, updatedDriver.getLocation());
 
         verify(carService, never()).updateCarFromDTO(any(), any());
         verify(locationService, never()).updateLocationFromDTO(any(), any());
@@ -167,45 +170,43 @@ class DriverServiceTest {
 
     @Test
     void testUpdateDriverDetails_OnlyCar() {
-        // given
         CarDTO carDTO = new CarDTO();
         updates.setCar(carDTO);
-        Car car = new Car();
-        when(carService.updateCarFromDTO(any(), any())).thenReturn(car);
+        Car updatedCar = new Car();
+        when(carService.updateCarFromDTO(eq(initialCar), any(CarDTO.class))).thenReturn(updatedCar);
 
-        // when
         Driver updatedDriver = driverService.updateDriverDetails(driver, updates);
 
-        // then
         assertEquals("old_license_path", updatedDriver.getDriverLicensePath());
         assertEquals("old_insurance_path", updatedDriver.getDriverInsurancePath());
         assertEquals(10.0f, updatedDriver.getPreferredRange());
-        assertEquals(car, updatedDriver.getCar());
-        assertNull(updatedDriver.getLocation());
+        assertNotNull(updatedDriver.getCar());
+        assertSame(updatedCar, updatedDriver.getCar());
+        assertNotNull(updatedDriver.getLocation());
+        assertSame(initialLocation, updatedDriver.getLocation());
 
-        verify(carService).updateCarFromDTO(any(), any());
+        verify(carService).updateCarFromDTO(eq(initialCar), any(CarDTO.class));
         verify(locationService, never()).updateLocationFromDTO(any(), any());
     }
 
     @Test
     void testUpdateDriverDetails_OnlyLocation() {
-        // given
         LocationDTO locationDTO = new LocationDTO();
         updates.setLocation(locationDTO);
-        Location location = new Location();
-        when(locationService.updateLocationFromDTO(any(), any())).thenReturn(location);
+        Location updatedLocation = new Location();
+        when(locationService.updateLocationFromDTO(eq(initialLocation), any(LocationDTO.class))).thenReturn(updatedLocation);
 
-        // when
         Driver updatedDriver = driverService.updateDriverDetails(driver, updates);
 
-        // then
         assertEquals("old_license_path", updatedDriver.getDriverLicensePath());
         assertEquals("old_insurance_path", updatedDriver.getDriverInsurancePath());
         assertEquals(10.0f, updatedDriver.getPreferredRange());
-        assertNull(updatedDriver.getCar());
-        assertEquals(location, updatedDriver.getLocation());
+        assertNotNull(updatedDriver.getCar());
+        assertSame(initialCar, updatedDriver.getCar());
+        assertNotNull(updatedDriver.getLocation());
+        assertSame(updatedLocation, updatedDriver.getLocation());
 
         verify(carService, never()).updateCarFromDTO(any(), any());
-        verify(locationService).updateLocationFromDTO(any(), any());
+        verify(locationService).updateLocationFromDTO(eq(initialLocation), any(LocationDTO.class));
     }
-} 
+}
