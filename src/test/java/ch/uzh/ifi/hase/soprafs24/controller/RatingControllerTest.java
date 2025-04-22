@@ -7,7 +7,9 @@ import ch.uzh.ifi.hase.soprafs24.entity.Contract;
 import ch.uzh.ifi.hase.soprafs24.service.RatingService;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.RatingPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.RatingPutDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.RatingDTO;
 import ch.uzh.ifi.hase.soprafs24.security.authorization.service.AuthorizationService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -42,6 +44,8 @@ class RatingControllerTest {
     private Contract testContract;
     private RatingPostDTO testRatingPostDTO;
     private RatingPutDTO testRatingPutDTO;
+    private RatingDTO testRatingDTO;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     void setup() {
@@ -58,6 +62,8 @@ class RatingControllerTest {
         // Setup test contract
         testContract = new Contract();
         testContract.setContractId(1L);
+        testContract.setRequester(testRequester);
+        testContract.setDriver(testDriver);
 
         // Setup test rating
         testRating = new Rating();
@@ -81,10 +87,29 @@ class RatingControllerTest {
         testRatingPutDTO.setFlagIssues(true);
         testRatingPutDTO.setComment("Updated comment");
 
+        // Create expected RatingDTO from testRating
+        testRatingDTO = new RatingDTO();
+        testRatingDTO.setRatingId(1L);
+        testRatingDTO.setFromUserId(1L);
+        testRatingDTO.setToUserId(2L);
+        testRatingDTO.setContractId(1L);
+        testRatingDTO.setRatingValue(5);
+        testRatingDTO.setFlagIssues(false);
+        testRatingDTO.setComment("Great service!");
+
         // Mock service responses
         when(ratingService.getRatingById(any())).thenReturn(testRating);
         when(ratingService.createRating(any(), any())).thenReturn(testRating);
-        when(ratingService.updateRating(any(), any(), any())).thenReturn(testRating);
+        Rating updatedRating = new Rating();
+        updatedRating.setRatingId(1L);
+        updatedRating.setFromUser(testRequester);
+        updatedRating.setToUser(testDriver);
+        updatedRating.setContract(testContract);
+        updatedRating.setRatingValue(4);
+        updatedRating.setFlagIssues(true);
+        updatedRating.setComment("Updated comment");
+        when(ratingService.updateRating(eq(1L), any(RatingPutDTO.class), eq(1L))).thenReturn(updatedRating);
+
         when(ratingService.getRatingsByUserId(any())).thenReturn(Arrays.asList(testRating));
         when(ratingService.getRatingsByContractId(any())).thenReturn(Arrays.asList(testRating));
         when(ratingService.getAverageRating(any())).thenReturn(5.0);
@@ -95,12 +120,14 @@ class RatingControllerTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    void getRatingById_validRequest_returnsRating() {
+    void getRatingById_validRequest_returnsRatingDTO() throws Exception {
         ResponseEntity<Object> response = ratingController.getRatingById(1L, 1L, "token");
         assertEquals(HttpStatus.OK, response.getStatusCode());
         Map<String, Object> body = (Map<String, Object>) response.getBody();
         assertNotNull(body);
-        assertEquals(testRating, body.get("rating"));
+        String expectedJson = objectMapper.writeValueAsString(testRatingDTO);
+        String actualJson = objectMapper.writeValueAsString(body.get("rating"));
+        assertEquals(expectedJson, actualJson);
     }
 
     @Test
@@ -127,12 +154,14 @@ class RatingControllerTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    void createRating_validRequest_createsRating() {
+    void createRating_validRequest_createsAndReturnsRatingDTO() throws Exception {
         ResponseEntity<Object> response = ratingController.createRating(testRatingPostDTO, 1L, "token");
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         Map<String, Object> body = (Map<String, Object>) response.getBody();
         assertNotNull(body);
-        assertEquals(testRating, body.get("rating"));
+        String expectedJson = objectMapper.writeValueAsString(testRatingDTO);
+        String actualJson = objectMapper.writeValueAsString(body.get("rating"));
+        assertEquals(expectedJson, actualJson);
     }
 
     @Test
@@ -159,12 +188,24 @@ class RatingControllerTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    void updateRating_validRequest_updatesRating() {
+    void updateRating_validRequest_updatesAndReturnsRatingDTO() throws Exception {
         ResponseEntity<Object> response = ratingController.updateRating(1L, testRatingPutDTO, 1L, "token");
         assertEquals(HttpStatus.OK, response.getStatusCode());
         Map<String, Object> body = (Map<String, Object>) response.getBody();
         assertNotNull(body);
-        assertEquals(testRating, body.get("rating"));
+
+        RatingDTO expectedUpdatedDTO = new RatingDTO();
+        expectedUpdatedDTO.setRatingId(1L);
+        expectedUpdatedDTO.setFromUserId(1L);
+        expectedUpdatedDTO.setToUserId(2L);
+        expectedUpdatedDTO.setContractId(1L);
+        expectedUpdatedDTO.setRatingValue(4);
+        expectedUpdatedDTO.setFlagIssues(true);
+        expectedUpdatedDTO.setComment("Updated comment");
+
+        String expectedJson = objectMapper.writeValueAsString(expectedUpdatedDTO);
+        String actualJson = objectMapper.writeValueAsString(body.get("rating"));
+        assertEquals(expectedJson, actualJson);
     }
 
     @Test
@@ -201,15 +242,18 @@ class RatingControllerTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    void getUserRatings_validRequest_returnsRatings() {
+    void getUserRatings_validRequest_returnsRatingDTOList() throws Exception {
         ResponseEntity<Object> response = ratingController.getUserRatings(2L, 1L, "token");
         assertEquals(HttpStatus.OK, response.getStatusCode());
         Map<String, Object> body = (Map<String, Object>) response.getBody();
         assertNotNull(body);
-        List<Rating> ratings = (List<Rating>) body.get("ratings");
+        List<RatingDTO> ratings = (List<RatingDTO>) body.get("ratings");
         assertNotNull(ratings);
         assertEquals(1, ratings.size());
-        assertEquals(testRating, ratings.get(0));
+
+        String expectedJson = objectMapper.writeValueAsString(Arrays.asList(testRatingDTO));
+        String actualJson = objectMapper.writeValueAsString(ratings);
+        assertEquals(expectedJson, actualJson);
     }
 
     @Test
@@ -225,15 +269,18 @@ class RatingControllerTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    void getContractRatings_validRequest_returnsRatings() {
+    void getContractRatings_validRequest_returnsRatingDTOList() throws Exception {
         ResponseEntity<Object> response = ratingController.getContractRatings(1L, 1L, "token");
         assertEquals(HttpStatus.OK, response.getStatusCode());
         Map<String, Object> body = (Map<String, Object>) response.getBody();
         assertNotNull(body);
-        List<Rating> ratings = (List<Rating>) body.get("ratings");
+        List<RatingDTO> ratings = (List<RatingDTO>) body.get("ratings");
         assertNotNull(ratings);
         assertEquals(1, ratings.size());
-        assertEquals(testRating, ratings.get(0));
+
+        String expectedJson = objectMapper.writeValueAsString(Arrays.asList(testRatingDTO));
+        String actualJson = objectMapper.writeValueAsString(ratings);
+        assertEquals(expectedJson, actualJson);
     }
 
     @Test
@@ -267,4 +314,4 @@ class RatingControllerTest {
         assertNotNull(body);
         assertEquals("User is not authorized", body.get("message"));
     }
-} 
+}

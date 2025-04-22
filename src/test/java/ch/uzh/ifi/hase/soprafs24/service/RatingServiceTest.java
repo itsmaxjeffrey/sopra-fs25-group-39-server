@@ -176,11 +176,33 @@ class RatingServiceTest {
     void deleteRating_validInput_deletesRating() {
         ratingService.deleteRating(1L, 1L);
         verify(ratingRepository, times(1)).delete(testRating);
+        // Verify contract status was updated
+        verify(contractService, times(1)).updateContractStatus(1L, ContractStatus.COMPLETED);
     }
 
     @Test
     void deleteRating_unauthorizedUser_throwsException() {
-        assertThrows(ResponseStatusException.class, () -> ratingService.deleteRating(1L, 2L));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> ratingService.deleteRating(1L, 2L));
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+        assertEquals("You can only delete your own ratings", exception.getReason());
+        // Verify delete was not called
+        verify(ratingRepository, never()).delete(any());
+        // Verify contract status was not updated
+        verify(contractService, never()).updateContractStatus(any(), any());
+    }
+
+    @Test
+    void deleteRating_contractUpdateFails_throwsExceptionAndDoesNotDelete() {
+        // Mock contractService to throw an exception when updating status
+        doThrow(new RuntimeException("Database error")).when(contractService).updateContractStatus(1L, ContractStatus.COMPLETED);
+
+        // Assert that the correct exception is thrown
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> ratingService.deleteRating(1L, 1L));
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, exception.getStatus());
+        assertTrue(exception.getReason().contains("Failed to update contract status during rating deletion"));
+
+        // Verify that ratingRepository.delete was NOT called
+        verify(ratingRepository, never()).delete(any(Rating.class));
     }
 
     @Test
@@ -227,4 +249,4 @@ class RatingServiceTest {
     void getAverageRating_nullId_throwsException() {
         assertThrows(IllegalArgumentException.class, () -> ratingService.getAverageRating(null));
     }
-} 
+}
