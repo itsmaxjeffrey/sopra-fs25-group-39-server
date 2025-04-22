@@ -77,9 +77,10 @@ public class RatingService {
 
         // Get and validate contract
         Contract contract = contractService.getContractById(ratingPostDTO.getContractId());
-        if (contract.getContractStatus() != ContractStatus.COMPLETED) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Can only rate completed contracts");
-        }
+        // Comment out the status check to allow rating non-completed contracts
+        // if (contract.getContractStatus() != ContractStatus.COMPLETED) {
+        //     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Can only rate completed contracts");
+        // }
         if (!contract.getRequester().getUserId().equals(requesterId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only rate your own contracts");
         }
@@ -108,9 +109,8 @@ public class RatingService {
         // Save rating
         Rating savedRating = ratingRepository.save(rating);
 
-        // Update contract status to FINALIZED
-        contract.setContractStatus(ContractStatus.FINALIZED);
-        contractService.updateContract(contract.getContractId(), contract);
+        // Update contract status to FINALIZED using the specific status update method
+        contractService.updateContractStatus(contract.getContractId(), ContractStatus.FINALIZED);
 
         return savedRating;
     }

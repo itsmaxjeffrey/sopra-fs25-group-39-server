@@ -101,10 +101,13 @@ public class ContractService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Manpower must be positive");
         }
 
-        // Validate move date time
+        // #testing_rating
+        /*
         if (contract.getMoveDateTime() == null || contract.getMoveDateTime().isBefore(LocalDateTime.now())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Move date time must be in the future");
         }
+        */
+        // #testing_rating
 
         // Validate locations
         if (contract.getFromAddress() == null || contract.getToAddress() == null) {
@@ -338,8 +341,25 @@ public class ContractService {
     }
 
     /**
+     * Updates only the status of a contract.
+     * This bypasses the general validation in validateContractUpdate.
+     *
+     * @param contractId The ID of the contract to update.
+     * @param newStatus The new status to set.
+     * @return The updated contract.
+     */
+    public Contract updateContractStatus(Long contractId, ContractStatus newStatus) {
+        Contract contract = getContractById(contractId);
+        contract.setContractStatus(newStatus);
+        Contract savedContract = contractRepository.save(contract);
+        contractRepository.flush();
+        log.debug("Updated Contract {} status to {}", contractId, newStatus);
+        return savedContract;
+    }
+
+    /**
      * Validates that a contract update is allowed
-     * 
+     *
      * @param existingContract The existing contract
      * @param contractUpdates The proposed updates
      * @throws ResponseStatusException if the update is not allowed
@@ -571,25 +591,63 @@ public class ContractService {
         }
     }
 
-    public Contract completeContract(Long contractId) {
+    /**
+     * Manually mark a contract as completed (for testing/immediate completion)
+     * Bypasses the move date check.
+     *
+     * @param contractId The ID of the contract to complete
+     * @return The completed contract
+     * @throws ResponseStatusException if the contract cannot be completed
+     */
+    public Contract completeContractManually(Long contractId) {
         Contract contract = getContractById(contractId);
-        
+
         // Validate contract can be completed
         if (contract.getContractStatus() != ContractStatus.ACCEPTED) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, 
-                "Only accepted contracts can be completed");
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                "Only accepted contracts can be completed manually");
         }
-        
+
+        // #testing_rating - Bypass date check for manual completion
+        /*
         // Check if move date has passed
         LocalDateTime now = LocalDateTime.now();
         if (contract.getMoveDateTime().isAfter(now)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, 
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
                 "Cannot complete contract before move date");
         }
-        
+        */
+        // #testing_rating
+
         // Update contract status
         contract.setContractStatus(ContractStatus.COMPLETED);
-        
+
+        // Save the updated contract
+        Contract savedContract = contractRepository.save(contract);
+        contractRepository.flush();
+        log.debug("Manually completed Contract: {}", savedContract);
+        return savedContract;
+    }
+
+    public Contract completeContract(Long contractId) {
+        Contract contract = getContractById(contractId);
+
+        // Validate contract can be completed
+        if (contract.getContractStatus() != ContractStatus.ACCEPTED) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                "Only accepted contracts can be completed");
+        }
+
+        // Check if move date has passed
+        LocalDateTime now = LocalDateTime.now();
+        if (contract.getMoveDateTime().isAfter(now)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                "Cannot complete contract before move date");
+        }
+
+        // Update contract status
+        contract.setContractStatus(ContractStatus.COMPLETED);
+
         // Save the updated contract
         return contractRepository.save(contract);
     }

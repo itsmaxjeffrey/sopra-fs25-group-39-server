@@ -24,20 +24,28 @@ import ch.uzh.ifi.hase.soprafs24.user.mapper.PublicUserDTOMapper;
 import ch.uzh.ifi.hase.soprafs24.user.mapper.UserDTOMapper;
 import ch.uzh.ifi.hase.soprafs24.user.service.UserService;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
+import ch.uzh.ifi.hase.soprafs24.user.dto.request.update.DriverUpdateDTO;
+import ch.uzh.ifi.hase.soprafs24.user.dto.request.update.RequesterUpdateDTO;
+
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserController {
 
     private final PublicUserDTOMapper publicUserDTOMapper;
     private final UserService userService;
+    private final ObjectMapper objectMapper;
 
     public UserController(
         AuthorizationService authorizationService,
         PublicUserDTOMapper publicUserDTOMapper,
         UserService userService,
-        Application application) {
+        Application application,
+        ObjectMapper objectMapper) {
         this.publicUserDTOMapper = publicUserDTOMapper;
         this.userService = userService;
+        this.objectMapper = objectMapper;
     }
 
     @GetMapping("/{paramUserId}")
@@ -68,11 +76,29 @@ public class UserController {
     public ResponseEntity<?> updateUser(
         @PathVariable Long userId,
         @RequestHeader("Authorization") String token,
-        @RequestBody BaseUserUpdateDTO userUpdateDTO) {
+        @RequestBody Map<String, Object> payload) {
         try {
+            String accountTypeStr = (String) payload.get("userAccountType");
+            if (accountTypeStr == null) {
+                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "userAccountType is missing in request body");
+            }
+
+            BaseUserUpdateDTO userUpdateDTO;
+            UserAccountType accountType = UserAccountType.valueOf(accountTypeStr.toUpperCase());
+
+            if (accountType == UserAccountType.DRIVER) {
+                userUpdateDTO = objectMapper.convertValue(payload, DriverUpdateDTO.class);
+            } else if (accountType == UserAccountType.REQUESTER) {
+                userUpdateDTO = objectMapper.convertValue(payload, RequesterUpdateDTO.class);
+            } else {
+                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid userAccountType");
+            }
+
             User updatedUser = userService.editUser(userId, token, userUpdateDTO);
             AuthenticatedUserDTO userDTO = UserDTOMapper.INSTANCE.convertToDTO(updatedUser);
             return ResponseEntity.ok(userDTO);
+        } catch (IllegalArgumentException e) {
+             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid userAccountType value provided", e);
         } catch (ResponseStatusException e) {
             return ResponseEntity.status(e.getRawStatusCode())
                 .body(Map.of("message", e.getReason()));

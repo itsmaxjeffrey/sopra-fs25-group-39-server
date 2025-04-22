@@ -11,6 +11,9 @@ import ch.uzh.ifi.hase.soprafs24.service.CarService;
 import ch.uzh.ifi.hase.soprafs24.service.LocationService;
 import ch.uzh.ifi.hase.soprafs24.user.dto.request.update.DriverUpdateDTO;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Service for driver-specific operations
  */
@@ -18,7 +21,8 @@ import ch.uzh.ifi.hase.soprafs24.user.dto.request.update.DriverUpdateDTO;
 public class DriverService extends AbstractUserService {
     private final CarService carService;
     private final LocationService locationService;
-    
+    private static final Logger log = LoggerFactory.getLogger(DriverService.class);
+
     public DriverService(
             UserRepository userRepository,
             AuthorizationService authorizationService,
@@ -69,10 +73,14 @@ public class DriverService extends AbstractUserService {
      * Updates driver's car information
      */
     private void updateDriverCar(Driver driver, DriverUpdateDTO updates) {
+        log.debug("Attempting to update car. Received CarDTO in updates: {}", updates.getCar());
         if (updates.getCar() != null) {
+            log.debug("CarDTO is not null, proceeding with update.");
             // Use carService.updateCarFromDTO which handles both creation and updating
             Car updatedCar = carService.updateCarFromDTO(driver.getCar(), updates.getCar());
             driver.setCar(updatedCar);
+        } else {
+            log.warn("Received null CarDTO in DriverUpdateDTO. Skipping car update.");
         }
     }
     

@@ -93,8 +93,9 @@ public class UserService extends AbstractUserService {
 
 
     /**
-     * Deletes a user's account
-     * @param userId ID of the user requesting deletion
+     * Anonymizes a user's account instead of deleting it.
+     * Sets personal information to null or placeholder values.
+     * @param userId ID of the user requesting anonymization
      * @param token Authentication token
      * @return void
      */
@@ -102,13 +103,26 @@ public class UserService extends AbstractUserService {
         // First authenticate the requesting user
         User user = authenticateRequest(userId, token);
         
-        // User can only delete their own account
+        // User can only anonymize their own account
         if (!user.getUserId().equals(userId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only delete your own account");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only anonymize your own account");
         }
         
-        // Delete the user from the repository
-        userRepository.delete(user);
+        // Anonymize user data
+        user.setUsername("deleted_user_" + user.getUserId());
+        user.setEmail(user.getUserId() + "@deleted.user"); // Unique placeholder
+        user.setPassword(""); // Clear password, non-null
+        user.setToken(null); // Invalidate token
+        user.setFirstName("Deleted"); // Placeholder for non-null field
+        user.setLastName("User"); // Placeholder for non-null field
+        user.setPhoneNumber("deleted_" + user.getUserId()); // Unique placeholder for non-null, unique field
+        user.setBirthDate(null); 
+        user.setProfilePicturePath(null);
+        // Consider if Driver/Requester specific fields need anonymization
+        // e.g., driverLicensePath, driverInsurancePath for Driver
+
+        // Save the anonymized user
+        userRepository.save(user);
         userRepository.flush();
     }
 

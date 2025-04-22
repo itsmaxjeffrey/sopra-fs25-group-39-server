@@ -28,37 +28,37 @@ public class CarUpdater {
             throw new IllegalArgumentException("CarDTO cannot be null");
         }
 
-        // Create a new car entity from the DTO
-        Car updatedCar = carDTOMapper.convertCarDTOToEntity(carDTO);
+        // Apply updates from DTO to the existing car entity
+        // Only update fields if they are provided in the DTO
+
+        if (carDTO.getCarModel() != null) {
+            existingCar.setCarModel(carDTO.getCarModel());
+        }
+        if (carDTO.getLicensePlate() != null) {
+            existingCar.setLicensePlate(carDTO.getLicensePlate());
+        }
+        if (carDTO.getCarPicturePath() != null) {
+            existingCar.setCarPicturePath(carDTO.getCarPicturePath());
+        }
+        // Use Float object comparison to allow setting 0
+        if (carDTO.getVolumeCapacity() >= 0) { // Allow 0 capacity
+            existingCar.setVolumeCapacity(carDTO.getVolumeCapacity());
+        }
+        if (carDTO.getWeightCapacity() >= 0) { // Allow 0 capacity
+            existingCar.setWeightCapacity(carDTO.getWeightCapacity());
+        }
+        // Update electric status regardless of value (true/false)
+        // Assuming the DTO provides a boolean, not a Boolean object that could be null
+        existingCar.setElectric(carDTO.isElectric());
         
-        // Preserve the existing car's ID
-        updatedCar.setCarId(existingCar.getCarId());
+        // Validate the updated existing car
+        carValidator.validateCar(existingCar);
         
-        // Handle partial updates by preserving existing values when DTO fields are null
-        if (carDTO.getCarModel() == null) {
-            updatedCar.setCarModel(existingCar.getCarModel());
-        }
-        if (carDTO.getLicensePlate() == null) {
-            updatedCar.setLicensePlate(existingCar.getLicensePlate());
-        }
-        if (carDTO.getCarPicturePath() == null) {
-            updatedCar.setCarPicturePath(existingCar.getCarPicturePath());
-        }
-        if (carDTO.getVolumeCapacity() <= 0) {
-            updatedCar.setVolumeCapacity(existingCar.getVolumeCapacity());
-        }
-        if (carDTO.getWeightCapacity() <= 0) {
-            updatedCar.setWeightCapacity(existingCar.getWeightCapacity());
-        }
-        
-        // Validate updated car
-        carValidator.validateCar(updatedCar);
-        
-        // Save and return
-        updatedCar = carRepository.save(updatedCar);
+        // Save and return the updated existing car
+        Car savedCar = carRepository.save(existingCar);
         carRepository.flush();
         
-        return updatedCar;
+        return savedCar;
     }
 
 }

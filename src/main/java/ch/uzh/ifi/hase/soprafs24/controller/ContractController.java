@@ -349,9 +349,11 @@ public class ContractController {
             if (contractPostDTO.getMoveDateTime() == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Move date time is required");
             }
+            /*
             if (contractPostDTO.getMoveDateTime().isBefore(LocalDateTime.now())) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Move date time must be in the future");
             }
+            */
         
             // Check if mass is positive
             if (contractPostDTO.getMass() <= 0) {
@@ -640,6 +642,44 @@ public class ContractController {
         Contract fulfilledContract = contractService.fulfillContract(contractId);
         
         return createResponse(ContractDTOMapper.INSTANCE.convertContractEntityToContractGetDTO(fulfilledContract), null, HttpStatus.OK);
+    }
+
+    /**
+     * Manually mark a contract as completed (for testing/immediate completion)
+     *
+     * @param contractId The ID of the contract to complete
+     * @param userId User ID from header
+     * @param token Authentication token from header
+     * @return The completed contract
+     */
+    @PutMapping("/api/v1/contracts/{id}/complete")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Object> completeContractManually(
+            @PathVariable("id") Long contractId,
+            @RequestHeader("UserId") Long userId,
+            @RequestHeader("Authorization") String token) {
+
+        // Authenticate user
+        User authenticatedUser = authorizationService.authenticateUser(userId, token);
+        if (authenticatedUser == null) {
+             return createResponse(null, ERROR_INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED);
+        }
+
+        // Get contract from service to check authorization
+        Contract contract = contractService.getContractById(contractId);
+
+        // Authorization Check: Only Requester or assigned Driver can complete
+        boolean isRequester = authenticatedUser.getUserAccountType() == UserAccountType.REQUESTER && contract.getRequester().getUserId().equals(userId);
+        boolean isAssignedDriver = authenticatedUser.getUserAccountType() == UserAccountType.DRIVER && contract.getDriver() != null && contract.getDriver().getUserId().equals(userId);
+
+        if (!isRequester && !isAssignedDriver) {
+            return createResponse(null, "Not authorized to complete this contract", HttpStatus.FORBIDDEN);
+        }
+
+        // Call the service method that bypasses the date check
+        Contract completedContract = contractService.completeContractManually(contractId);
+
+        return createResponse(ContractDTOMapper.INSTANCE.convertContractEntityToContractGetDTO(completedContract), "Contract manually completed", HttpStatus.OK);
     }
 
     /**
