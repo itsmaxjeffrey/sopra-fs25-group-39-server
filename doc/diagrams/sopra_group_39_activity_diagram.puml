@@ -67,7 +67,7 @@ partition "Requester Activities" {
     repeat
       :Fill Proposal Form
       (photos, description, addresses,
-      date, mass/volume, fragility, etc.);
+      date, weight/volume, fragility, etc.);
       :Submit Form;
       :Validate Form;
     repeat while (Form Valid?) is (no)

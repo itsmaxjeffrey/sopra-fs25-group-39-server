@@ -74,7 +74,7 @@ entity Contract {
   title: String
   acceptedDateTime: LocalDateTime
   moveDateTime: LocalDateTime
-  mass: float
+  weight: float
   volume: float
   fragile: boolean
   coolingRequired: boolean

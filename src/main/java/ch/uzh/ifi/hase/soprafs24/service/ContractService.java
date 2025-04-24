@@ -88,9 +88,9 @@ public class ContractService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Collateral cannot be negative");
         }
 
-        // Validate mass and dimensions
-        if (contract.getMass() <= 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mass must be positive");
+        // Validate weight and dimensions
+        if (contract.getWeight() <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Weight must be positive");
         }
         if (contract.getHeight() <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Height must be positive");
@@ -141,8 +141,8 @@ public class ContractService {
                     return false;
                 }
                 
-                // Filter by weight (mass)
-                if (filters.getWeight() != null && contract.getMass() > filters.getWeight()) {
+                // Filter by weight (weight)
+                if (filters.getWeight() != null && contract.getWeight() > filters.getWeight()) {
                     return false;
                 }
                 
@@ -306,8 +306,8 @@ public class ContractService {
         if (contractUpdates.getTitle() != null) {
             existingContract.setTitle(contractUpdates.getTitle());
         }
-        if (contractUpdates.getMass() > 0) {
-            existingContract.setMass(contractUpdates.getMass());
+        if (contractUpdates.getWeight() > 0) {
+            existingContract.setWeight(contractUpdates.getWeight());
         }
         if (contractUpdates.getHeight() > 0) {
             existingContract.setHeight(contractUpdates.getHeight());

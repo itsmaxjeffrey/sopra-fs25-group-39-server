@@ -355,9 +355,9 @@ public class ContractController {
             }
             */
         
-            // Check if mass is positive
-            if (contractPostDTO.getMass() <= 0) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mass must be positive");
+            // Check if weight is positive
+            if (contractPostDTO.getWeight() <= 0) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Weight must be positive");
             }
         
             // Check if height is positive
@@ -505,47 +505,47 @@ public class ContractController {
         // Only validate fields that are provided (not null)
         
         // Check if title is provided and not empty
-        if (contractPutDTO.getTitle() != null && contractPutDTO.getTitle().trim().isBlank()) {
+        if (contractPutDTO.getTitle().trim().isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Title cannot be empty");
         }
 
         // Check if move date time is in the future
-        if (contractPutDTO.getMoveDateTime() != null && contractPutDTO.getMoveDateTime().isBefore(LocalDateTime.now())) {
+        if (contractPutDTO.getMoveDateTime().isBefore(LocalDateTime.now())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Move date time must be in the future");
         }
 
-        // Check if mass is positive
-        if (contractPutDTO.getMass() != null && contractPutDTO.getMass() <= 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mass must be positive");
+        // Check if weight is positive
+        if ( contractPutDTO.getWeight() <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Weight must be positive");
         }
 
         // Check if height is positive
-        if (contractPutDTO.getHeight() != null && contractPutDTO.getHeight() <= 0) {
+        if (contractPutDTO.getHeight() <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Height must be positive");
         }
 
         // Check if width is positive
-        if (contractPutDTO.getWidth() != null && contractPutDTO.getWidth() <= 0) {
+        if (contractPutDTO.getWidth() <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Width must be positive");
         }
 
         // Check if length is positive
-        if (contractPutDTO.getLength() != null && contractPutDTO.getLength() <= 0) {
+        if (contractPutDTO.getLength() <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Length must be positive");
         }
 
         // Check if man power is positive
-        if (contractPutDTO.getManPower() != null && contractPutDTO.getManPower() <= 0) {
+        if ( contractPutDTO.getManPower() <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Man power must be positive");
         }
 
         // Check if price is positive
-        if (contractPutDTO.getPrice() != null && contractPutDTO.getPrice() <= 0) {
+        if ( contractPutDTO.getPrice() <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price must be positive");
         }
 
         // Check if collateral is positive
-        if (contractPutDTO.getCollateral() != null && contractPutDTO.getCollateral() <= 0) {
+        if (contractPutDTO.getCollateral() <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Collateral must be positive");
         }
 

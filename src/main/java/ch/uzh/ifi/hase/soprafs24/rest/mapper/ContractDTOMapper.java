@@ -23,7 +23,7 @@ public interface ContractDTOMapper {
     ContractDTOMapper INSTANCE = Mappers.getMapper(ContractDTOMapper.class);
 
     @Mapping(source = "title", target = "title")
-    @Mapping(source = "mass", target = "mass")
+    @Mapping(source = "weight", target = "weight")
     @Mapping(source = "height", target = "height")
     @Mapping(source = "width", target = "width")
     @Mapping(source = "length", target = "length")
@@ -51,7 +51,7 @@ public interface ContractDTOMapper {
 
     @Mapping(source = "contractId", target = "contractId")
     @Mapping(source = "title", target = "title")
-    @Mapping(source = "mass", target = "mass")
+    @Mapping(source = "weight", target = "weight")
     @Mapping(source = "height", target = "height")
     @Mapping(source = "width", target = "width")
     @Mapping(source = "length", target = "length")
@@ -74,7 +74,7 @@ public interface ContractDTOMapper {
     ContractGetDTO convertContractEntityToContractGetDTO(Contract contract);
 
     @Mapping(source = "title", target = "title")
-    @Mapping(source = "mass", target = "mass")
+    @Mapping(source = "weight", target = "weight")
     @Mapping(source = "height", target = "height")
     @Mapping(source = "width", target = "width")
     @Mapping(source = "length", target = "length")

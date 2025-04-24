@@ -29,13 +29,13 @@ class ContractControllerValidationTest {
         // Create a valid contract DTO
         validContractPostDTO = new ContractPostDTO();
         validContractPostDTO.setTitle("Test Contract");
-        validContractPostDTO.setMass(10.0f);
-        validContractPostDTO.setHeight(2.0f); // Use height
-        validContractPostDTO.setWidth(1.5f); // Use width
-        validContractPostDTO.setLength(3.0f); // Use length
+        validContractPostDTO.setWeight(10.0);
+        validContractPostDTO.setHeight(2.0); // Use height
+        validContractPostDTO.setWidth(1.5); // Use width
+        validContractPostDTO.setLength(3.0); // Use length
         validContractPostDTO.setManPower(2);
-        validContractPostDTO.setPrice(100.0f);
-        validContractPostDTO.setCollateral(50.0f);
+        validContractPostDTO.setPrice(100.0);
+        validContractPostDTO.setCollateral(50.0);
         validContractPostDTO.setMoveDateTime(LocalDateTime.now().plusDays(1));
 
         // Set valid locations
@@ -97,7 +97,7 @@ class ContractControllerValidationTest {
 
         ResponseStatusException exception = invokeValidateAndUnwrapException(validContractPostDTO);
         assertEquals("From and to locations are required", exception.getReason());
-        assertEquals(400, exception.getStatusCode().value()); // Check status code
+        assertEquals(400, exception.getRawStatusCode()); // Check status code
     }
 
     @Test
@@ -106,7 +106,7 @@ class ContractControllerValidationTest {
 
         ResponseStatusException exception = invokeValidateAndUnwrapException(validContractPostDTO);
         assertEquals("From location must have a valid latitude and longitude", exception.getReason());
-        assertEquals(400, exception.getStatusCode().value()); // Check status code
+        assertEquals(400, exception.getRawStatusCode()); // Check status code
     }
 
     @Test
@@ -115,7 +115,7 @@ class ContractControllerValidationTest {
 
         ResponseStatusException exception = invokeValidateAndUnwrapException(validContractPostDTO);
         assertEquals("To location must have a valid latitude and longitude", exception.getReason());
-        assertEquals(400, exception.getStatusCode().value()); // Check status code
+        assertEquals(400, exception.getRawStatusCode()); // Check status code
     }
 
     @Test
@@ -126,7 +126,7 @@ class ContractControllerValidationTest {
 
         ResponseStatusException exception = invokeValidateAndUnwrapException(validContractPostDTO);
         assertEquals("From and to locations cannot be the same", exception.getReason());
-        assertEquals(400, exception.getStatusCode().value()); // Check status code
+        assertEquals(400, exception.getRawStatusCode()); // Check status code
     }
 
     @Test
@@ -135,7 +135,7 @@ class ContractControllerValidationTest {
 
         ResponseStatusException exception = invokeValidateAndUnwrapException(validContractPostDTO);
         assertEquals("Requester ID is required", exception.getReason());
-        assertEquals(400, exception.getStatusCode().value()); // Check status code
+        assertEquals(400, exception.getRawStatusCode()); // Check status code
     }
 
     @Test
@@ -144,7 +144,7 @@ class ContractControllerValidationTest {
 
         ResponseStatusException exception = invokeValidateAndUnwrapException(validContractPostDTO);
         assertEquals("Title is required", exception.getReason());
-        assertEquals(400, exception.getStatusCode().value()); // Check status code
+        assertEquals(400, exception.getRawStatusCode()); // Check status code
     }
 
     @Test
@@ -153,97 +153,97 @@ class ContractControllerValidationTest {
 
         ResponseStatusException exception = invokeValidateAndUnwrapException(validContractPostDTO);
         assertEquals("Title is required", exception.getReason());
-        assertEquals(400, exception.getStatusCode().value()); // Check status code
+        assertEquals(400, exception.getRawStatusCode()); // Check status code
     }
 
     @Test
-    void validateContractPostDTO_negativeMass_throwsException() {
-        validContractPostDTO.setMass(-1.0f);
+    void validateContractPostDTO_negativeWeight_throwsException() {
+        validContractPostDTO.setWeight(-1.0);
 
         ResponseStatusException exception = invokeValidateAndUnwrapException(validContractPostDTO);
-        assertEquals("Mass must be positive", exception.getReason());
-        assertEquals(400, exception.getStatusCode().value()); // Check status code
+        assertEquals("Weight must be positive", exception.getReason());
+        assertEquals(400, exception.getRawStatusCode()); // Check status code
     }
 
     @Test
-    void validateContractPostDTO_zeroMass_throwsException() {
-        validContractPostDTO.setMass(0.0f);
+    void validateContractPostDTO_zeroWeight_throwsException() {
+        validContractPostDTO.setWeight(0.0);
 
         ResponseStatusException exception = invokeValidateAndUnwrapException(validContractPostDTO);
-        assertEquals("Mass must be positive", exception.getReason());
-        assertEquals(400, exception.getStatusCode().value()); // Check status code
+        assertEquals("Weight must be positive", exception.getReason());
+        assertEquals(400, exception.getRawStatusCode()); // Check status code
     }
 
     @Test
     void validateContractPostDTO_negativeHeight_throwsException() {
-        validContractPostDTO.setHeight(-1.0f);
+        validContractPostDTO.setHeight(-1.0);
 
         ResponseStatusException exception = invokeValidateAndUnwrapException(validContractPostDTO);
         assertEquals("Height must be positive", exception.getReason());
-        assertEquals(400, exception.getStatusCode().value()); // Check status code
+        assertEquals(400, exception.getRawStatusCode()); // Check status code
     }
 
     @Test
     void validateContractPostDTO_zeroHeight_throwsException() {
-        validContractPostDTO.setHeight(0.0f);
+        validContractPostDTO.setHeight(0.0);
 
         ResponseStatusException exception = invokeValidateAndUnwrapException(validContractPostDTO);
         assertEquals("Height must be positive", exception.getReason());
-        assertEquals(400, exception.getStatusCode().value()); // Check status code
+        assertEquals(400, exception.getRawStatusCode()); // Check status code
     }
 
     @Test
     void validateContractPostDTO_negativeWidth_throwsException() {
-        validContractPostDTO.setWidth(-1.0f);
+        validContractPostDTO.setWidth(-1.0);
 
         ResponseStatusException exception = invokeValidateAndUnwrapException(validContractPostDTO);
         assertEquals("Width must be positive", exception.getReason());
-        assertEquals(400, exception.getStatusCode().value()); // Check status code
+        assertEquals(400, exception.getRawStatusCode()); // Check status code
     }
 
     @Test
     void validateContractPostDTO_zeroWidth_throwsException() {
-        validContractPostDTO.setWidth(0.0f);
+        validContractPostDTO.setWidth(0.0);
 
         ResponseStatusException exception = invokeValidateAndUnwrapException(validContractPostDTO);
         assertEquals("Width must be positive", exception.getReason());
-        assertEquals(400, exception.getStatusCode().value()); // Check status code
+        assertEquals(400, exception.getRawStatusCode()); // Check status code
     }
 
     @Test
     void validateContractPostDTO_negativeLength_throwsException() {
-        validContractPostDTO.setLength(-1.0f);
+        validContractPostDTO.setLength(-1.0);
 
         ResponseStatusException exception = invokeValidateAndUnwrapException(validContractPostDTO);
         assertEquals("Length must be positive", exception.getReason());
-        assertEquals(400, exception.getStatusCode().value()); // Check status code
+        assertEquals(400, exception.getRawStatusCode()); // Check status code
     }
 
     @Test
     void validateContractPostDTO_zeroLength_throwsException() {
-        validContractPostDTO.setLength(0.0f);
+        validContractPostDTO.setLength(0.0);
 
         ResponseStatusException exception = invokeValidateAndUnwrapException(validContractPostDTO);
         assertEquals("Length must be positive", exception.getReason());
-        assertEquals(400, exception.getStatusCode().value()); // Check status code
+        assertEquals(400, exception.getRawStatusCode()); // Check status code
     }
 
     @Test
     void validateContractPostDTO_negativePrice_throwsException() {
-        validContractPostDTO.setPrice(-1.0f);
+        validContractPostDTO.setPrice(-1.0);
 
         ResponseStatusException exception = invokeValidateAndUnwrapException(validContractPostDTO);
         assertEquals("Price must be positive", exception.getReason());
-        assertEquals(400, exception.getStatusCode().value()); // Check status code
+        assertEquals(400, exception.getRawStatusCode()); // Check status code
     }
 
     @Test
     void validateContractPostDTO_zeroPrice_throwsException() {
-        validContractPostDTO.setPrice(0.0f);
+        validContractPostDTO.setPrice(0.0);
 
         ResponseStatusException exception = invokeValidateAndUnwrapException(validContractPostDTO);
         assertEquals("Price must be positive", exception.getReason());
-        assertEquals(400, exception.getStatusCode().value()); // Check status code
+        assertEquals(400, exception.getRawStatusCode()); // Check status code
     }
 
     @Test
@@ -252,7 +252,7 @@ class ContractControllerValidationTest {
 
         ResponseStatusException exception = invokeValidateAndUnwrapException(validContractPostDTO);
         assertEquals("Man power must be positive", exception.getReason());
-        assertEquals(400, exception.getStatusCode().value()); // Check status code
+        assertEquals(400, exception.getRawStatusCode()); // Check status code
     }
 
     @Test
@@ -261,7 +261,7 @@ class ContractControllerValidationTest {
 
         ResponseStatusException exception = invokeValidateAndUnwrapException(validContractPostDTO);
         assertEquals("Man power must be positive", exception.getReason());
-        assertEquals(400, exception.getStatusCode().value()); // Check status code
+        assertEquals(400, exception.getRawStatusCode()); // Check status code
     }
 
     @Test
@@ -270,7 +270,7 @@ class ContractControllerValidationTest {
 
         ResponseStatusException exception = invokeValidateAndUnwrapException(validContractPostDTO);
         assertEquals("Move date time is required", exception.getReason());
-        assertEquals(400, exception.getStatusCode().value()); // Check status code
+        assertEquals(400, exception.getRawStatusCode()); // Check status code
     }
 
     // Optional: Test for MoveDateTime in the past (if uncommented in controller)
@@ -281,7 +281,7 @@ class ContractControllerValidationTest {
 
         ResponseStatusException exception = invokeValidateAndUnwrapException(validContractPostDTO);
         assertEquals("Move date time must be in the future", exception.getReason());
-        assertEquals(400, exception.getStatusCode().value()); // Check status code
+        assertEquals(400, exception.getRawStatusCode()); // Check status code
     }
     */
 

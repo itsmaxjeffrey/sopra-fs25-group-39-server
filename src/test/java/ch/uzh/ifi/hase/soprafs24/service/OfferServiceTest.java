@@ -69,10 +69,12 @@ class OfferServiceTest {
         testContract.setContractId(1L);
         testContract.setContractStatus(ContractStatus.REQUESTED);
         testContract.setTitle("Test Contract");
-        testContract.setPrice(100.0f);
-        testContract.setCollateral(150.0f);
-        testContract.setMass(50.0f);
-        testContract.setVolume(2.0f);
+        testContract.setPrice(100.0);
+        testContract.setCollateral(150.0);
+        testContract.setWeight(50.0);
+        testContract.setHeight(1.0);
+        testContract.setWidth(1.0);
+        testContract.setLength(2.0);
         testContract.setFragile(false);
         testContract.setCoolingRequired(false);
         testContract.setRideAlong(false);

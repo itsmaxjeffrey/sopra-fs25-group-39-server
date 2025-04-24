@@ -85,7 +85,7 @@ Common authentication error codes:
 
 | FE | BE | Mapping | Method | Parameter | Parameter Type | Status Code | Response | Description | User Story |
 |---------|--------|-----------|----------------|-------------|----------|-------------|-----------|-----------|-----------|
-| No ❌ | Yes ✅ | `/api/v1/contracts` | POST | `newContract <Contract>` { title, mass, volume, fragile, coolingRequired, rideAlong, manPower, contractDescription, price, collateral, requesterId, fromLocation, toLocation, moveDateTime, contractPhotos } | Body | 201, 400, 404 | Created contract object | Create a new contract | S5 | 
+| No ❌ | Yes ✅ | `/api/v1/contracts` | POST | `newContract <Contract>` { title, weight, volume, fragile, coolingRequired, rideAlong, manPower, contractDescription, price, collateral, requesterId, fromLocation, toLocation, moveDateTime, contractPhotos } | Body | 201, 400, 404 | Created contract object | Create a new contract | S5 | 
 | Yes ✅ | Yes ✅ | `/api/v1/contracts` | GET | `lat <number>`, `lng <number>`, `filters <object>`{ radius (number), price (number), weight (number), height (number), length (number), width (number), requiredPeople (number), fragile (boolean), coolingRequired (boolean), rideAlong (boolean), fromAddress (string), toAddress (string), moveDateTime (string) } | Query | 200 | `{ "contracts": [...], "timestamp": 1234567890 }` | Get available contracts with filtering | S11 |
 | No ❌ | Yes ✅ | `/api/v1/contracts/{id}` | GET | `id <string>` | Path | 200, 404 | Contract details object | Get contract details | S7, S12 |
 | No ❌ | Yes ✅ | `/api/v1/contracts/{id}` | PUT | `id <string>`, `contractToUpdate <Contract>` | Path, Body | 200, 400, 403 | Updated contract object | Update a contract | S6 |
@@ -134,7 +134,7 @@ The endpoint returns a list of contracts in the following format:
     "contractId": 123,
     "title": "Moving furniture",
     "price": 100.0,
-    "mass": 50.0,
+    "weight": 50.0,
     "volume": 2.0,
     "fragile": true,
     "coolingRequired": false,
@@ -230,7 +230,7 @@ DELETE /api/v1/contracts/123
     "contractId": 123,
     "title": "Moving furniture",
     "price": 100.0,
-    "mass": 50.0,
+    "weight": 50.0,
     "volume": 2.0,
     "fragile": true,
     "coolingRequired": false,
@@ -291,7 +291,7 @@ DELETE /api/v1/contracts/123
     "contractId": 123,
     "title": "Moving furniture",
     "price": 100.0,
-    "mass": 50.0,
+    "weight": 50.0,
     "volume": 2.0,
     "fragile": true,
     "coolingRequired": false,
@@ -359,7 +359,7 @@ DELETE /api/v1/contracts/123
     "contractId": 123,
     "title": "Moving furniture",
     "price": 100.0,
-    "mass": 50.0,
+    "weight": 50.0,
     "volume": 2.0,
     "fragile": true,
     "coolingRequired": false,
@@ -426,7 +426,7 @@ DELETE /api/v1/contracts/123
       "contractId": 123,
       "title": "Moving furniture",
       "price": 100.0,
-      "mass": 50.0,
+      "weight": 50.0,
       "volume": 2.0,
       "fragile": true,
       "coolingRequired": false,
@@ -730,7 +730,7 @@ or
 ```json
 {
   "title": "Moving furniture",
-  "mass": 100.0,
+  "weight": 100.0,
   "volume": 2.0,
   "fragile": true,
   "coolingRequired": false,
@@ -763,7 +763,7 @@ or
 {
   "contractId": 8,
   "title": "Moving furniture",
-  "mass": 100.0,
+  "weight": 100.0,
   "volume": 2.0,
   "fragile": true,
   "coolingRequired": false,

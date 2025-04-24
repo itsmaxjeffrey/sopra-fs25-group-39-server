@@ -113,34 +113,34 @@ class ContractTest {
     }
 
     @Test
-    void testMass() {
-        assertEquals(0.0f, contract.getMass());
+    void testWeight() {
+        assertEquals(0.0, contract.getWeight());
         
-        float mass = 10.5f;
-        contract.setMass(mass);
-        assertEquals(mass, contract.getMass());
+        double weight = 10.5;
+        contract.setWeight(weight);
+        assertEquals(weight, contract.getWeight());
     }
 
     @Test
     void testHeight() {
-        assertEquals(0.0f, contract.getHeight());
-        float height = 2.5f;
+        assertEquals(0.0, contract.getHeight());
+        double height = 2.5;
         contract.setHeight(height);
         assertEquals(height, contract.getHeight());
     }
 
     @Test
     void testWidth() {
-        assertEquals(0.0f, contract.getWidth());
-        float width = 1.5f;
+        assertEquals(0.0, contract.getWidth());
+        double width = 1.5;
         contract.setWidth(width);
         assertEquals(width, contract.getWidth());
     }
 
     @Test
     void testLength() {
-        assertEquals(0.0f, contract.getLength());
-        float length = 3.0f;
+        assertEquals(0.0, contract.getLength());
+        double length = 3.0;
         contract.setLength(length);
         assertEquals(length, contract.getLength());
     }
@@ -199,18 +199,18 @@ class ContractTest {
 
     @Test
     void testPrice() {
-        assertEquals(0.0f, contract.getPrice());
+        assertEquals(0.0, contract.getPrice());
         
-        float price = 100.0f;
+        double price = 100.0;
         contract.setPrice(price);
         assertEquals(price, contract.getPrice());
     }
 
     @Test
     void testCollateral() {
-        assertEquals(0.0f, contract.getCollateral());
+        assertEquals(0.0, contract.getCollateral());
         
-        float collateral = 50.0f;
+        double collateral = 50.0;
         contract.setCollateral(collateral);
         assertEquals(collateral, contract.getCollateral());
     }
@@ -253,12 +253,4 @@ class ContractTest {
         assertEquals(contract1, contract2);
         assertEquals(contract1.hashCode(), contract2.hashCode());
     }
-
-    // @Test
-    // void testToString() {
-    //     contract.setContractId(1L);
-    //     contract.setContractStatus(ContractStatus.REQUESTED);
-    //     String expected = "Contract(contractId=1, requester=null, driver=null, contractStatus=requested, creationDateTime=null, title=null, acceptedDateTime=null, moveDateTime=null, fromAddress=null, toAddress=null, mass=0.0, volume=0.0, fragile=false, coolingRequired=false, rideAlong=false, manPower=0, contractDescription=null, contractPhotos=[], price=0.0, collateral=0.0, offers=[], acceptedOffer=null, cancelReason=null)";
-    //     assertEquals(expected, contract.toString());
-    // }
 }

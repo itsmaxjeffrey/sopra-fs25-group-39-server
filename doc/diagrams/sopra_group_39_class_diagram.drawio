@@ -145,7 +145,7 @@
         <mxCell id="FhAC9SpLo2Exs4h5NFUT-69" value="-toAddress : Location" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="FhAC9SpLo2Exs4h5NFUT-42" vertex="1">
           <mxGeometry y="234" width="480" height="26" as="geometry" />
         </mxCell>
-        <mxCell id="WWke9V1UBgyfjbNEmQkF-0" value="-mass : float" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="FhAC9SpLo2Exs4h5NFUT-42" vertex="1">
+        <mxCell id="WWke9V1UBgyfjbNEmQkF-0" value="-weight : float" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="FhAC9SpLo2Exs4h5NFUT-42" vertex="1">
           <mxGeometry y="260" width="480" height="26" as="geometry" />
         </mxCell>
         <mxCell id="WWke9V1UBgyfjbNEmQkF-1" value="-volume : float" style="text;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="FhAC9SpLo2Exs4h5NFUT-42" vertex="1">

@@ -77,16 +77,16 @@ public class Contract implements Serializable{
     private Location toAddress;
     
     @Column
-    private float mass;
+    private double weight;
 
     @Column
-    private float height;
+    private double height;
 
     @Column
-    private float width;
+    private double width;
 
     @Column
-    private float length;
+    private double length;
 
     @Column
     private boolean fragile;
@@ -110,10 +110,10 @@ public class Contract implements Serializable{
     private List<String> contractPhotos = new ArrayList<>();
 
     @Column
-    private float price;
+    private double price;
 
     @Column
-    private float collateral;
+    private double collateral;
 
 
     @OneToMany(mappedBy = "contract")
