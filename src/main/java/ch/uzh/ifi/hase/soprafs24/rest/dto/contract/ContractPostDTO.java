@@ -8,7 +8,9 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
 public class ContractPostDTO {
     private String title;
     private float mass;
-    private float volume;
+    private float height; // Renamed from volume
+    private float width; // New field
+    private float length; // New field
     private boolean fragile;
     private boolean coolingRequired;
     private boolean rideAlong;
@@ -68,12 +70,28 @@ public class ContractPostDTO {
         this.mass = mass;
     }
 
-    public float getVolume() {
-        return volume;
+    public float getHeight() { // Renamed from getVolume
+        return height;
     }
 
-    public void setVolume(float volume) {
-        this.volume = volume;
+    public void setHeight(float height) { // Renamed from setVolume
+        this.height = height;
+    }
+
+    public float getWidth() { // New getter
+        return width;
+    }
+
+    public void setWidth(float width) { // New setter
+        this.width = width;
+    }
+
+    public float getLength() { // New getter
+        return length;
+    }
+
+    public void setLength(float length) { // New setter
+        this.length = length;
     }
 
     public boolean getFragile() {

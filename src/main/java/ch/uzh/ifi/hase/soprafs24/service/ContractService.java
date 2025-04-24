@@ -88,12 +88,18 @@ public class ContractService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Collateral cannot be negative");
         }
 
-        // Validate mass and volume
+        // Validate mass and dimensions
         if (contract.getMass() <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mass must be positive");
         }
-        if (contract.getVolume() <= 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Volume must be positive");
+        if (contract.getHeight() <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Height must be positive");
+        }
+        if (contract.getWidth() <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Width must be positive");
+        }
+        if (contract.getLength() <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Length must be positive");
         }
 
         // Validate manpower
@@ -140,12 +146,15 @@ public class ContractService {
                     return false;
                 }
                 
-                // Filter by dimensions (assuming volume is calculated from height, length, width)
-                if (filters.getHeight() != null && filters.getLength() != null && filters.getWidth() != null) {
-                    double maxVolume = filters.getHeight() * filters.getLength() * filters.getWidth();
-                    if (contract.getVolume() > maxVolume) {
-                        return false;
-                    }
+                // Filter by dimensions
+                if (filters.getHeight() != null && contract.getHeight() > filters.getHeight()) {
+                    return false;
+                }
+                if (filters.getWidth() != null && contract.getWidth() > filters.getWidth()) {
+                    return false;
+                }
+                if (filters.getLength() != null && contract.getLength() > filters.getLength()) {
+                    return false;
                 }
                 
                 // Filter by required people
@@ -300,8 +309,14 @@ public class ContractService {
         if (contractUpdates.getMass() > 0) {
             existingContract.setMass(contractUpdates.getMass());
         }
-        if (contractUpdates.getVolume() > 0) {
-            existingContract.setVolume(contractUpdates.getVolume());
+        if (contractUpdates.getHeight() > 0) {
+            existingContract.setHeight(contractUpdates.getHeight());
+        }
+        if (contractUpdates.getWidth() > 0) {
+            existingContract.setWidth(contractUpdates.getWidth());
+        }
+        if (contractUpdates.getLength() > 0) {
+            existingContract.setLength(contractUpdates.getLength());
         }
         existingContract.setFragile(contractUpdates.isFragile());
         existingContract.setCoolingRequired(contractUpdates.isCoolingRequired());

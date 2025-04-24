@@ -360,9 +360,19 @@ public class ContractController {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mass must be positive");
             }
         
-            // Check if volume is positive
-            if (contractPostDTO.getVolume() <= 0) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Volume must be positive");
+            // Check if height is positive
+            if (contractPostDTO.getHeight() <= 0) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Height must be positive");
+            }
+
+            // Check if width is positive
+            if (contractPostDTO.getWidth() <= 0) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Width must be positive");
+            }
+
+            // Check if length is positive
+            if (contractPostDTO.getLength() <= 0) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Length must be positive");
             }
         
             // Check if man power is positive
@@ -509,9 +519,19 @@ public class ContractController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mass must be positive");
         }
 
-        // Check if volume is positive
-        if (contractPutDTO.getVolume() != null && contractPutDTO.getVolume() <= 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Volume must be positive");
+        // Check if height is positive
+        if (contractPutDTO.getHeight() != null && contractPutDTO.getHeight() <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Height must be positive");
+        }
+
+        // Check if width is positive
+        if (contractPutDTO.getWidth() != null && contractPutDTO.getWidth() <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Width must be positive");
+        }
+
+        // Check if length is positive
+        if (contractPutDTO.getLength() != null && contractPutDTO.getLength() <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Length must be positive");
         }
 
         // Check if man power is positive

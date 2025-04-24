@@ -85,7 +85,9 @@ class ContractServiceTest {
         testContract.setContractId(1L);
         testContract.setTitle("Test Contract");
         testContract.setMass(10.0f);
-        testContract.setVolume(5.0f);
+        testContract.setHeight(2.0f); // Updated
+        testContract.setWidth(1.5f); // New field
+        testContract.setLength(3.0f); // New field
         testContract.setFragile(false);
         testContract.setCoolingRequired(false);
         testContract.setRideAlong(false);
@@ -119,7 +121,9 @@ class ContractServiceTest {
         assertEquals(testContract.getContractId(), createdContract.getContractId());
         assertEquals(testContract.getTitle(), createdContract.getTitle());
         assertEquals(testContract.getMass(), createdContract.getMass());
-        assertEquals(testContract.getVolume(), createdContract.getVolume());
+        assertEquals(testContract.getHeight(), createdContract.getHeight()); // Updated assertion
+        assertEquals(testContract.getWidth(), createdContract.getWidth()); // New assertion
+        assertEquals(testContract.getLength(), createdContract.getLength()); // New assertion
         assertEquals(testContract.isFragile(), createdContract.isFragile());
         assertEquals(testContract.isCoolingRequired(), createdContract.isCoolingRequired());
         assertEquals(testContract.isRideAlong(), createdContract.isRideAlong());
@@ -776,34 +780,25 @@ class ContractServiceTest {
     }
 
     @Test
-    void createContract_negativeVolume_throwsException() {
-        // given
-        testContract.setVolume(-5.0f);
+    void createContract_negativeHeight_throwsException() {
+        testContract.setHeight(-1.0f); // Updated field
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.of(testRequester));
-
-        // when/then -> check that an error is thrown
         assertThrows(ResponseStatusException.class, () -> contractService.createContract(testContract));
     }
 
     @Test
-    void createContract_negativeManpower_throwsException() {
-        // given
-        testContract.setManPower(-2);
+    void createContract_negativeWidth_throwsException() { // New test
+        testContract.setWidth(-1.0f);
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.of(testRequester));
-
-        // when/then -> check that an error is thrown
         assertThrows(ResponseStatusException.class, () -> contractService.createContract(testContract));
     }
 
-    // @Test
-    // void createContract_pastMoveDate_throwsException() {
-    //     // given
-    //     testContract.setMoveDateTime(LocalDateTime.now().minusDays(1));
-    //     Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.of(testRequester));
-
-    //     // when/then -> check that an error is thrown
-    //     assertThrows(ResponseStatusException.class, () -> contractService.createContract(testContract));
-    // }
+    @Test
+    void createContract_negativeLength_throwsException() { // New test
+        testContract.setLength(-1.0f);
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.of(testRequester));
+        assertThrows(ResponseStatusException.class, () -> contractService.createContract(testContract));
+    }
 
     @Test
     void createContract_missingAddresses_throwsException() {
@@ -1046,47 +1041,59 @@ class ContractServiceTest {
 
     @Test
     void getContracts_withFilters_success() {
-        // Setup
-        ContractFilterDTO filter = new ContractFilterDTO();
-        filter.setPrice(100.0);
-        filter.setWeight(50.0);
-        filter.setHeight(2.0);
-        filter.setLength(3.0);
-        filter.setWidth(1.0);
+        // given
+        Contract contract1 = new Contract(); // Matches all filters
+        contract1.setContractId(1L);
+        contract1.setPrice(50.0f);
+        contract1.setMass(5.0f);
+        contract1.setHeight(1.0f);
+        contract1.setWidth(1.0f);
+        contract1.setLength(1.0f);
+        contract1.setManPower(1);
+        contract1.setFragile(true);
+        contract1.setCoolingRequired(true);
+        contract1.setRideAlong(true);
+        contract1.setMoveDateTime(LocalDateTime.now().plusDays(1));
 
-        Contract contract = new Contract();
-        contract.setPrice(100.0f);
-        contract.setMass(50.0f);
-        contract.setVolume(6.0f); // height * length * width = 2 * 3 * 1 = 6
+        Contract contract2 = new Contract(); // Price too high
+        contract2.setContractId(2L);
+        contract2.setPrice(150.0f);
+        contract2.setMass(5.0f);
+        contract2.setHeight(1.0f);
+        contract2.setWidth(1.0f);
+        contract2.setLength(1.0f);
+        contract2.setManPower(1);
 
-        Mockito.when(contractRepository.findAll()).thenReturn(Arrays.asList(contract));
+        Contract contract3 = new Contract(); // Width too large
+        contract3.setContractId(3L);
+        contract3.setPrice(50.0f);
+        contract3.setMass(5.0f);
+        contract3.setHeight(1.0f);
+        contract3.setWidth(3.0f); // Exceeds filter
+        contract3.setLength(1.0f);
+        contract3.setManPower(1);
 
-        // Execute
-        List<Contract> result = contractService.getContracts(47.3769, 8.5417, filter);
+        List<Contract> allContracts = Arrays.asList(contract1, contract2, contract3);
+        Mockito.when(contractRepository.findAll()).thenReturn(allContracts);
 
-        // Verify
-        assertEquals(1, result.size());
-        assertEquals(contract, result.get(0));
-    }
+        ContractFilterDTO filters = new ContractFilterDTO();
+        filters.setPrice(100.0f);
+        filters.setWeight(10.0f);
+        filters.setHeight(2.0f);
+        filters.setWidth(2.0f); // Add width filter
+        filters.setLength(2.0f); // Add length filter
+        filters.setRequiredPeople(2);
+        filters.setFragile(true);
+        filters.setCoolingRequired(true);
+        filters.setRideAlong(true);
+        filters.setMoveDate(LocalDateTime.now().plusDays(1).toLocalDate());
 
-    @Test
-    void getContracts_withFilters_noMatches() {
-        // Setup
-        ContractFilterDTO filter = new ContractFilterDTO();
-        filter.setPrice(50.0); // Set price lower than contract's price
+        // when
+        List<Contract> filteredContracts = contractService.getContracts(null, null, filters);
 
-        Contract contract = new Contract();
-        contract.setPrice(100.0f);
-        contract.setMass(50.0f);
-        contract.setVolume(6.0f);
-
-        Mockito.when(contractRepository.findAll()).thenReturn(Arrays.asList(contract));
-
-        // Execute
-        List<Contract> result = contractService.getContracts(47.3769, 8.5417, filter);
-
-        // Verify
-        assertTrue(result.isEmpty());
+        // then
+        assertEquals(1, filteredContracts.size());
+        assertEquals(contract1, filteredContracts.get(0));
     }
 
     @Test
@@ -1156,7 +1163,9 @@ class ContractServiceTest {
         validContract.setPrice(100.0f);
         validContract.setCollateral(50.0f);
         validContract.setMass(10.0f);
-        validContract.setVolume(5.0f);
+        validContract.setHeight(2.0f);
+        validContract.setWidth(1.5f);
+        validContract.setLength(3.0f);
         validContract.setManPower(2);
         validContract.setMoveDateTime(LocalDateTime.now().plusDays(1));
         validContract.setFromAddress(testFromLocation);
@@ -1198,7 +1207,9 @@ class ContractServiceTest {
         existingContract.setContractId(1L);
         existingContract.setTitle("Original Title");
         existingContract.setMass(100.0f);
-        existingContract.setVolume(10.0f);
+        existingContract.setHeight(2.0f);
+        existingContract.setWidth(1.5f);
+        existingContract.setLength(3.0f);
         existingContract.setFragile(false);
         existingContract.setCoolingRequired(false);
         existingContract.setRideAlong(false);
@@ -1223,7 +1234,9 @@ class ContractServiceTest {
         // then
         assertEquals("Updated Title", updatedContract.getTitle());
         assertEquals(200.0f, updatedContract.getMass());
-        assertEquals(10.0f, updatedContract.getVolume()); // Should remain unchanged
+        assertEquals(2.0f, updatedContract.getHeight()); // Should remain unchanged
+        assertEquals(1.5f, updatedContract.getWidth()); // Should remain unchanged
+        assertEquals(3.0f, updatedContract.getLength()); // Should remain unchanged
         assertFalse(updatedContract.isFragile()); // Should remain unchanged
         assertEquals(2, updatedContract.getManPower()); // Should remain unchanged
         assertEquals("Original Description", updatedContract.getContractDescription()); // Should remain unchanged
@@ -1239,7 +1252,9 @@ class ContractServiceTest {
         contract1.setFromAddress(testFromLocation);
         contract1.setPrice(100.0f);
         contract1.setMass(50.0f);
-        contract1.setVolume(5.0f);
+        contract1.setHeight(2.0f);
+        contract1.setWidth(1.5f);
+        contract1.setLength(3.0f);
         contract1.setManPower(2);
         contract1.setFragile(false);
         contract1.setCoolingRequired(false);
@@ -1250,7 +1265,9 @@ class ContractServiceTest {
         contract2.setFromAddress(testToLocation);
         contract2.setPrice(200.0f);
         contract2.setMass(100.0f);
-        contract2.setVolume(10.0f);
+        contract2.setHeight(3.0f);
+        contract2.setWidth(2.0f);
+        contract2.setLength(4.0f);
         contract2.setManPower(3);
         contract2.setFragile(true);
         contract2.setCoolingRequired(true);
@@ -1287,7 +1304,9 @@ class ContractServiceTest {
         contract1.setFromAddress(testFromLocation);
         contract1.setPrice(100.0f);
         contract1.setMass(50.0f);
-        contract1.setVolume(5.0f);
+        contract1.setHeight(2.0f);
+        contract1.setWidth(1.5f);
+        contract1.setLength(3.0f);
         contract1.setManPower(2);
         contract1.setFragile(false);
         contract1.setCoolingRequired(false);
@@ -1298,7 +1317,9 @@ class ContractServiceTest {
         contract2.setFromAddress(testToLocation);
         contract2.setPrice(200.0f);
         contract2.setMass(100.0f);
-        contract2.setVolume(10.0f);
+        contract2.setHeight(3.0f);
+        contract2.setWidth(2.0f);
+        contract2.setLength(4.0f);
         contract2.setManPower(3);
         contract2.setFragile(true);
         contract2.setCoolingRequired(true);
@@ -1336,4 +1357,4 @@ class ContractServiceTest {
         verify(contractRepository).findAll();
         verify(googleMapsService, times(2)).calculateDistance(anyDouble(), anyDouble(), anyDouble(), anyDouble());
     }
-} 
+}

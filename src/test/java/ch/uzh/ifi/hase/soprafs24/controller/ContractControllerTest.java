@@ -161,7 +161,9 @@ class ContractControllerTest {
         contract.setContractStatus(ContractStatus.REQUESTED);
         contract.setMoveDateTime(LocalDateTime.now().plusDays(1));
         contract.setMass(100.0f);
-        contract.setVolume(10.0f);
+        contract.setHeight(2.0f);
+        contract.setWidth(1.5f);
+        contract.setLength(3.0f);
         contract.setPrice(50.0f);
         contract.setCollateral(25.0f);
         contract.setManPower(2);
@@ -197,7 +199,9 @@ class ContractControllerTest {
                 .andExpect(jsonPath("$.contract.contractStatus", is("REQUESTED")))
                 .andExpect(jsonPath("$.contract.moveDateTime").exists())
                 .andExpect(jsonPath("$.contract.mass", is(100.0)))
-                .andExpect(jsonPath("$.contract.volume", is(10.0)))
+                .andExpect(jsonPath("$.contract.height", is(2.0)))
+                .andExpect(jsonPath("$.contract.width", is(1.5)))
+                .andExpect(jsonPath("$.contract.length", is(3.0)))
                 .andExpect(jsonPath("$.contract.price", is(50.0)))
                 .andExpect(jsonPath("$.contract.collateral", is(25.0)))
                 .andExpect(jsonPath("$.contract.manPower", is(2)))
@@ -1121,4 +1125,4 @@ class ContractControllerTest {
                 String.format("The request body could not be created.%s", e.toString()));
         }
     }
-} 
+}

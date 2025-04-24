@@ -24,7 +24,9 @@ public interface ContractDTOMapper {
 
     @Mapping(source = "title", target = "title")
     @Mapping(source = "mass", target = "mass")
-    @Mapping(source = "volume", target = "volume")
+    @Mapping(source = "height", target = "height")
+    @Mapping(source = "width", target = "width")
+    @Mapping(source = "length", target = "length")
     @Mapping(source = "fragile", target = "fragile")
     @Mapping(source = "coolingRequired", target = "coolingRequired")
     @Mapping(source = "rideAlong", target = "rideAlong")
@@ -50,7 +52,9 @@ public interface ContractDTOMapper {
     @Mapping(source = "contractId", target = "contractId")
     @Mapping(source = "title", target = "title")
     @Mapping(source = "mass", target = "mass")
-    @Mapping(source = "volume", target = "volume")
+    @Mapping(source = "height", target = "height")
+    @Mapping(source = "width", target = "width")
+    @Mapping(source = "length", target = "length")
     @Mapping(source = "fragile", target = "fragile")
     @Mapping(source = "coolingRequired", target = "coolingRequired")
     @Mapping(source = "rideAlong", target = "rideAlong")
@@ -71,7 +75,9 @@ public interface ContractDTOMapper {
 
     @Mapping(source = "title", target = "title")
     @Mapping(source = "mass", target = "mass")
-    @Mapping(source = "volume", target = "volume")
+    @Mapping(source = "height", target = "height")
+    @Mapping(source = "width", target = "width")
+    @Mapping(source = "length", target = "length")
     @Mapping(source = "fragile", target = "fragile")
     @Mapping(source = "coolingRequired", target = "coolingRequired")
     @Mapping(source = "rideAlong", target = "rideAlong")
@@ -102,4 +108,4 @@ public interface ContractDTOMapper {
         requester.setUserId(requesterId);
         return requester;
     }
-} 
+}

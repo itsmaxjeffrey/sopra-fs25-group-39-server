@@ -30,7 +30,9 @@ class ContractControllerPutValidationTest {
         validContractPutDTO = new ContractPutDTO();
         validContractPutDTO.setTitle("Test Contract");
         validContractPutDTO.setMass(10.0f);
-        validContractPutDTO.setVolume(5.0f);
+        validContractPutDTO.setHeight(2.0f); // Renamed from setVolume
+        validContractPutDTO.setWidth(1.5f); // New field
+        validContractPutDTO.setLength(3.0f); // New field
         validContractPutDTO.setManPower(2);
         validContractPutDTO.setPrice(100.0f);
         validContractPutDTO.setCollateral(50.0f);
@@ -100,11 +102,45 @@ class ContractControllerPutValidationTest {
     }
 
     @Test
-    void validateContractPutDTO_negativeVolume_throwsException() {
-        validContractPutDTO.setVolume(-1.0f);
-        
+    void validateContractPutDTO_negativeHeight_throwsException() {
+        validContractPutDTO.setHeight(-1.0f);
         ResponseStatusException exception = invokeValidateAndUnwrapException(validContractPutDTO);
-        assertEquals("Volume must be positive", exception.getReason());
+        assertEquals("Height must be positive", exception.getReason());
+    }
+
+    @Test
+    void validateContractPutDTO_zeroHeight_throwsException() { // New test
+        validContractPutDTO.setHeight(0.0f);
+        ResponseStatusException exception = invokeValidateAndUnwrapException(validContractPutDTO);
+        assertEquals("Height must be positive", exception.getReason());
+    }
+
+    @Test
+    void validateContractPutDTO_negativeWidth_throwsException() {
+        validContractPutDTO.setWidth(-1.0f);
+        ResponseStatusException exception = invokeValidateAndUnwrapException(validContractPutDTO);
+        assertEquals("Width must be positive", exception.getReason());
+    }
+
+    @Test
+    void validateContractPutDTO_zeroWidth_throwsException() { // New test
+        validContractPutDTO.setWidth(0.0f);
+        ResponseStatusException exception = invokeValidateAndUnwrapException(validContractPutDTO);
+        assertEquals("Width must be positive", exception.getReason());
+    }
+
+    @Test
+    void validateContractPutDTO_negativeLength_throwsException() {
+        validContractPutDTO.setLength(-1.0f);
+        ResponseStatusException exception = invokeValidateAndUnwrapException(validContractPutDTO);
+        assertEquals("Length must be positive", exception.getReason());
+    }
+
+    @Test
+    void validateContractPutDTO_zeroLength_throwsException() { // New test
+        validContractPutDTO.setLength(0.0f);
+        ResponseStatusException exception = invokeValidateAndUnwrapException(validContractPutDTO);
+        assertEquals("Length must be positive", exception.getReason());
     }
 
     @Test
@@ -173,4 +209,4 @@ class ContractControllerPutValidationTest {
             }
         });
     }
-} 
+}

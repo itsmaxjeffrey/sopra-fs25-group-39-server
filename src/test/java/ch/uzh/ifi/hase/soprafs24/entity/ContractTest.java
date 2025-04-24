@@ -122,12 +122,27 @@ class ContractTest {
     }
 
     @Test
-    void testVolume() {
-        assertEquals(0.0f, contract.getVolume());
-        
-        float volume = 2.5f;
-        contract.setVolume(volume);
-        assertEquals(volume, contract.getVolume());
+    void testHeight() {
+        assertEquals(0.0f, contract.getHeight());
+        float height = 2.5f;
+        contract.setHeight(height);
+        assertEquals(height, contract.getHeight());
+    }
+
+    @Test
+    void testWidth() {
+        assertEquals(0.0f, contract.getWidth());
+        float width = 1.5f;
+        contract.setWidth(width);
+        assertEquals(width, contract.getWidth());
+    }
+
+    @Test
+    void testLength() {
+        assertEquals(0.0f, contract.getLength());
+        float length = 3.0f;
+        contract.setLength(length);
+        assertEquals(length, contract.getLength());
     }
 
     @Test
@@ -246,4 +261,4 @@ class ContractTest {
     //     String expected = "Contract(contractId=1, requester=null, driver=null, contractStatus=requested, creationDateTime=null, title=null, acceptedDateTime=null, moveDateTime=null, fromAddress=null, toAddress=null, mass=0.0, volume=0.0, fragile=false, coolingRequired=false, rideAlong=false, manPower=0, contractDescription=null, contractPhotos=[], price=0.0, collateral=0.0, offers=[], acceptedOffer=null, cancelReason=null)";
     //     assertEquals(expected, contract.toString());
     // }
-} 
+}

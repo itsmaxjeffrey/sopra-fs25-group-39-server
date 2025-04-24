@@ -80,7 +80,13 @@ public class Contract implements Serializable{
     private float mass;
 
     @Column
-    private float volume;
+    private float height;
+
+    @Column
+    private float width;
+
+    @Column
+    private float length;
 
     @Column
     private boolean fragile;

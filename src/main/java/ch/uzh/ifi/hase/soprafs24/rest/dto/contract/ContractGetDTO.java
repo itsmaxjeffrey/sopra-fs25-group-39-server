@@ -12,7 +12,9 @@ public class ContractGetDTO {
     private Long contractId;
     private String title;
     private float mass;
-    private float volume;
+    private float height;
+    private float width;
+    private float length;
     private boolean fragile;
     private boolean coolingRequired;
     private boolean rideAlong;
@@ -57,12 +59,28 @@ public class ContractGetDTO {
         this.mass = mass;
     }
 
-    public float getVolume() {
-        return volume;
+    public float getHeight() {
+        return height;
     }
 
-    public void setVolume(float volume) {
-        this.volume = volume;
+    public void setHeight(float height) {
+        this.height = height;
+    }
+
+    public float getWidth() {
+        return width;
+    }
+
+    public void setWidth(float width) {
+        this.width = width;
+    }
+
+    public float getLength() {
+        return length;
+    }
+
+    public void setLength(float length) {
+        this.length = length;
     }
 
     public boolean getFragile() {
