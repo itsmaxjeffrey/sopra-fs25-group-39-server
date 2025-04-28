@@ -36,7 +36,7 @@ public class Application {
               registry.addMapping("/**")
                   .allowedOrigins(
                       "http://localhost:3000", // Development frontend
-                      "https://sopra-fs25-group-39-client.oa.r.appspot.com" // Production frontend
+                      "https://sopra-fs25-group-39-client.vercel.app" // Production frontend
                   )      
                   .allowedMethods("GET","POST","PUT","DELETE","OPTIONS")
                   .allowedHeaders("*")
