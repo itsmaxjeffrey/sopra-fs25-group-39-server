@@ -561,7 +561,7 @@ public class ContractService {
      * Automatically update contract statuses based on move date
      * This method should be called periodically to update contracts
      */
-    @Scheduled(fixedRate = 21600000) // Run every 6 hours
+    @Scheduled(fixedRate = 300000) // Run every 5 minutes
     public void updateContractStatuses() {
         LocalDateTime now = LocalDateTime.now();
         

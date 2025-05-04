@@ -6,3 +6,4 @@ instance_class: F2
 
 env_variables:
   GOOGLE_MAPS_API_KEY: REPLACE_GOOGLE_MAPS_API_KEY
+  TZ: "Europe/Zurich"
