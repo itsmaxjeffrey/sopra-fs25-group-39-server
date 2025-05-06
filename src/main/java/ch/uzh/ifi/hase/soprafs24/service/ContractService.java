@@ -1,7 +1,11 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,24 +14,19 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
+import ch.uzh.ifi.hase.soprafs24.constant.OfferStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Contract;
+import ch.uzh.ifi.hase.soprafs24.entity.Offer;
 import ch.uzh.ifi.hase.soprafs24.entity.Requester;
 import ch.uzh.ifi.hase.soprafs24.repository.ContractRepository;
-import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.OfferRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractFilterDTO;
-
-import java.time.LocalDateTime;
-import java.util.stream.Collectors;
-import java.time.temporal.ChronoUnit;
-import ch.uzh.ifi.hase.soprafs24.entity.Offer;
-import ch.uzh.ifi.hase.soprafs24.constant.OfferStatus;
-import java.time.LocalDate;
 
 @Service
 @Transactional
@@ -84,9 +83,9 @@ public class ContractService {
         if (contract.getPrice() <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price must be positive");
         }
-        if (contract.getCollateral() < 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Collateral cannot be negative");
-        }
+        // if (contract.getCollateral() < 0) {
+        //     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Collateral cannot be negative");
+        // }
 
         // Validate weight and dimensions
         if (contract.getWeight() <= 0) {
@@ -103,7 +102,7 @@ public class ContractService {
         }
 
         // Validate manpower
-        if (contract.getManPower() <= 0) {
+        if (contract.getManPower() < 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Manpower must be positive");
         }
 
@@ -331,9 +330,9 @@ public class ContractService {
             existingContract.setPrice(contractUpdates.getPrice());
         }
         // Only update collateral if it's explicitly set to a non-negative value
-        if (contractUpdates.getCollateral() > 0) {
-            existingContract.setCollateral(contractUpdates.getCollateral());
-        }
+        // if (contractUpdates.getCollateral() > 0) {
+        //     existingContract.setCollateral(contractUpdates.getCollateral());
+        // }
         if (contractUpdates.getFromAddress() != null) {
             existingContract.setFromAddress(contractUpdates.getFromAddress());
         }

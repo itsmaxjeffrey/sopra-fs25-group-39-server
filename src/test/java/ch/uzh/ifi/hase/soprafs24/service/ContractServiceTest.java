@@ -1,37 +1,42 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
-import ch.uzh.ifi.hase.soprafs24.entity.Contract;
-import ch.uzh.ifi.hase.soprafs24.entity.Location;
-import ch.uzh.ifi.hase.soprafs24.entity.Requester;
-import ch.uzh.ifi.hase.soprafs24.entity.Driver;
-import ch.uzh.ifi.hase.soprafs24.entity.Offer;
-import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
-import ch.uzh.ifi.hase.soprafs24.constant.OfferStatus;
-import ch.uzh.ifi.hase.soprafs24.repository.ContractRepository;
-import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
-import ch.uzh.ifi.hase.soprafs24.repository.OfferRepository;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractFilterDTO;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.http.HttpStatus;
-
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.eq;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+
+import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
+import ch.uzh.ifi.hase.soprafs24.constant.OfferStatus;
+import ch.uzh.ifi.hase.soprafs24.entity.Contract;
+import ch.uzh.ifi.hase.soprafs24.entity.Driver;
+import ch.uzh.ifi.hase.soprafs24.entity.Location;
+import ch.uzh.ifi.hase.soprafs24.entity.Offer;
+import ch.uzh.ifi.hase.soprafs24.entity.Requester;
+import ch.uzh.ifi.hase.soprafs24.repository.ContractRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.OfferRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractFilterDTO;
 
 class ContractServiceTest {
 
@@ -94,7 +99,7 @@ class ContractServiceTest {
         testContract.setManPower(2);
         testContract.setContractDescription("Test Description");
         testContract.setPrice(100.0);
-        testContract.setCollateral(50.0);
+        // testContract.setCollateral(50.0);
         testContract.setMoveDateTime(LocalDateTime.now().plusDays(1));
         testContract.setContractStatus(ContractStatus.REQUESTED);
         testContract.setRequester(testRequester);
@@ -130,7 +135,7 @@ class ContractServiceTest {
         assertEquals(testContract.getManPower(), createdContract.getManPower());
         assertEquals(testContract.getContractDescription(), createdContract.getContractDescription());
         assertEquals(testContract.getPrice(), createdContract.getPrice());
-        assertEquals(testContract.getCollateral(), createdContract.getCollateral());
+        // assertEquals(testContract.getCollateral(), createdContract.getCollateral());
         assertEquals(testContract.getMoveDateTime(), createdContract.getMoveDateTime());
         assertEquals(ContractStatus.REQUESTED, createdContract.getContractStatus());
         assertEquals(testRequester, createdContract.getRequester());
@@ -759,15 +764,15 @@ class ContractServiceTest {
         assertThrows(ResponseStatusException.class, () -> contractService.createContract(testContract));
     }
 
-    @Test
-    void createContract_negativeCollateral_throwsException() {
-        // given
-        testContract.setCollateral(-50.0);
-        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.of(testRequester));
+    // @Test
+    // void createContract_negativeCollateral_throwsException() {
+    //     // given
+    //     // testContract.setCollateral(-50.0);
+    //     Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.of(testRequester));
 
-        // when/then -> check that an error is thrown
-        assertThrows(ResponseStatusException.class, () -> contractService.createContract(testContract));
-    }
+    //     // when/then -> check that an error is thrown
+    //     assertThrows(ResponseStatusException.class, () -> contractService.createContract(testContract));
+    // }
 
     @Test
     void createContract_negativeWeight_throwsException() {
@@ -1161,7 +1166,7 @@ class ContractServiceTest {
         // given
         Contract validContract = new Contract();
         validContract.setPrice(100.0);
-        validContract.setCollateral(50.0);
+        // validContract.setCollateral(50.0);
         validContract.setWeight(10.0);
         validContract.setHeight(2.0);
         validContract.setWidth(1.5);
@@ -1216,7 +1221,7 @@ class ContractServiceTest {
         existingContract.setManPower(2);
         existingContract.setContractDescription("Original Description");
         existingContract.setPrice(100.0);
-        existingContract.setCollateral(50.0);
+        // existingContract.setCollateral(50.0);
         existingContract.setMoveDateTime(LocalDateTime.now().plusDays(1));
         existingContract.setContractStatus(ContractStatus.REQUESTED);
 
@@ -1241,7 +1246,7 @@ class ContractServiceTest {
         assertEquals(2, updatedContract.getManPower()); // Should remain unchanged
         assertEquals("Original Description", updatedContract.getContractDescription()); // Should remain unchanged
         assertEquals(100.0, updatedContract.getPrice()); // Should remain unchanged
-        assertEquals(50.0, updatedContract.getCollateral()); // Should remain unchanged
+        // assertEquals(50.0, updatedContract.getCollateral()); // Should remain unchanged
         assertEquals(ContractStatus.REQUESTED, updatedContract.getContractStatus()); // Should remain unchanged
     }
 

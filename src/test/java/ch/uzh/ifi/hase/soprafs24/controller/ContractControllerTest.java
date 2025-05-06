@@ -1,52 +1,48 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
-import ch.uzh.ifi.hase.soprafs24.entity.Contract;
-import ch.uzh.ifi.hase.soprafs24.entity.Requester;
-import ch.uzh.ifi.hase.soprafs24.entity.User;
-import com.fasterxml.jackson.databind.ObjectMapper; // Import ObjectMapper
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 
-import ch.uzh.ifi.hase.soprafs24.entity.Driver;
-import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
-import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
-import ch.uzh.ifi.hase.soprafs24.service.ContractService;
-import ch.uzh.ifi.hase.soprafs24.service.LocationService;
-import ch.uzh.ifi.hase.soprafs24.service.ContractPollingService;
-import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractCancelDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractPutDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractPostDTO;
-import ch.uzh.ifi.hase.soprafs24.security.authorization.service.AuthorizationService;
-import ch.uzh.ifi.hase.soprafs24.rest.mapper.UserDTOMapper;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.response.AuthenticatedUserDTO;
-import ch.uzh.ifi.hase.soprafs24.user.service.UserService;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.hamcrest.Matchers.hasSize; // Import ObjectMapper
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import org.junit.jupiter.api.Test;
+import static org.mockito.BDDMockito.given;
 import org.mockito.Mockito;
+import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.when;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import org.springframework.web.server.ResponseStatusException;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
+import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
+import ch.uzh.ifi.hase.soprafs24.entity.Contract;
+import ch.uzh.ifi.hase.soprafs24.entity.Driver;
+import ch.uzh.ifi.hase.soprafs24.entity.Requester;
+import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.auth.response.AuthenticatedUserDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractCancelDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.mapper.UserDTOMapper;
+import ch.uzh.ifi.hase.soprafs24.security.authorization.service.AuthorizationService;
+import ch.uzh.ifi.hase.soprafs24.service.ContractPollingService;
+import ch.uzh.ifi.hase.soprafs24.service.ContractService;
+import ch.uzh.ifi.hase.soprafs24.service.LocationService;
+import ch.uzh.ifi.hase.soprafs24.user.service.UserService;
 
 /**
  * ContractControllerTest
@@ -170,7 +166,7 @@ class ContractControllerTest {
         contract.setWidth(1.5);
         contract.setLength(3.0);
         contract.setPrice(50.0);
-        contract.setCollateral(25.0);
+        // contract.setCollateral(25.0);
         contract.setManPower(2);
         contract.setContractDescription("Test contract description");
         contract.setFragile(true);
@@ -208,7 +204,7 @@ class ContractControllerTest {
                 .andExpect(jsonPath("$.contract.width", is(1.5)))
                 .andExpect(jsonPath("$.contract.length", is(3.0)))
                 .andExpect(jsonPath("$.contract.price", is(50.0)))
-                .andExpect(jsonPath("$.contract.collateral", is(25.0)))
+                // .andExpect(jsonPath("$.contract.collateral", is(25.0)))
                 .andExpect(jsonPath("$.contract.manPower", is(2)))
                 .andExpect(jsonPath("$.contract.contractDescription", is("Test contract description")))
                 .andExpect(jsonPath("$.contract.fragile", is(true)))
@@ -1073,7 +1069,7 @@ class ContractControllerTest {
         contractPostDTO.setWidth(-1.0); // Negative width
         contractPostDTO.setManPower(-1); // Negative man power
         contractPostDTO.setPrice(-1.0); // Negative price
-        contractPostDTO.setCollateral(-1.0); // Negative collateral
+        // contractPostDTO.setCollateral(-1.0); // Negative collateral
         contractPostDTO.setMoveDateTime(LocalDateTime.now().minusDays(1)); // Past date
 
         // Mock authentication
@@ -1138,7 +1134,7 @@ class ContractControllerTest {
         dto.setWidth(1.0);
         dto.setLength(1.0);
         dto.setPrice(100.0);
-        dto.setCollateral(50.0);
+        // dto.setCollateral(50.0);
         dto.setManPower(2);
         dto.setMoveDateTime(LocalDateTime.now().plusDays(5));
         // Set other required fields like locations if necessary

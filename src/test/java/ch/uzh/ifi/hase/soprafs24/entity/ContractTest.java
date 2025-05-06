@@ -1,9 +1,12 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.time.LocalDateTime;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -206,14 +209,14 @@ class ContractTest {
         assertEquals(price, contract.getPrice());
     }
 
-    @Test
-    void testCollateral() {
-        assertEquals(0.0, contract.getCollateral());
+    // @Test
+    // void testCollateral() {
+    //     assertEquals(0.0, contract.getCollateral());
         
-        double collateral = 50.0;
-        contract.setCollateral(collateral);
-        assertEquals(collateral, contract.getCollateral());
-    }
+    //     double collateral = 50.0;
+    //     contract.setCollateral(collateral);
+    //     assertEquals(collateral, contract.getCollateral());
+    // }
 
     @Test
     void testOffers() {

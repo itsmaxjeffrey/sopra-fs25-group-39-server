@@ -1,16 +1,18 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
-import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractPutDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.web.server.ResponseStatusException;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.web.server.ResponseStatusException;
+
+import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractPutDTO;
 
 class ContractControllerPutValidationTest {
 
@@ -35,7 +37,7 @@ class ContractControllerPutValidationTest {
         validContractPutDTO.setLength(3.0);
         validContractPutDTO.setManPower(2);
         validContractPutDTO.setPrice(100.0);
-        validContractPutDTO.setCollateral(50.0);
+        // validContractPutDTO.setCollateral(50.0);
         validContractPutDTO.setMoveDateTime(LocalDateTime.now().plusDays(1));
         
         // Set valid locations
@@ -159,13 +161,13 @@ class ContractControllerPutValidationTest {
         assertEquals("Price must be positive", exception.getReason());
     }
 
-    @Test
-    void validateContractPutDTO_negativeCollateral_throwsException() {
-        validContractPutDTO.setCollateral(-1.0);
+    // @Test
+    // void validateContractPutDTO_negativeCollateral_throwsException() {
+    //     validContractPutDTO.setCollateral(-1.0);
         
-        ResponseStatusException exception = invokeValidateAndUnwrapException(validContractPutDTO);
-        assertEquals("Collateral must be positive", exception.getReason());
-    }
+    //     ResponseStatusException exception = invokeValidateAndUnwrapException(validContractPutDTO);
+    //     assertEquals("Collateral must be positive", exception.getReason());
+    // }
 
     @Test
     void validateContractPutDTO_invalidFromLocation_throwsException() {

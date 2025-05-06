@@ -23,7 +23,7 @@ public class ContractGetDTO {
     private int manPower;
     private String contractDescription;
     private double price;
-    private double collateral;
+    // private double collateral;
     private Long requesterId;
     @JsonProperty("fromLocation")
     private LocationDTO fromLocation;

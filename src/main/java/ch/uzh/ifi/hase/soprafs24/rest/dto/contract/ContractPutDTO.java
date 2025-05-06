@@ -20,7 +20,7 @@ public class ContractPutDTO {
     private Integer manPower;
     private String contractDescription;
     private double price;
-    private double collateral;
+    // private double collateral;
     private LocationDTO fromLocation;
     private LocationDTO toLocation;
     private LocalDateTime moveDateTime;

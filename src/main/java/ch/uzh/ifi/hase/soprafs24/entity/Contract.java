@@ -23,16 +23,16 @@ import javax.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
 
 import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 @Entity
 @Table(name="CONTRACTS")
-@Getter @Setter
 @EqualsAndHashCode
 @ToString(exclude = "requester")
+@Getter @Setter
 public class Contract implements Serializable{
 
     private static final long serialVersionUID = 1L;
@@ -112,8 +112,8 @@ public class Contract implements Serializable{
     @Column
     private double price;
 
-    @Column
-    private double collateral;
+    // @Column
+    // private double collateral;
 
 
     @OneToMany(mappedBy = "contract")

@@ -20,16 +20,15 @@ import lombok.ToString;
 
 @Entity
 @Table(name = "OFFERS")
-@Getter @Setter
 @EqualsAndHashCode
 @ToString
+@Getter @Setter
 public class Offer implements Serializable {
     private static final long serialVersionUID = 1L;
     
     @Id
     @GeneratedValue
     private Long offerId;
-
 
     @ManyToOne
     @JoinColumn(name = "contract_id")
@@ -46,4 +45,7 @@ public class Offer implements Serializable {
     @Column
     private LocalDateTime creationDateTime;
 
+    public void setContract(Contract contract) {
+        this.contract = contract;
+    }
 }
