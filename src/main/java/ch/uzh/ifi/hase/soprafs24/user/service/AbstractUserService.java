@@ -16,8 +16,8 @@ public abstract class AbstractUserService {
     protected final UserRepository userRepository;
     protected final AuthorizationService authorizationService;
 
-    protected AbstractUserService(UserRepository userRepository, 
-                              AuthorizationService authorizationService) {
+    protected AbstractUserService(UserRepository userRepository,
+            AuthorizationService authorizationService) {
         this.userRepository = userRepository;
         this.authorizationService = authorizationService;
     }
@@ -38,7 +38,7 @@ public abstract class AbstractUserService {
      */
     protected User findUserById(Long userId) {
         return userRepository.findById(userId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
     }
 
     /**
@@ -48,31 +48,33 @@ public abstract class AbstractUserService {
         if (updates.getUsername() != null && !updates.getUsername().isEmpty()) {
             existingUser.setUsername(updates.getUsername());
         }
-        
+
         if (updates.getEmail() != null && !updates.getEmail().isEmpty()) {
             existingUser.setEmail(updates.getEmail());
         }
-        
+
         if (updates.getPhoneNumber() != null && !updates.getPhoneNumber().isEmpty()) {
             existingUser.setPhoneNumber(updates.getPhoneNumber());
         }
-        
+
         if (updates.getFirstName() != null) {
             existingUser.setFirstName(updates.getFirstName());
         }
-        
+
         if (updates.getLastName() != null) {
             existingUser.setLastName(updates.getLastName());
         }
-        
+
         if (updates.getBirthDate() != null) {
             existingUser.setBirthDate(updates.getBirthDate());
         }
-        
-        if (updates.getProfilePicturePath() != null) {
-            existingUser.setProfilePicturePath(updates.getProfilePicturePath());
-        }
-        
+
+        // Allow profilePicturePath to be set to null to remove it
+        // If updates.getProfilePicturePath() is explicitly sent (even as null), update
+        // the field.
+        // This handles both setting a new path and clearing an existing one.
+        existingUser.setProfilePicturePath(updates.getProfilePicturePath());
+
         return existingUser;
     }
 

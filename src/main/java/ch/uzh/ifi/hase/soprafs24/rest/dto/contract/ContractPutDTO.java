@@ -7,7 +7,8 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter @Setter
+@Getter
+@Setter
 public class ContractPutDTO {
     private String title;
     private double weight;
@@ -25,5 +26,6 @@ public class ContractPutDTO {
     private LocationDTO toLocation;
     private LocalDateTime moveDateTime;
     private ContractStatus contractStatus;
+    private java.util.List<String> contractPhotos; // Added contractPhotos
 
 }
