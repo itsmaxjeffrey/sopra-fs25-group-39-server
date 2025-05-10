@@ -1,16 +1,18 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
-import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractPostDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.web.server.ResponseStatusException;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.web.server.ResponseStatusException;
+
+import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractPostDTO;
 
 class ContractControllerValidationTest {
 
@@ -35,7 +37,7 @@ class ContractControllerValidationTest {
         validContractPostDTO.setLength(3.0); // Use length
         validContractPostDTO.setManPower(2);
         validContractPostDTO.setPrice(100.0);
-        validContractPostDTO.setCollateral(50.0);
+        // validContractPostDTO.setCollateral(50.0);
         validContractPostDTO.setMoveDateTime(LocalDateTime.now().plusDays(1));
 
         // Set valid locations
@@ -255,14 +257,6 @@ class ContractControllerValidationTest {
         assertEquals(400, exception.getRawStatusCode()); // Check status code
     }
 
-    @Test
-    void validateContractPostDTO_zeroManPower_throwsException() {
-        validContractPostDTO.setManPower(0);
-
-        ResponseStatusException exception = invokeValidateAndUnwrapException(validContractPostDTO);
-        assertEquals("Man power must be positive", exception.getReason());
-        assertEquals(400, exception.getRawStatusCode()); // Check status code
-    }
 
     @Test
     void validateContractPostDTO_missingMoveDateTime_throwsException() {

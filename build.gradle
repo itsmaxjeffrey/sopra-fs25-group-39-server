@@ -35,8 +35,8 @@ dependencies {
     
 
     //lombok(to remove boilerplate code)
-    compileOnly 'org.projectlombok:lombok:1.18.30'
-    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+    compileOnly 'org.projectlombok:lombok:1.18.38'
+    annotationProcessor 'org.projectlombok:lombok:1.18.38'
 
     // Add jsr305 for @Nullable and @NonNull annotations
     compileOnly 'com.google.code.findbugs:jsr305:3.0.2'

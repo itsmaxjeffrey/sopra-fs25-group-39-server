@@ -1,14 +1,18 @@
 package ch.uzh.ifi.hase.soprafs24.security.registration.controller;
 
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.security.authentication.dto.response.AuthenticatedUserDTO;
@@ -58,7 +62,17 @@ public class RegistrationController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-        /**
+    /**
+     * Check if a username is available
+     * GET /api/v1/auth/check-username/{username}
+     */
+    @GetMapping("/check-username/{username}")
+    public ResponseEntity<Object> checkUsernameAvailability(@PathVariable String username) {
+        boolean isTaken = userRegistrationService.checkUsernameAvailability(username);
+        return ResponseEntity.ok(Map.of("isTaken", isTaken));
+    }
+
+    /**
      * Helper method to create authenticated user response 
      * that includes authentication token and user account type
      */

@@ -13,8 +13,9 @@ public class DriverUpdateDTO extends BaseUserUpdateDTO {
     private float preferredRange;
     private CarDTO car;
     private LocationDTO location;
+    private UserAccountType userAccountType;
     
     public DriverUpdateDTO() {
-        this.setUserAccountType(UserAccountType.DRIVER);
+        this.userAccountType = UserAccountType.DRIVER;
     }
 }

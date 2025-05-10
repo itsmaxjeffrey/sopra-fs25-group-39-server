@@ -39,6 +39,10 @@ public class UserRegistrationService {
         this.tokenService = tokenService;
     }
 
+    public boolean checkUsernameAvailability(String username) {
+        return userRepository.existsByUsername(username);
+    }
+
     //handle register
     public User registerUser(
         BaseUserRegisterDTO baseUserRegisterDTO,
@@ -147,4 +151,4 @@ public class UserRegistrationService {
         
         
     }
-    
+

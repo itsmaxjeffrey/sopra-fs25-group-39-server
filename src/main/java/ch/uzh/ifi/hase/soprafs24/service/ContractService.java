@@ -1,7 +1,11 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,47 +14,42 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
+import ch.uzh.ifi.hase.soprafs24.constant.OfferStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Contract;
+import ch.uzh.ifi.hase.soprafs24.entity.Offer;
 import ch.uzh.ifi.hase.soprafs24.entity.Requester;
 import ch.uzh.ifi.hase.soprafs24.repository.ContractRepository;
-import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.OfferRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractFilterDTO;
-
-import java.time.LocalDateTime;
-import java.util.stream.Collectors;
-import java.time.temporal.ChronoUnit;
-import ch.uzh.ifi.hase.soprafs24.entity.Offer;
-import ch.uzh.ifi.hase.soprafs24.constant.OfferStatus;
-import java.time.LocalDate;
 
 @Service
 @Transactional
 public class ContractService {
-    
+
     private final Logger log = LoggerFactory.getLogger(ContractService.class);
-    
+
     private final ContractRepository contractRepository;
     private final UserRepository userRepository;
     private final GoogleMapsService googleMapsService;
     private final OfferRepository offerRepository;
-    
+
     @Autowired
     public ContractService(@Qualifier("contractRepository") ContractRepository contractRepository,
-                          @Qualifier("userRepository") UserRepository userRepository,
-                          GoogleMapsService googleMapsService,
-                          @Qualifier("offerRepository") OfferRepository offerRepository) {
+            @Qualifier("userRepository") UserRepository userRepository,
+            GoogleMapsService googleMapsService,
+            @Qualifier("offerRepository") OfferRepository offerRepository) {
         this.contractRepository = contractRepository;
         this.userRepository = userRepository;
         this.googleMapsService = googleMapsService;
         this.offerRepository = offerRepository;
     }
-    
+
     /**
      * Creates a new contract entity
      * 
@@ -61,8 +60,8 @@ public class ContractService {
         // First validate and set up the requester
         final Long requesterId = contract.getRequester().getUserId();
         Requester requester = (Requester) userRepository.findById(requesterId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
-                "Requester with ID " + requesterId + " not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Requester with ID " + requesterId + " not found"));
         contract.setRequester(requester);
 
         // Then validate the rest of the contract data
@@ -70,11 +69,11 @@ public class ContractService {
 
         // Set initial contract status
         contract.setContractStatus(ContractStatus.REQUESTED);
-        
+
         // Save contract to database
         contract = contractRepository.save(contract);
         contractRepository.flush();
-        
+
         log.debug("Created Contract: {}", contract);
         return contract;
     }
@@ -84,9 +83,10 @@ public class ContractService {
         if (contract.getPrice() <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price must be positive");
         }
-        if (contract.getCollateral() < 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Collateral cannot be negative");
-        }
+        // if (contract.getCollateral() < 0) {
+        // throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Collateral cannot
+        // be negative");
+        // }
 
         // Validate weight and dimensions
         if (contract.getWeight() <= 0) {
@@ -103,16 +103,18 @@ public class ContractService {
         }
 
         // Validate manpower
-        if (contract.getManPower() <= 0) {
+        if (contract.getManPower() < 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Manpower must be positive");
         }
 
         // #testing_rating
         /*
-        if (contract.getMoveDateTime() == null || contract.getMoveDateTime().isBefore(LocalDateTime.now())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Move date time must be in the future");
-        }
-        */
+         * if (contract.getMoveDateTime() == null ||
+         * contract.getMoveDateTime().isBefore(LocalDateTime.now())) {
+         * throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+         * "Move date time must be in the future");
+         * }
+         */
         // #testing_rating
 
         // Validate locations
@@ -124,80 +126,84 @@ public class ContractService {
     /**
      * Gets all contracts with optional filtering
      * 
-     * @param lat Latitude for location-based search (placeholder for future implementation)
-     * @param lng Longitude for location-based search (placeholder for future implementation)
+     * @param lat     Latitude for location-based search (placeholder for future
+     *                implementation)
+     * @param lng     Longitude for location-based search (placeholder for future
+     *                implementation)
      * @param filters Filter criteria
      * @return List of filtered contracts
      */
     public List<Contract> getContracts(Double lat, Double lng, ContractFilterDTO filters) {
         List<Contract> contracts = contractRepository.findAll();
-        
+
         return contracts.stream()
-            .filter(contract -> {
-                if (filters == null) return true;
-                
-                // Filter by price
-                if (filters.getPrice() != null && contract.getPrice() > filters.getPrice()) {
-                    return false;
-                }
-                
-                // Filter by weight (weight)
-                if (filters.getWeight() != null && contract.getWeight() > filters.getWeight()) {
-                    return false;
-                }
-                
-                // Filter by dimensions
-                if (filters.getHeight() != null && contract.getHeight() > filters.getHeight()) {
-                    return false;
-                }
-                if (filters.getWidth() != null && contract.getWidth() > filters.getWidth()) {
-                    return false;
-                }
-                if (filters.getLength() != null && contract.getLength() > filters.getLength()) {
-                    return false;
-                }
-                
-                // Filter by required people
-                if (filters.getRequiredPeople() != null && contract.getManPower() > filters.getRequiredPeople()) {
-                    return false;
-                }
-                
-                // Filter by fragile items
-                if (filters.getFragile() != null && filters.getFragile() && !contract.isFragile()) {
-                    return false;
-                }
-                
-                // Filter by cooling required
-                if (filters.getCoolingRequired() != null && filters.getCoolingRequired() && !contract.isCoolingRequired()) {
-                    return false;
-                }
-                
-                // Filter by ride along
-                if (filters.getRideAlong() != null && filters.getRideAlong() && !contract.isRideAlong()) {
-                    return false;
-                }
-                
-                // Filter by move date
-                if (filters.getMoveDate() != null) {
-                    LocalDate contractDate = contract.getMoveDateTime().toLocalDate();
-                    if (!contractDate.equals(filters.getMoveDate())) {
+                .filter(contract -> {
+                    if (filters == null)
+                        return true;
+
+                    // Filter by price
+                    if (filters.getPrice() != null && contract.getPrice() > filters.getPrice()) {
                         return false;
                     }
-                }
-                
-                // Location-based filtering using Google Maps API
-                if (lat != null && lng != null && filters.getRadius() != null && contract.getFromAddress() != null) {
-                    double distance = googleMapsService.calculateDistance(
-                        lat, lng,
-                        contract.getFromAddress().getLatitude(),
-                        contract.getFromAddress().getLongitude()
-                    );
-                    return distance <= filters.getRadius();
-                }
-                
-                return true;
-            })
-            .collect(Collectors.toList());
+
+                    // Filter by weight (weight)
+                    if (filters.getWeight() != null && contract.getWeight() > filters.getWeight()) {
+                        return false;
+                    }
+
+                    // Filter by dimensions
+                    if (filters.getHeight() != null && contract.getHeight() > filters.getHeight()) {
+                        return false;
+                    }
+                    if (filters.getWidth() != null && contract.getWidth() > filters.getWidth()) {
+                        return false;
+                    }
+                    if (filters.getLength() != null && contract.getLength() > filters.getLength()) {
+                        return false;
+                    }
+
+                    // Filter by required people
+                    if (filters.getRequiredPeople() != null && contract.getManPower() > filters.getRequiredPeople()) {
+                        return false;
+                    }
+
+                    // Filter by fragile items
+                    if (filters.getFragile() != null && filters.getFragile() && !contract.isFragile()) {
+                        return false;
+                    }
+
+                    // Filter by cooling required
+                    if (filters.getCoolingRequired() != null && filters.getCoolingRequired()
+                            && !contract.isCoolingRequired()) {
+                        return false;
+                    }
+
+                    // Filter by ride along
+                    if (filters.getRideAlong() != null && filters.getRideAlong() && !contract.isRideAlong()) {
+                        return false;
+                    }
+
+                    // Filter by move date
+                    if (filters.getMoveDate() != null) {
+                        LocalDate contractDate = contract.getMoveDateTime().toLocalDate();
+                        if (!contractDate.equals(filters.getMoveDate())) {
+                            return false;
+                        }
+                    }
+
+                    // Location-based filtering using Google Maps API
+                    if (lat != null && lng != null && filters.getRadius() != null
+                            && contract.getFromAddress() != null) {
+                        double distance = googleMapsService.calculateDistance(
+                                lat, lng,
+                                contract.getFromAddress().getLatitude(),
+                                contract.getFromAddress().getLongitude());
+                        return distance <= filters.getRadius();
+                    }
+
+                    return true;
+                })
+                .collect(Collectors.toList());
     }
 
     /**
@@ -217,14 +223,15 @@ public class ContractService {
      */
     public Contract getContractById(Long contractId) {
         Contract contract = contractRepository.findById(contractId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
-                "Contract with ID " + contractId + " not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Contract with ID " + contractId + " not found"));
 
         // Log fetched addresses
-        String fromAddr = contract.getFromAddress() != null ? contract.getFromAddress().getFormattedAddress() : "<null>";
+        String fromAddr = contract.getFromAddress() != null ? contract.getFromAddress().getFormattedAddress()
+                : "<null>";
         String toAddr = contract.getToAddress() != null ? contract.getToAddress().getFormattedAddress() : "<null>";
-        log.info("Fetched Contract ID: {}. From Address: '{}', To Address: '{}'", 
-                 contractId, fromAddr, toAddr);
+        log.info("Fetched Contract ID: {}. From Address: '{}', To Address: '{}'",
+                contractId, fromAddr, toAddr);
 
         return contract;
     }
@@ -233,7 +240,7 @@ public class ContractService {
      * Gets all contracts for a specific Requester, optionally filtered by status
      * 
      * @param requesterId The ID of the Requester
-     * @param status Optional status to filter by
+     * @param status      Optional status to filter by
      * @return List of contracts for the Requester
      */
     public List<Contract> getContractsByRequesterId(Long requesterId, ContractStatus status) {
@@ -247,7 +254,7 @@ public class ContractService {
      * Gets all contracts for a specific Driver, optionally filtered by status
      * 
      * @param driverId The ID of the Driver
-     * @param status Optional status to filter by
+     * @param status   Optional status to filter by
      * @return List of contracts for the Driver
      */
     public List<Contract> getContractsByDriverId(Long driverId, ContractStatus status) {
@@ -276,21 +283,21 @@ public class ContractService {
      */
     public List<Contract> getContractsByUser(Long userId, ContractStatus status) {
         List<Contract> contracts = contractRepository.findByRequester_UserId(userId);
-        
+
         // If status is provided, filter by status
         if (status != null) {
             return contracts.stream()
-                .filter(contract -> contract.getContractStatus() == status)
-                .collect(Collectors.toList());
+                    .filter(contract -> contract.getContractStatus() == status)
+                    .collect(Collectors.toList());
         }
-        
+
         return contracts;
     }
 
     /**
      * Updates an existing contract
      * 
-     * @param contractId The ID of the contract to update
+     * @param contractId      The ID of the contract to update
      * @param contractUpdates The updated contract data
      * @return The updated contract
      * @throws ResponseStatusException if contract is not found or update is invalid
@@ -298,10 +305,10 @@ public class ContractService {
     public Contract updateContract(Long contractId, Contract contractUpdates) {
         // Get existing contract
         Contract existingContract = getContractById(contractId);
-        
+
         // Validate update
         validateContractUpdate(existingContract, contractUpdates);
-        
+
         // Update fields if provided
         if (contractUpdates.getTitle() != null) {
             existingContract.setTitle(contractUpdates.getTitle());
@@ -331,9 +338,9 @@ public class ContractService {
             existingContract.setPrice(contractUpdates.getPrice());
         }
         // Only update collateral if it's explicitly set to a non-negative value
-        if (contractUpdates.getCollateral() > 0) {
-            existingContract.setCollateral(contractUpdates.getCollateral());
-        }
+        // if (contractUpdates.getCollateral() > 0) {
+        // existingContract.setCollateral(contractUpdates.getCollateral());
+        // }
         if (contractUpdates.getFromAddress() != null) {
             existingContract.setFromAddress(contractUpdates.getFromAddress());
         }
@@ -346,11 +353,15 @@ public class ContractService {
         if (contractUpdates.getContractStatus() != null) {
             existingContract.setContractStatus(contractUpdates.getContractStatus());
         }
-        
+        // Update contract photos if provided
+        if (contractUpdates.getContractPhotos() != null) { // Check if the list is provided
+            existingContract.setContractPhotos(new ArrayList<>(contractUpdates.getContractPhotos())); // Set new list
+        }
+
         // Save updated contract
         Contract updatedContract = contractRepository.save(existingContract);
         contractRepository.flush();
-        
+
         log.debug("Updated Contract: {}", updatedContract);
         return updatedContract;
     }
@@ -360,7 +371,7 @@ public class ContractService {
      * This bypasses the general validation in validateContractUpdate.
      *
      * @param contractId The ID of the contract to update.
-     * @param newStatus The new status to set.
+     * @param newStatus  The new status to set.
      * @return The updated contract.
      */
     public Contract updateContractStatus(Long contractId, ContractStatus newStatus) {
@@ -376,26 +387,26 @@ public class ContractService {
      * Validates that a contract update is allowed
      *
      * @param existingContract The existing contract
-     * @param contractUpdates The proposed updates
+     * @param contractUpdates  The proposed updates
      * @throws ResponseStatusException if the update is not allowed
      */
     private void validateContractUpdate(Contract existingContract, Contract contractUpdates) {
         // Only allow updates for REQUESTED contracts
         if (existingContract.getContractStatus() != ContractStatus.REQUESTED) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
-                "Only REQUESTED contracts can be edited. Use delete for REQUESTED or OFFERED contracts, or cancel for ACCEPTED contracts.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Only REQUESTED contracts can be edited. Use delete for REQUESTED or OFFERED contracts, or cancel for ACCEPTED contracts.");
         }
 
         // Validate that the requester is the same as the original requester
-        if (contractUpdates.getRequester() != null && 
-            !contractUpdates.getRequester().getUserId().equals(existingContract.getRequester().getUserId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, 
-                "Only the original requester can update the contract");
+        if (contractUpdates.getRequester() != null &&
+                !contractUpdates.getRequester().getUserId().equals(existingContract.getRequester().getUserId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Only the original requester can update the contract");
         }
 
         // Always validate that move date time is in the future
-        if (contractUpdates.getMoveDateTime() != null && 
-            !contractUpdates.getMoveDateTime().equals(existingContract.getMoveDateTime())) {
+        if (contractUpdates.getMoveDateTime() != null &&
+                !contractUpdates.getMoveDateTime().equals(existingContract.getMoveDateTime())) {
             if (contractUpdates.getMoveDateTime().isBefore(LocalDateTime.now())) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Move date time must be in the future");
             }
@@ -406,7 +417,7 @@ public class ContractService {
      * Cancel a contract
      * 
      * @param contractId The ID of the contract to cancel
-     * @param reason The reason for cancellation
+     * @param reason     The reason for cancellation
      * @return The cancelled contract
      * @throws ResponseStatusException if the contract cannot be cancelled
      */
@@ -414,31 +425,31 @@ public class ContractService {
     public Contract cancelContract(Long contractId, String reason) {
         // Get contract with optimistic locking
         Contract contract = contractRepository.findById(contractId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
-                "Contract with ID " + contractId + " not found"));
-        
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Contract with ID " + contractId + " not found"));
+
         // Check if contract is in ACCEPTED state
         if (contract.getContractStatus() != ContractStatus.ACCEPTED) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
-                "Only ACCEPTED contracts can be cancelled. Use delete for REQUESTED or OFFERED contracts.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Only ACCEPTED contracts can be cancelled. Use delete for REQUESTED or OFFERED contracts.");
         }
-        
+
         // Check if contract is already canceled
         if (contract.getContractStatus() == ContractStatus.CANCELED) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, 
-                "Contract is already canceled");
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Contract is already canceled");
         }
-        
+
         // Check if the move date is within 72 hours
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime moveDateTime = contract.getMoveDateTime();
         long hoursUntilMove = ChronoUnit.HOURS.between(now, moveDateTime);
-        
+
         if (hoursUntilMove < 72) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, 
-                "Cannot cancel an accepted contract less than 72 hours before move date");
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Cannot cancel an accepted contract less than 72 hours before move date");
         }
-        
+
         try {
             // Reject all offers for this contract in a single operation
             List<Offer> offers = offerRepository.findByContract_ContractId(contractId);
@@ -448,25 +459,25 @@ public class ContractService {
                 }
             }
             offerRepository.saveAll(offers);
-            
+
             // Update contract status and reason
             contract.setContractStatus(ContractStatus.CANCELED);
             contract.setCancelReason(reason);
-            
+
             // Save the updated contract
             Contract savedContract = contractRepository.save(contract);
-            
+
             // Flush changes to ensure they're persisted
             contractRepository.flush();
             offerRepository.flush();
-            
+
             return savedContract;
         } catch (Exception e) {
             // Log the error
             log.error("Error during contract cancellation: {}", e.getMessage());
             // The transaction will be automatically rolled back
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, 
-                "Error during contract cancellation. All changes have been rolled back.");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Error during contract cancellation. All changes have been rolled back.");
         }
     }
 
@@ -479,26 +490,26 @@ public class ContractService {
      */
     public Contract fulfillContract(Long contractId) {
         Contract contract = getContractById(contractId);
-        
+
         // Check if contract can be fulfilled
         if (contract.getContractStatus() != ContractStatus.COMPLETED) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, 
-                "Only completed contracts can be fulfilled");
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Only completed contracts can be fulfilled");
         }
-        
+
         if (contract.getContractStatus() == ContractStatus.FINALIZED) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, 
-                "Contract is already finalized");
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Contract is already finalized");
         }
-        
+
         if (contract.getContractStatus() == ContractStatus.CANCELED) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, 
-                "Cannot fulfill a canceled contract");
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Cannot fulfill a canceled contract");
         }
-        
+
         // Update contract status
         contract.setContractStatus(ContractStatus.FINALIZED);
-        
+
         // Save the updated contract
         return contractRepository.save(contract);
     }
@@ -511,36 +522,36 @@ public class ContractService {
      */
     public void deleteContract(Long contractId) {
         Contract contract = getContractById(contractId);
-        
+
         // Check if contract can be deleted based on status
-        if (contract.getContractStatus() == ContractStatus.COMPLETED || 
-            contract.getContractStatus() == ContractStatus.FINALIZED) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, 
-                "Cannot delete a completed or finalized contract");
+        if (contract.getContractStatus() == ContractStatus.COMPLETED ||
+                contract.getContractStatus() == ContractStatus.FINALIZED) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Cannot delete a completed or finalized contract");
         }
-        
+
         // Check if contract is already deleted
         if (contract.getContractStatus() == ContractStatus.DELETED) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, 
-                "Contract is already deleted");
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Contract is already deleted");
         }
-        
+
         // Check if the move date is within 72 hours for ACCEPTED contracts
         if (contract.getContractStatus() == ContractStatus.ACCEPTED) {
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime moveDateTime = contract.getMoveDateTime();
             long hoursUntilMove = ChronoUnit.HOURS.between(now, moveDateTime);
-            
+
             if (hoursUntilMove < 72) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, 
-                    "Cannot delete an accepted contract less than 72 hours before move date");
+                throw new ResponseStatusException(HttpStatus.CONFLICT,
+                        "Cannot delete an accepted contract less than 72 hours before move date");
             }
         }
-        
+
         // First, mark the contract as deleted
         contract.setContractStatus(ContractStatus.DELETED);
         contractRepository.save(contract);
-        
+
         // Then reject all offers for this contract
         List<Offer> offers = offerRepository.findByContract_ContractId(contractId);
         for (Offer offer : offers) {
@@ -549,11 +560,11 @@ public class ContractService {
                 offerRepository.save(offer);
             }
         }
-        
+
         // Flush all changes
         contractRepository.flush();
         offerRepository.flush();
-        
+
         log.debug("Deleted Contract: {}", contract);
     }
 
@@ -561,30 +572,30 @@ public class ContractService {
      * Automatically update contract statuses based on move date
      * This method should be called periodically to update contracts
      */
-    @Scheduled(fixedRate = 21600000) // Run every 6 hours
+    @Scheduled(fixedRate = 300000) // Run every 5 minutes
     public void updateContractStatuses() {
         LocalDateTime now = LocalDateTime.now();
-        
+
         // Find all ACCEPTED contracts where move date has passed
         List<Contract> contractsToComplete = contractRepository.findByContractStatusAndMoveDateTimeBefore(
-            ContractStatus.ACCEPTED, now);
-            
+                ContractStatus.ACCEPTED, now);
+
         for (Contract contract : contractsToComplete) {
             contract.setContractStatus(ContractStatus.COMPLETED);
             log.debug("Automatically updated contract {} to COMPLETED status", contract.getContractId());
         }
-        
+
         // Find all REQUESTED or OFFERED contracts where move date has passed
         List<Contract> contractsToCancel = new ArrayList<>();
         contractsToCancel.addAll(contractRepository.findByContractStatusAndMoveDateTimeBefore(
-            ContractStatus.REQUESTED, now));
+                ContractStatus.REQUESTED, now));
         contractsToCancel.addAll(contractRepository.findByContractStatusAndMoveDateTimeBefore(
-            ContractStatus.OFFERED, now));
-            
+                ContractStatus.OFFERED, now));
+
         for (Contract contract : contractsToCancel) {
             contract.setContractStatus(ContractStatus.CANCELED);
             contract.setCancelReason("Contract automatically canceled due to expired move date");
-            
+
             // Reject all offers for this contract
             List<Offer> offers = offerRepository.findByContract_ContractId(contract.getContractId());
             for (Offer offer : offers) {
@@ -593,10 +604,10 @@ public class ContractService {
                     offerRepository.save(offer);
                 }
             }
-            
+
             log.debug("Automatically canceled contract {} due to expired move date", contract.getContractId());
         }
-        
+
         // Save all changes
         if (!contractsToComplete.isEmpty() || !contractsToCancel.isEmpty()) {
             contractRepository.saveAll(contractsToComplete);
@@ -620,18 +631,18 @@ public class ContractService {
         // Validate contract can be completed
         if (contract.getContractStatus() != ContractStatus.ACCEPTED) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
-                "Only accepted contracts can be completed manually");
+                    "Only accepted contracts can be completed manually");
         }
 
         // #testing_rating - Bypass date check for manual completion
         /*
-        // Check if move date has passed
-        LocalDateTime now = LocalDateTime.now();
-        if (contract.getMoveDateTime().isAfter(now)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-                "Cannot complete contract before move date");
-        }
-        */
+         * // Check if move date has passed
+         * LocalDateTime now = LocalDateTime.now();
+         * if (contract.getMoveDateTime().isAfter(now)) {
+         * throw new ResponseStatusException(HttpStatus.CONFLICT,
+         * "Cannot complete contract before move date");
+         * }
+         */
         // #testing_rating
 
         // Update contract status
@@ -650,14 +661,14 @@ public class ContractService {
         // Validate contract can be completed
         if (contract.getContractStatus() != ContractStatus.ACCEPTED) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
-                "Only accepted contracts can be completed");
+                    "Only accepted contracts can be completed");
         }
 
         // Check if move date has passed
         LocalDateTime now = LocalDateTime.now();
         if (contract.getMoveDateTime().isAfter(now)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
-                "Cannot complete contract before move date");
+                    "Cannot complete contract before move date");
         }
 
         // Update contract status
@@ -669,16 +680,16 @@ public class ContractService {
 
     public Contract finalizeContract(Long contractId) {
         Contract contract = getContractById(contractId);
-        
+
         // Validate contract can be finalized
         if (contract.getContractStatus() != ContractStatus.COMPLETED) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, 
-                "Only completed contracts can be finalized");
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Only completed contracts can be finalized");
         }
-        
+
         // Update contract status
         contract.setContractStatus(ContractStatus.FINALIZED);
-        
+
         // Save the updated contract
         return contractRepository.save(contract);
     }
@@ -693,30 +704,31 @@ public class ContractService {
     public void handleDriverDeletion(Long driverId) {
         // Get all offers from the driver
         List<Offer> offers = offerRepository.findByDriver_UserId(driverId);
-        
+
         for (Offer offer : offers) {
             Contract contract = offer.getContract();
-            
+
             // Only handle CREATED offers
             if (offer.getOfferStatus() == OfferStatus.CREATED) {
                 // Update offer status
                 offer.setOfferStatus(OfferStatus.REJECTED);
                 offerRepository.save(offer);
-                
-                // If this was the last offer and contract is in OFFERED state, revert to REQUESTED
+
+                // If this was the last offer and contract is in OFFERED state, revert to
+                // REQUESTED
                 List<Offer> remainingOffers = offerRepository.findByContract_ContractIdAndOfferStatus(
-                    contract.getContractId(), OfferStatus.CREATED);
+                        contract.getContractId(), OfferStatus.CREATED);
                 if (contract.getContractStatus() == ContractStatus.OFFERED && remainingOffers.isEmpty()) {
                     contract.setContractStatus(ContractStatus.REQUESTED);
                     contractRepository.save(contract);
                 }
             }
         }
-        
+
         // Flush changes
         offerRepository.flush();
         contractRepository.flush();
-        
+
         log.debug("Handled driver deletion for driverId: {}", driverId);
     }
 
@@ -730,12 +742,12 @@ public class ContractService {
     public void handleRequesterDeletion(Long requesterId) {
         // Get all contracts from the requester
         List<Contract> contracts = contractRepository.findByRequester_UserId(requesterId);
-        
+
         for (Contract contract : contracts) {
             // Only handle REQUESTED and OFFERED contracts
-            if (contract.getContractStatus() == ContractStatus.REQUESTED || 
-                contract.getContractStatus() == ContractStatus.OFFERED) {
-                
+            if (contract.getContractStatus() == ContractStatus.REQUESTED ||
+                    contract.getContractStatus() == ContractStatus.OFFERED) {
+
                 // Reject all offers for this contract
                 List<Offer> offers = offerRepository.findByContract_ContractId(contract.getContractId());
                 for (Offer offer : offers) {
@@ -744,17 +756,17 @@ public class ContractService {
                         offerRepository.save(offer);
                     }
                 }
-                
+
                 // Delete the contract
                 contract.setContractStatus(ContractStatus.DELETED);
                 contractRepository.save(contract);
             }
         }
-        
+
         // Flush changes
         offerRepository.flush();
         contractRepository.flush();
-        
+
         log.debug("Handled requester deletion for requesterId: {}", requesterId);
     }
 }

@@ -12,8 +12,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping; // Added for DELETE mapping
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,10 +33,8 @@ public class FileStorageController {
 
     private static final Logger log = LoggerFactory.getLogger(FileStorageController.class); // Logger instance
 
-
     private static final List<String> ALLOWED_FILE_TYPES = Arrays.asList(
-        "profile", "license", "insurance", "car", "misc", "proposal"
-        );
+            "profile", "license", "insurance", "car", "misc", "proposal");
 
     private final FileStorageService fileStorageService;
 
@@ -46,7 +44,8 @@ public class FileStorageController {
 
     /**
      * Upload a file and return its storage path
-     * @param file The file to upload
+     * 
+     * @param file     The file to upload
      * @param fileType The type of file (profile, license, insurance, car)
      * @return The filepath where the file was stored
      */
@@ -54,19 +53,19 @@ public class FileStorageController {
     public ResponseEntity<Map<String, String>> uploadFile(
             @RequestParam("file") MultipartFile file,
             @RequestParam("type") String fileType) {
-        
+
         // Validate file is not empty
         if (file.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please upload a file");
         }
-        
+
         // Validate file type
         if (!ALLOWED_FILE_TYPES.contains(fileType)) {
             throw new ResponseStatusException(
-                HttpStatus.BAD_REQUEST, 
-                "File type must be one of: " + String.join(", ", ALLOWED_FILE_TYPES));
+                    HttpStatus.BAD_REQUEST,
+                    "File type must be one of: " + String.join(", ", ALLOWED_FILE_TYPES));
         }
-        
+
         String subdirectory;
         subdirectory = switch (fileType) {
             case "profile" -> "profile-pictures";
@@ -80,28 +79,52 @@ public class FileStorageController {
         String filePath = fileStorageService.storeFile(file, subdirectory);
 
         log.info("File uploaded successfully. File path: {}", filePath);
-        
+
         Map<String, String> response = new HashMap<>();
         response.put("filePath", filePath);
-        
+
         return ResponseEntity.ok(response);
     }
-    
+
     /**
      * Download a file by its filepath
+     * 
      * @param filePath The path of the file to download
      * @return The file resource
      */
     @GetMapping("/download")
     public ResponseEntity<Resource> downloadFile(@RequestParam String filePath) {
         log.info("Attempting to download file: {}", filePath);
-    
+
         Resource resource = fileStorageService.loadFileAsResource(filePath);
         String contentType = "application/octet-stream";
-    
+
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(contentType))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
                 .body(resource);
+    }
+
+    /**
+     * Delete a file by its filepath
+     * 
+     * @param filePath The path of the file to delete
+     * @return HTTP Status indicating success or failure
+     */
+    @DeleteMapping("/delete") // Using @DeleteMapping for DELETE requests
+    public ResponseEntity<Void> deleteFile(@RequestParam String filePath) {
+        log.info("Attempting to delete file: {}", filePath);
+        try {
+            fileStorageService.deleteFile(filePath);
+            return ResponseEntity.noContent().build(); // HTTP 204 No Content for successful deletion
+        } catch (ResponseStatusException e) {
+            // Log the exception and return the same status code and message
+            log.error("Error deleting file: {}. Status: {}, Reason: {}", filePath, e.getStatus(), e.getReason());
+            return ResponseEntity.status(e.getStatus()).build();
+        } catch (Exception e) {
+            // Catch any other unexpected exceptions
+            log.error("Unexpected error deleting file: {}", filePath, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }

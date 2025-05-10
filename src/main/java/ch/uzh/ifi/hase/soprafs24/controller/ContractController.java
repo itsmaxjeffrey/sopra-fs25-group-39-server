@@ -9,7 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,10 +26,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
+import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
 import ch.uzh.ifi.hase.soprafs24.entity.Contract;
 import ch.uzh.ifi.hase.soprafs24.entity.Location;
 import ch.uzh.ifi.hase.soprafs24.entity.Requester;
@@ -41,13 +42,11 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractPutDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.ContractDTOMapper;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.LocationDTOMapper;
+import ch.uzh.ifi.hase.soprafs24.rest.mapper.UserDTOMapper;
 import ch.uzh.ifi.hase.soprafs24.security.authorization.service.AuthorizationService;
-import ch.uzh.ifi.hase.soprafs24.service.ContractPollingService;
 import ch.uzh.ifi.hase.soprafs24.service.ContractPollingService;
 import ch.uzh.ifi.hase.soprafs24.service.ContractService;
 import ch.uzh.ifi.hase.soprafs24.service.LocationService;
-import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
-import ch.uzh.ifi.hase.soprafs24.rest.mapper.UserDTOMapper;
 
 @RestController
 public class ContractController {
@@ -376,7 +375,7 @@ public class ContractController {
             }
         
             // Check if man power is positive
-            if (contractPostDTO.getManPower() <= 0) {
+            if (contractPostDTO.getManPower() < 0) { // This call now works due to the explicit getter in ContractPostDTO
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Man power must be positive");
             }
         
@@ -535,7 +534,7 @@ public class ContractController {
         }
 
         // Check if man power is positive
-        if ( contractPutDTO.getManPower() <= 0) {
+        if ( contractPutDTO.getManPower() < 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Man power must be positive");
         }
 
@@ -544,10 +543,10 @@ public class ContractController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price must be positive");
         }
 
-        // Check if collateral is positive
-        if (contractPutDTO.getCollateral() <= 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Collateral must be positive");
-        }
+        // // Check if collateral is positive (now non-negative)
+        // if (contractPutDTO.getCollateral() < 0) {
+        //     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Collateral must be positive");
+        // }
 
         // Check if from location is valid when provided
         if (contractPutDTO.getFromLocation() != null && 

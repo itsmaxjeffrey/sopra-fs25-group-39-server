@@ -6,6 +6,7 @@ import java.util.List;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.LocationDTO;
 import lombok.Getter;
 import lombok.Setter;
+
 @Getter @Setter
 public class ContractPostDTO {
     private String title;
@@ -19,7 +20,7 @@ public class ContractPostDTO {
     private int manPower;
     private String contractDescription;
     private double price;
-    private double collateral;
+    // private double collateral;
     private Long requesterId;
     private LocationDTO fromLocation;
     private LocationDTO toLocation;
@@ -30,5 +31,8 @@ public class ContractPostDTO {
     private String imagePath2;
     private String imagePath3;
 
-
+    // Explicit getter for manPower to resolve potential Lombok issues
+    public int getManPower() {
+        return manPower;
+    }
 }

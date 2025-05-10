@@ -13,7 +13,8 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractPutDTO;
 /**
  * ContractDTOMapper
  * This class is responsible for generating classes that will automatically
- * transform/map the internal representation of a Contract entity to the external/API
+ * transform/map the internal representation of a Contract entity to the
+ * external/API
  * representation (ContractGetDTO for getting, ContractPostDTO for creating)
  * and vice versa.
  */
@@ -33,7 +34,7 @@ public interface ContractDTOMapper {
     @Mapping(source = "manPower", target = "manPower")
     @Mapping(source = "contractDescription", target = "contractDescription")
     @Mapping(source = "price", target = "price")
-    @Mapping(source = "collateral", target = "collateral")
+    // @Mapping(source = "collateral", target = "collateral")
     @Mapping(source = "moveDateTime", target = "moveDateTime")
     @Mapping(source = "requesterId", target = "requester")
     @Mapping(source = "contractPhotos", target = "contractPhotos")
@@ -61,7 +62,7 @@ public interface ContractDTOMapper {
     @Mapping(source = "manPower", target = "manPower")
     @Mapping(source = "contractDescription", target = "contractDescription")
     @Mapping(source = "price", target = "price")
-    @Mapping(source = "collateral", target = "collateral")
+    // @Mapping(source = "collateral", target = "collateral")
     @Mapping(source = "moveDateTime", target = "moveDateTime")
     @Mapping(source = "contractStatus", target = "contractStatus")
     @Mapping(source = "creationDateTime", target = "creationDateTime")
@@ -84,13 +85,14 @@ public interface ContractDTOMapper {
     @Mapping(source = "manPower", target = "manPower")
     @Mapping(source = "contractDescription", target = "contractDescription")
     @Mapping(source = "price", target = "price")
-    @Mapping(source = "collateral", target = "collateral")
+    // @Mapping(source = "collateral", target = "collateral")
     @Mapping(source = "moveDateTime", target = "moveDateTime")
     @Mapping(source = "contractStatus", target = "contractStatus")
+    @Mapping(source = "contractPhotos", target = "contractPhotos") // Added mapping for contractPhotos
     @Mapping(target = "contractId", ignore = true)
     @Mapping(target = "creationDateTime", ignore = true)
     @Mapping(target = "acceptedDateTime", ignore = true)
-    @Mapping(target = "contractPhotos", ignore = true)
+    // @Mapping(target = "contractPhotos", ignore = true)
     @Mapping(target = "offers", ignore = true)
     @Mapping(target = "acceptedOffer", ignore = true)
     @Mapping(target = "requester", ignore = true)
