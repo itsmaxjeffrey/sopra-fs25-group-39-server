@@ -32,6 +32,9 @@ public class FileStorageService {
 
         try {
             Files.createDirectories(this.fileStorageLocation);
+        } catch (java.nio.file.FileAlreadyExistsException e) {
+            // Directory already exists, ignore
+            log.warn("Directory already exists: {}", this.fileStorageLocation);
         } catch (IOException ex) {
             throw new ResponseStatusException(
                     HttpStatus.INTERNAL_SERVER_ERROR,
