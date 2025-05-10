@@ -31,6 +31,8 @@ import ch.uzh.ifi.hase.soprafs24.user.dto.request.update.RequesterUpdateDTO;
 @RequestMapping("/api/v1/users")
 public class UserController {
 
+    private static final String MESSAGE_KEY = "message";
+
     private final PublicUserDTOMapper publicUserDTOMapper;
     private final UserService userService;
     private final ObjectMapper objectMapper;
@@ -62,10 +64,10 @@ public class UserController {
                 }
             } catch (ResponseStatusException e) {
                 return ResponseEntity.status(e.getRawStatusCode())
-                    .body(Map.of("message", e.getReason()));
+                    .body(Map.of(MESSAGE_KEY, e.getReason()));
             } catch (Exception e) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", e.getMessage()));
+                    .body(Map.of(MESSAGE_KEY, e.getMessage()));
             }
     }
 
@@ -98,10 +100,10 @@ public class UserController {
              throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid userAccountType value provided", e);
         } catch (ResponseStatusException e) {
             return ResponseEntity.status(e.getRawStatusCode())
-                .body(Map.of("message", e.getReason()));
+                .body(Map.of(MESSAGE_KEY, e.getReason()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("message", e.getMessage()));
+                .body(Map.of(MESSAGE_KEY, e.getMessage()));
         }
     }
 }
