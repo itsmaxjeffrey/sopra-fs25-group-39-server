@@ -26,6 +26,19 @@ public class FileStorageService {
 
     private final Path fileStorageLocation;
 
+    // Helper method to validate and safely resolve user-supplied path components
+    private Path safeResolve(Path root, String userInput) {
+        // Only allow safe characters (alphanumeric, dash, underscore, dot, slash for subdirs)
+        if (!userInput.matches("^[\\w\\-./]+$") || userInput.contains("..")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid path component: " + userInput);
+        }
+        Path resolved = root.resolve(userInput).normalize();
+        if (!resolved.startsWith(root)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Path traversal attempt detected: " + userInput);
+        }
+        return resolved;
+    }
+
     public FileStorageService(@Value("${file.upload-dir:uploads}") String uploadDir) {
         this.fileStorageLocation = Paths.get(uploadDir)
                 .toAbsolutePath().normalize();
@@ -68,8 +81,8 @@ public class FileStorageService {
                         "Sorry! Filename contains invalid path sequence " + originalFilename);
             }
 
-            // Create subdirectory if needed
-            Path subDirPath = this.fileStorageLocation.resolve(subdirectory);
+            // Validate and resolve subdirectory safely
+            Path subDirPath = safeResolve(this.fileStorageLocation, subdirectory);
             if (!Files.exists(subDirPath)) {
                 Files.createDirectories(subDirPath);
             }
@@ -81,7 +94,8 @@ public class FileStorageService {
             }
 
             String uniqueFilename = UUID.randomUUID().toString() + fileExtension;
-            Path targetLocation = subDirPath.resolve(uniqueFilename);
+            // Validate and resolve the target file path safely
+            Path targetLocation = safeResolve(subDirPath, uniqueFilename);
 
             // Copy file to the target location (replacing existing file with the same name)
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
@@ -97,7 +111,8 @@ public class FileStorageService {
 
     public Resource loadFileAsResource(String fileName) {
         try {
-            Path filePath = this.fileStorageLocation.resolve(fileName).normalize();
+            // Validate and resolve the file path safely
+            Path filePath = safeResolve(this.fileStorageLocation, fileName);
             Resource resource = new UrlResource(filePath.toUri());
             if (resource.exists()) {
                 return resource;
@@ -116,7 +131,8 @@ public class FileStorageService {
 
     public void deleteFile(String fileName) {
         try {
-            Path filePath = this.fileStorageLocation.resolve(fileName).normalize();
+            // Validate and resolve the file path safely
+            Path filePath = safeResolve(this.fileStorageLocation, fileName);
             if (Files.exists(filePath)) {
                 Files.delete(filePath);
                 log.info("Successfully deleted file: {}", fileName);
