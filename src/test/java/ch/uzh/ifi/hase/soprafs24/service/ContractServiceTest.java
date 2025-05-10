@@ -1049,7 +1049,7 @@ class ContractServiceTest {
         // given
         Contract contract1 = new Contract(); // Matches all filters
         contract1.setContractId(1L);
-        contract1.setPrice(50.0);
+        contract1.setPrice(150.0); // Set to 150.0 to match min price filter
         contract1.setWeight(5.0);
         contract1.setHeight(1.0);
         contract1.setWidth(1.0);
@@ -1060,9 +1060,9 @@ class ContractServiceTest {
         contract1.setRideAlong(true);
         contract1.setMoveDateTime(LocalDateTime.now().plusDays(1));
 
-        Contract contract2 = new Contract(); // Price too high
+        Contract contract2 = new Contract(); // Also matches min price
         contract2.setContractId(2L);
-        contract2.setPrice(150.0);
+        contract2.setPrice(200.0);
         contract2.setWeight(5.0);
         contract2.setHeight(1.0);
         contract2.setWidth(1.0);
@@ -1071,7 +1071,7 @@ class ContractServiceTest {
 
         Contract contract3 = new Contract(); // Width too large
         contract3.setContractId(3L);
-        contract3.setPrice(50.0);
+        contract3.setPrice(150.0);
         contract3.setWeight(5.0);
         contract3.setHeight(1.0);
         contract3.setWidth(3.0); // Exceeds filter
@@ -1082,11 +1082,11 @@ class ContractServiceTest {
         Mockito.when(contractRepository.findAll()).thenReturn(allContracts);
 
         ContractFilterDTO filters = new ContractFilterDTO();
-        filters.setPrice(100.0); // Use double literal
-        filters.setWeight(10.0); // Use double literal
-        filters.setHeight(2.0); // Use double literal
-        filters.setWidth(2.0); // Use double literal
-        filters.setLength(2.0); // Use double literal
+        filters.setPrice(100.0); // min price logic
+        filters.setWeight(10.0);
+        filters.setHeight(2.0);
+        filters.setWidth(2.0);
+        filters.setLength(2.0);
         filters.setRequiredPeople(2);
         filters.setFragile(true);
         filters.setCoolingRequired(true);
@@ -1319,11 +1319,11 @@ class ContractServiceTest {
 
         Contract contract2 = new Contract();
         contract2.setFromAddress(testToLocation); // Lat: 47.3770, Lng: 8.5418
-        contract2.setPrice(200.0);
+        contract2.setPrice(200.0); // Set to 200.0 to match min price filter
         contract2.setWeight(100.0);
         contract2.setHeight(3.0);
         contract2.setWidth(2.0);
-        contract2.setLength(4.0); // Length is 4.0
+        contract2.setLength(4.0);
         contract2.setManPower(3);
         contract2.setFragile(true);
         contract2.setCoolingRequired(true);
@@ -1333,39 +1333,35 @@ class ContractServiceTest {
         List<Contract> allContracts = Arrays.asList(contract1, contract2);
 
         ContractFilterDTO filters = new ContractFilterDTO();
-        filters.setPrice(250.0); // Allows both
-        filters.setWeight(150.0); // Allows both
-        filters.setHeight(3.0); // Allows both
-        filters.setLength(4.0); // Changed from 3.0 to 4.0 to allow contract2 to pass this filter initially
-        filters.setWidth(3.0); // Allows both
-        filters.setRequiredPeople(3); // Allows both
-        filters.setFragile(null); // Ignore filter
-        filters.setCoolingRequired(null); // Ignore filter
-        filters.setRideAlong(null); // Ignore filter
-        filters.setMoveDate(null); // Ignore filter
-        filters.setRadius(1.0); // Radius filter
+        filters.setPrice(150.0); // min price logic, only contract2 passes
+        filters.setWeight(150.0);
+        filters.setHeight(3.0);
+        filters.setLength(4.0);
+        filters.setWidth(3.0);
+        filters.setRequiredPeople(3);
+        filters.setFragile(null);
+        filters.setCoolingRequired(null);
+        filters.setRideAlong(null);
+        filters.setMoveDate(null);
+        filters.setRadius(1.0);
 
         Mockito.when(contractRepository.findAll()).thenReturn(allContracts);
-        // Mock distance calculation: contract1 is within radius, contract2 is outside
-        Mockito.when(googleMapsService.calculateDistance(eq(47.3769), eq(8.5417), eq(testFromLocation.getLatitude()), eq(testFromLocation.getLongitude())))
-            .thenReturn(0.5); // contract1 distance
-        Mockito.when(googleMapsService.calculateDistance(eq(47.3769), eq(8.5417), eq(testToLocation.getLatitude()), eq(testToLocation.getLongitude())))
-            .thenReturn(2.0); // contract2 distance
+        // Mock distance calculation for both contracts
+        Mockito.when(googleMapsService.calculateDistance(eq(47.3769), eq(8.5417), eq(47.3769), eq(8.5417)))
+            .thenReturn(2.0); // contract1 distance (outside radius)
+        Mockito.when(googleMapsService.calculateDistance(eq(47.3769), eq(8.5417), eq(47.3770), eq(8.5418)))
+            .thenReturn(0.5); // contract2 distance (within radius)
 
         // when
-        // User location for filtering: 47.3769, 8.5417
         List<Contract> result = contractService.getContracts(47.3769, 8.5417, filters);
 
         // then
-        // Only contract1 should remain after filtering (passes length and radius)
-        // contract2 passes length filter now, but fails radius filter (distance 2.0 > radius 1.0)
+        // Only contract2 should remain after filtering (passes min price and radius)
         assertEquals(1, result.size());
-        assertTrue(result.contains(contract1));
-        assertFalse(result.contains(contract2));
+        assertTrue(result.contains(contract2));
+        assertFalse(result.contains(contract1));
 
         verify(contractRepository).findAll();
-        // Verify calculateDistance was called for both contracts before radius filtering excluded contract2
-        verify(googleMapsService, times(1)).calculateDistance(eq(47.3769), eq(8.5417), eq(testFromLocation.getLatitude()), eq(testFromLocation.getLongitude()));
-        verify(googleMapsService, times(1)).calculateDistance(eq(47.3769), eq(8.5417), eq(testToLocation.getLatitude()), eq(testToLocation.getLongitude()));
+        verify(googleMapsService, times(1)).calculateDistance(eq(47.3769), eq(8.5417), eq(47.3770), eq(8.5418));
     }
 }
