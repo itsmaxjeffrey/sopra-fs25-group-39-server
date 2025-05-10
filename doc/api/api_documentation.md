@@ -204,6 +204,7 @@ DELETE /api/v1/contracts/123
 | No ❌ | Yes ✅ | `/api/v1/contracts/{contractId}/offers` | GET | `contractId <string>` | Path | 200, 404 | List of offers | Get all offers for a specific contract | S7 |
 | No ❌ | Yes ✅ | `/api/v1/offers/{offerId}/status` | PUT | `offerId <string>`, `status <string>` | Path, Body | 200, 400, 403, 404, 409 | Updated offer with new status | Update offer status | S12 |
 | No ❌ | Yes ✅ | `/api/v1/users/{driverId}/offers` | GET | `driverId <string>`, `status` (optional) | Path, Query | 200, 404 | List of offers | Get all offers for a specific driver | S4, S11 |
+| No ❌ | Yes ✅ | `/api/v1/offers/{offerId}/driver` | GET | `offerId <string>` | Path | 200, 401, 403, 404 | Driver details object | Get driver details for a specific offer | S13 |
 
 ### Offer Status Values
 - CREATED: Initial state when offer is created
@@ -479,6 +480,62 @@ DELETE /api/v1/contracts/123
   // ... more offers
 ]
 ```
+
+### Get Driver Details for a Specific Offer (GET /api/v1/offers/{offerId}/driver)
+
+**Endpoint:**
+```
+GET /api/v1/offers/{offerId}/driver
+```
+
+**Headers:**
+- `UserId`: The ID of the authenticated user (required)
+- `Authorization`: The authentication token (required)
+
+**Path Parameters:**
+- `offerId` (required): The ID of the offer
+
+**Access Control:**
+- Only the requester of the contract or the driver assigned to the offer can access this endpoint.
+- If the offer does not have a driver assigned, a 404 is returned.
+- If the user is not authorized, a 403 is returned.
+
+**Response (200 OK):**
+```json
+{
+  "driver": {
+    "userId": 456,
+    "username": "driver123",
+    "email": "driver@example.com",
+    "firstName": "John",
+    "lastName": "Doe",
+    "phoneNumber": "+41791234567",
+    "walletBalance": 100.0,
+    "birthDate": "1990-01-01",
+    "userBio": "Professional driver",
+    "profilePicturePath": "/uploads/profile-pictures/driver123.jpg",
+    "driverLicensePath": "/uploads/driver-licenses/driver123.jpg",
+    "driverInsurancePath": "/uploads/driver-insurances/driver123.pdf",
+    "preferredRange": 50.0,
+    "location": {
+      "address": "Zurich",
+      "latitude": 47.3769,
+      "longitude": 8.5417
+    },
+    "carDTO": {
+      "model": "Volkswagen Transporter",
+      "volume": 8.0,
+      "isElectric": true
+    }
+  },
+  "timestamp": 1234567890
+}
+```
+
+**Error Responses:**
+- 401 Unauthorized: Invalid credentials
+- 403 Forbidden: Not authorized to view driver details for this offer
+- 404 Not Found: No driver assigned to this offer
 
 ### Error Responses
 

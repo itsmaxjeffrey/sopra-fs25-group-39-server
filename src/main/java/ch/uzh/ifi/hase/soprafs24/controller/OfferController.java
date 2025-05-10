@@ -29,6 +29,7 @@ import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
 import ch.uzh.ifi.hase.soprafs24.entity.Contract;
 import ch.uzh.ifi.hase.soprafs24.service.ContractService;
 import ch.uzh.ifi.hase.soprafs24.constant.ContractStatus;
+import ch.uzh.ifi.hase.soprafs24.rest.mapper.UserDTOMapper;
 
 /**
  * Offer Controller
@@ -49,7 +50,7 @@ public class OfferController {
     private final AuthorizationService authorizationService;
     private final ContractService contractService;
 
-    OfferController(OfferService offerService, AuthorizationService authorizationService, ContractService contractService) {
+    OfferController(OfferService offerService, AuthorizationService authorizationService, ContractService contractService, UserDTOMapper userDTOMapper) {
         this.offerService = offerService;
         this.authorizationService = authorizationService;
         this.contractService = contractService;
@@ -465,6 +466,51 @@ public class OfferController {
         response.put("offers", offers);
         response.put(TIMESTAMP_KEY, System.currentTimeMillis());
         
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    /**
+     * Get driver details for a specific offer
+     * 
+     * Example request:
+     * GET /api/v1/offers/{offerId}/driver
+     * 
+     * @param offerId The ID of the offer
+     * @param userId User ID from header
+     * @param token Authentication token from header
+     * @return The driver details if authorized and driver is assigned
+     */
+    @GetMapping("/api/v1/offers/{offerId}/driver")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Object> getOfferDriver(
+            @PathVariable Long offerId,
+            @RequestHeader("UserId") Long userId,
+            @RequestHeader("Authorization") String token) {
+        // Authenticate user
+        User authenticatedUser = authorizationService.authenticateUser(userId, token);
+        if (authenticatedUser == null) {
+            return createResponse(null, INVALID_CREDENTIALS_MSG, HttpStatus.UNAUTHORIZED);
+        }
+
+        // Get the offer
+        OfferGetDTO offer = offerService.getOffer(offerId);
+
+        // Check if driver is assigned
+        if (offer.getDriver() == null) {
+            return createResponse(null, "No driver assigned to this offer", HttpStatus.NOT_FOUND);
+        }
+
+        // Authorization: requester of the contract or the driver themselves
+        boolean isRequester = offer.getContract().getRequesterId().equals(userId);
+        boolean isDriver = offer.getDriver().getUserId().equals(userId);
+        if (!isRequester && !isDriver) {
+            return createResponse(null, "You are not authorized to view driver details for this offer", HttpStatus.FORBIDDEN);
+        }
+
+        // Return driver details
+        Map<String, Object> response = new HashMap<>();
+        response.put("driver", offer.getDriver());
+        response.put(TIMESTAMP_KEY, System.currentTimeMillis());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 } 
