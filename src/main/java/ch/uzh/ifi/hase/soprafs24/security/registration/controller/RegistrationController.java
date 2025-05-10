@@ -73,6 +73,26 @@ public class RegistrationController {
     }
 
     /**
+     * Check if an email address is available
+     * GET /api/v1/auth/check-email/{email}
+     */
+    @GetMapping("/check-email/{email}")
+    public ResponseEntity<Object> checkEmailAvailability(@PathVariable String email) {
+        boolean isTaken = userRegistrationService.checkEMailAdressAvailability(email);
+        return ResponseEntity.ok(Map.of("isTaken", isTaken));
+    }
+
+    /**
+     * Check if a phone number is available
+     * GET /api/v1/auth/check-phonenumber/{phonenumber}
+     */
+    @GetMapping("/check-phonenumber/{phonenumber}")
+    public ResponseEntity<Object> checkPhoneNumberAvailability(@PathVariable String phonenumber) {
+        boolean isTaken = userRegistrationService.checkPhoneNumberAvailability(phonenumber);
+        return ResponseEntity.ok(Map.of("isTaken", isTaken));
+    }
+
+    /**
      * Helper method to create authenticated user response 
      * that includes authentication token and user account type
      */

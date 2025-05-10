@@ -42,6 +42,14 @@ public class UserRegistrationService {
     public boolean checkUsernameAvailability(String username) {
         return userRepository.existsByUsername(username);
     }
+    
+    public boolean checkEMailAdressAvailability(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    public boolean checkPhoneNumberAvailability(String phonenumber) {
+        return userRepository.existsByPhoneNumber(phonenumber);
+    }
 
     //handle register
     public User registerUser(
