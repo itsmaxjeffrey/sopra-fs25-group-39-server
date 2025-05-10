@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @Transactional
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-public class RatingFlowIntegrationTest {
+class RatingFlowIntegrationTest {
 
     @Autowired
     private UserRepository userRepository;
