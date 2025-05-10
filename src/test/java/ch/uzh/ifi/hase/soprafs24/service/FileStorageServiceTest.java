@@ -240,6 +240,13 @@ class FileStorageServiceTest {
         assertTrue(reason.contains("Could not store file"));
     }
 
+    @Test
+    void constructor_existingDirectory_doesNotThrow() {
+        // Given: tempDir already exists (guaranteed by @TempDir)
+        // When/Then: constructing FileStorageService should not throw
+        assertDoesNotThrow(() -> new FileStorageService(tempDir.toString()));
+    }
+
     private byte[] readFileContent(Path filePath) {
         try {
             return Files.readAllBytes(filePath);
