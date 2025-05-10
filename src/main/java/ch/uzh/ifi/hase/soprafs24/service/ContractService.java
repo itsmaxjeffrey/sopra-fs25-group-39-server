@@ -142,7 +142,7 @@ public class ContractService {
                         return true;
 
                     // Filter by price
-                    if (filters.getPrice() != null && contract.getPrice() > filters.getPrice()) {
+                    if (filters.getPrice() != null && contract.getPrice() < filters.getPrice()) {
                         return false;
                     }
 
