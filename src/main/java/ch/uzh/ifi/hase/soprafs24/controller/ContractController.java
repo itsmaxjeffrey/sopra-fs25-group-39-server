@@ -44,7 +44,6 @@ import ch.uzh.ifi.hase.soprafs24.rest.mapper.ContractDTOMapper;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.LocationDTOMapper;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.UserDTOMapper;
 import ch.uzh.ifi.hase.soprafs24.security.authorization.service.AuthorizationService;
-import ch.uzh.ifi.hase.soprafs24.service.ContractPollingService;
 import ch.uzh.ifi.hase.soprafs24.service.ContractService;
 import ch.uzh.ifi.hase.soprafs24.service.LocationService;
 
@@ -70,20 +69,17 @@ public class ContractController {
     private final UserRepository userRepository;
     private final ContractService contractService;
     private final LocationService locationService;
-    private final ContractPollingService contractPollingService;
     private final AuthorizationService authorizationService;
     private final UserDTOMapper userDTOMapper;
 
     public ContractController(
             ContractService contractService, 
             LocationService locationService, 
-            ContractPollingService contractPollingService, 
             UserRepository userRepository,
             AuthorizationService authorizationService,
             UserDTOMapper userDTOMapper) {
         this.contractService = contractService;
         this.locationService = locationService;
-        this.contractPollingService = contractPollingService;
         this.userRepository = userRepository;
         this.authorizationService = authorizationService;
         this.userDTOMapper = userDTOMapper;
@@ -302,9 +298,6 @@ public class ContractController {
 
         // Create contract
         Contract createdContract = contractService.createContract(contractInput);
-
-        // Notify waiting clients via ContractPollingService
-        contractPollingService.updateFutures(createdContract, fromLocation.getLatitude(), fromLocation.getLongitude());
 
         return createResponse(ContractDTOMapper.INSTANCE.convertContractEntityToContractGetDTO(createdContract), null, HttpStatus.CREATED);
     }

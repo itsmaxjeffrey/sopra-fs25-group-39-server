@@ -39,7 +39,6 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractCancelDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.contract.ContractPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.UserDTOMapper;
 import ch.uzh.ifi.hase.soprafs24.security.authorization.service.AuthorizationService;
-import ch.uzh.ifi.hase.soprafs24.service.ContractPollingService;
 import ch.uzh.ifi.hase.soprafs24.service.ContractService;
 import ch.uzh.ifi.hase.soprafs24.service.LocationService;
 import ch.uzh.ifi.hase.soprafs24.user.service.UserService;
@@ -64,9 +63,6 @@ class ContractControllerTest {
 
     @MockBean
     private UserRepository userRepository;
-
-    @MockBean
-    private ContractPollingService contractPollingService;
 
     @MockBean
     private AuthorizationService authorizationService;

@@ -22,7 +22,7 @@ class ContractControllerPutValidationTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        contractController = new ContractController(null, null, null, null, null, null);
+        contractController = new ContractController( null, null, null, null, null);
         
         // Get the private validateContractPutDTO method using reflection
         validateMethod = ContractController.class.getDeclaredMethod("validateContractPutDTO", ContractPutDTO.class);
