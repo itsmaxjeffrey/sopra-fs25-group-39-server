@@ -977,4 +977,116 @@ class OfferControllerTest {
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
         assertEquals("Offers can only be accepted for OFFERED contracts", exception.getReason());
     }
+
+    @Test
+    void getOfferDriver_asRequester_success() {
+        // given
+        when(authorizationService.authenticateUser(1L, "test-token")).thenReturn(testRequester);
+        when(offerService.getOffer(1L)).thenReturn(testOfferGetDTO);
+        testContractGetDTO.setRequesterId(1L); // requester is owner
+        testOfferGetDTO.setContract(testContractGetDTO);
+        testOfferGetDTO.setDriver(testDriverDTO);
+
+        // when
+        ResponseEntity<Object> response = offerController.getOfferDriver(1L, 1L, "test-token");
+
+        // then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertEquals(testDriverDTO, responseBody.get("driver"));
+        assertNotNull(responseBody.get("timestamp"));
+    }
+
+    @Test
+    void getOfferDriver_asDriver_success() {
+        // given
+        when(authorizationService.authenticateUser(2L, "test-token")).thenReturn(testDriver);
+        when(offerService.getOffer(1L)).thenReturn(testOfferGetDTO);
+        testDriverDTO.setUserId(2L);
+        testOfferGetDTO.setDriver(testDriverDTO);
+        testContractGetDTO.setRequesterId(1L);
+        testOfferGetDTO.setContract(testContractGetDTO);
+
+        // when
+        ResponseEntity<Object> response = offerController.getOfferDriver(1L, 2L, "test-token");
+
+        // then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertEquals(testDriverDTO, responseBody.get("driver"));
+        assertNotNull(responseBody.get("timestamp"));
+    }
+
+    @Test
+    void getOfferDriver_unauthorized_returns401() {
+        // given
+        when(authorizationService.authenticateUser(1L, "test-token")).thenReturn(null);
+
+        // when
+        ResponseEntity<Object> response = offerController.getOfferDriver(1L, 1L, "test-token");
+
+        // then
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertEquals("Invalid credentials", responseBody.get("message"));
+        assertNotNull(responseBody.get("timestamp"));
+    }
+
+    @Test
+    void getOfferDriver_forbidden_returns403() {
+        // given
+        User otherUser = new User();
+        otherUser.setUserId(99L);
+        otherUser.setUserAccountType(UserAccountType.REQUESTER);
+        when(authorizationService.authenticateUser(99L, "test-token")).thenReturn(otherUser);
+        when(offerService.getOffer(1L)).thenReturn(testOfferGetDTO);
+        testContractGetDTO.setRequesterId(1L);
+        testOfferGetDTO.setContract(testContractGetDTO);
+        testDriverDTO.setUserId(2L);
+        testOfferGetDTO.setDriver(testDriverDTO);
+
+        // when
+        ResponseEntity<Object> response = offerController.getOfferDriver(1L, 99L, "test-token");
+
+        // then
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertEquals("You are not authorized to view driver details for this offer", responseBody.get("message"));
+        assertNotNull(responseBody.get("timestamp"));
+    }
+
+    @Test
+    void getOfferDriver_notFound_returns404() {
+        // given
+        when(authorizationService.authenticateUser(1L, "test-token")).thenReturn(testRequester);
+        OfferGetDTO offerNoDriver = new OfferGetDTO();
+        offerNoDriver.setOfferId(1L);
+        offerNoDriver.setContract(testContractGetDTO);
+        offerNoDriver.setDriver(null); // no driver assigned
+        when(offerService.getOffer(1L)).thenReturn(offerNoDriver);
+
+        // when
+        ResponseEntity<Object> response = offerController.getOfferDriver(1L, 1L, "test-token");
+
+        // then
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertTrue(response.getBody() instanceof Map);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
+        assertNotNull(responseBody);
+        assertEquals("No driver assigned to this offer", responseBody.get("message"));
+        assertNotNull(responseBody.get("timestamp"));
+    }
 } 
