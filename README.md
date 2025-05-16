@@ -1,8 +1,8 @@
-# SoPra FS25 Group 39 – Backend
+# Züglig – SoPra FS25 Group 39 Backend
 
 ## Introduction
 
-This project is the backend for a collaborative moving platform, developed as part of the SoPra (Software Engineering and Project Management) course at the University of Zurich. The goal is to connect people who need help moving with drivers who can offer transportation services, providing a secure, user-friendly, and feature-rich experience for both parties.
+Züglig is the backend for a collaborative moving platform, developed as part of the SoPra (Software Engineering and Project Management) course at the University of Zurich. The goal is to connect people who need help moving with drivers who can offer transportation services, providing a secure, user-friendly, and feature-rich experience for both parties.
 
 The backend exposes a RESTful API for all core business logic, user management, contract and offer handling, and ratings. It is designed for extensibility, security, and ease of deployment.
 
