@@ -352,11 +352,6 @@ public class ContractController {
             if (contractPostDTO.getMoveDateTime() == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Move date time is required");
             }
-            /*
-            if (contractPostDTO.getMoveDateTime().isBefore(LocalDateTime.now())) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Move date time must be in the future");
-            }
-            */
         
             // Check if weight is positive
             if (contractPostDTO.getWeight() <= 0) {
@@ -387,11 +382,7 @@ public class ContractController {
             if (contractPostDTO.getPrice() <= 0) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price must be positive");
             }
-        
-            // Check if collateral is positive
-            // if (contractPostDTO.getCollateral() <= 0) {
-            //     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Collateral must be positive");
-            // }
+
         }
 
     /**
@@ -546,11 +537,6 @@ public class ContractController {
         if ( contractPutDTO.getPrice() <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price must be positive");
         }
-
-        // // Check if collateral is positive (now non-negative)
-        // if (contractPutDTO.getCollateral() < 0) {
-        //     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Collateral must be positive");
-        // }
 
         // Check if from location is valid when provided
         if (contractPutDTO.getFromLocation() != null && 
