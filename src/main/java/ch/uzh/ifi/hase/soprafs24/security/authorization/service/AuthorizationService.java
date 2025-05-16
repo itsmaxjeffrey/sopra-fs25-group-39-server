@@ -2,8 +2,6 @@ package ch.uzh.ifi.hase.soprafs24.security.authorization.service;
 
 import org.springframework.stereotype.Service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import ch.uzh.ifi.hase.soprafs24.constant.UserAccountType;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
@@ -11,7 +9,6 @@ import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 @Service
 public class AuthorizationService {
     private final UserRepository userRepository;
-    private static final Logger log = LoggerFactory.getLogger(AuthorizationService.class);
 
 
     public AuthorizationService(UserRepository userRepository) {
