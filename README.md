@@ -1,118 +1,191 @@
-# SoPra RESTful Service Template FS25
+# SoPra FS25 Group 39 – Backend
 
-## Getting started with Spring Boot
--   Documentation: https://docs.spring.io/spring-boot/docs/current/reference/html/index.html
--   Guides: http://spring.io/guides
-    -   Building a RESTful Web Service: http://spring.io/guides/gs/rest-service/
-    -   Building REST services with Spring: https://spring.io/guides/tutorials/rest/
+## Introduction
 
-## Setup this Template with your IDE of choice
-Download your IDE of choice (e.g., [IntelliJ](https://www.jetbrains.com/idea/download/), [Visual Studio Code](https://code.visualstudio.com/), or [Eclipse](http://www.eclipse.org/downloads/)). Make sure Java 17 is installed on your system (for Windows, please make sure your `JAVA_HOME` environment variable is set to the correct version of Java).
+This project is the backend for a collaborative moving platform, developed as part of the SoPra (Software Engineering and Project Management) course at the University of Zurich. The goal is to connect people who need help moving with drivers who can offer transportation services, providing a secure, user-friendly, and feature-rich experience for both parties.
 
-### IntelliJ
-If you consider to use IntelliJ as your IDE of choice, you can make use of your free educational license [here](https://www.jetbrains.com/community/education/#students).
-1. File -> Open... -> SoPra server template
-2. Accept to import the project as a `gradle project`
-3. To build right click the `build.gradle` file and choose `Run Build`
+The backend exposes a RESTful API for all core business logic, user management, contract and offer handling, and ratings. It is designed for extensibility, security, and ease of deployment.
 
-### VS Code
-The following extensions can help you get started more easily:
--   `vmware.vscode-spring-boot`
--   `vscjava.vscode-spring-initializr`
--   `vscjava.vscode-spring-boot-dashboard`
--   `vscjava.vscode-java-pack`
+---
 
-**Note:** You'll need to build the project first with Gradle, just click on the `build` command in the _Gradle Tasks_ extension. Then check the _Spring Boot Dashboard_ extension if it already shows `soprafs24` and hit the play button to start the server. If it doesn't show up, restart VS Code and check again.
+## Technologies Used
 
-## Building with Gradle
-You can use the local Gradle Wrapper to build the application.
--   macOS: `./gradlew`
--   Linux: `./gradlew`
--   Windows: `./gradlew.bat`
+- **Java 17** – Modern, robust, and type-safe programming language.
+- **Spring Boot** – For REST API, dependency injection, and application configuration.
+- **Gradle** – Build automation and dependency management.
+- **JUnit 5** & **Mockito** – Unit and integration testing.
+- **Docker** – Containerization for easy deployment.
+- **GitHub Actions** – Continuous Integration/Continuous Deployment (CI/CD).
+- **Apache License 2.0** – Open source license.
 
-More Information about [Gradle Wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html) and [Gradle](https://gradle.org/docs/).
+---
 
-### Build
+## High-Level Components
 
+The backend is organized into several main components, each with a clear responsibility and well-defined API endpoints.
+
+### 1. Authentication & Registration
+
+Handles user registration, login, and session management.  
+- **Main classes:**  
+  - [`AuthController`](src/main/java/ch/uzh/ifi/hase/soprafs24/security/authentication/controller/AuthController.java)  
+  - [`RegistrationController`](src/main/java/ch/uzh/ifi/hase/soprafs24/security/registration/controller/RegistrationController.java)  
+- **Features:**  
+  - Register as a requester or driver
+  - Login/logout with token-based authentication
+  - Secure password storage and validation
+
+### 2. User Management
+
+Manages user profiles, updates, and account deletion.  
+- **Main classes:**  
+  - [`UserController`](src/main/java/ch/uzh/ifi/hase/soprafs24/user/controller/UserController.java)  
+  - [`AccountSecurityController`](src/main/java/ch/uzh/ifi/hase/soprafs24/security/account/controller/AccountSecurityController.java)  
+- **Features:**  
+  - View and update user profiles
+  - Delete account with email verification
+  - Public/private profile distinction
+
+### 3. Contract Management
+
+Allows requesters to create, update, and manage moving contracts.  
+- **Main class:** [`ContractController`](src/main/java/ch/uzh/ifi/hase/soprafs24/controller/ContractController.java)  
+- **Features:**  
+  - Create contracts with detailed requirements (weight, volume, locations, etc.)
+  - View, update, cancel, and delete contracts
+  - Filter/search contracts by location, price, and other criteria
+
+### 4. Offer Management
+
+Enables drivers to make offers on contracts and manage their offers.  
+- **Main class:** [`OfferController`](src/main/java/ch/uzh/ifi/hase/soprafs24/controller/OfferController.java)  
+- **Features:**  
+  - Drivers can make, update, and delete offers on contracts
+  - Requesters can accept or reject offers
+  - Automatic status transitions for contracts and offers
+
+### 5. Ratings & Feedback
+
+Lets users rate each other after contract completion.  
+- **Main class:** [`RatingController`](src/main/java/ch/uzh/ifi/hase/soprafs24/controller/RatingController.java)  
+- **Features:**  
+  - Rate users after a contract is completed
+  - View ratings and average scores
+  - Only participants of a contract can rate each other
+
+> For a full list of endpoints, request/response formats, and error codes, see the [API documentation](doc/api/api_documentation.md).
+
+---
+
+## Launch & Deployment
+
+### Prerequisites
+
+- Java 17
+- [Gradle](https://gradle.org/) (or use the included Gradle Wrapper)
+- (Optional) Docker for containerized deployment
+
+### Local Development
+
+**Clone the repository:**
+```bash
+git clone <your-repo-url>
+cd sopra-fs25-group-39-server
+```
+
+**Build the project:**
 ```bash
 ./gradlew build
 ```
 
-### Run
-
+**Run the backend:**
 ```bash
 ./gradlew bootRun
 ```
+The server will be available at [http://localhost:8080](http://localhost:8080).
 
-You can verify that the server is running by visiting `localhost:8080` in your browser.
-
-### Test
-
+**Run tests:**
 ```bash
 ./gradlew test
 ```
 
-### Development Mode
-You can start the backend in development mode, this will automatically trigger a new build and reload the application
-once the content of a file has been changed.
+**Development mode (auto-reload):**
+Open two terminals:
+```bash
+./gradlew build --continuous
+```
+and in the other:
+```bash
+./gradlew bootRun
+```
+To skip tests during continuous build:
+```bash
+./gradlew build --continuous -xtest
+```
 
-Start two terminal windows and run:
+### Docker Deployment
 
-`./gradlew build --continuous`
+1. Build the Docker image:
+   ```bash
+   docker build -t sopra-fs25-group-39-server .
+   ```
+2. Run the container:
+   ```bash
+   docker run -p 8080:8080 sopra-fs25-group-39-server
+   ```
 
-and in the other one:
+### External Dependencies
 
-`./gradlew bootRun`
+- No external database is required; the application uses an in-memory database by default.
+- For production, configure your own database in `application.properties`.
 
-If you want to avoid running all tests with every change, use the following command instead:
+### Release & CI/CD
 
-`./gradlew build --continuous -xtest`
+- All changes to the main branch are automatically built and pushed to DockerHub via GitHub Actions.
+- See `.github/workflows/` for CI/CD configuration.
 
-## API Endpoint Testing with Postman
-We recommend using [Postman](https://www.getpostman.com) to test your API Endpoints.
+---
 
-## Debugging
-If something is not working and/or you don't know what is going on. We recommend using a debugger and step-through the process step-by-step.
+## API Overview
 
-To configure a debugger for SpringBoot's Tomcat servlet (i.e. the process you start with `./gradlew bootRun` command), do the following:
+- **Authentication:** Register, login, and logout with secure token-based authentication.
+- **User Management:** View, update, and delete user profiles. Public/private profile distinction.
+- **Contracts:** Create, update, cancel, delete, and search for contracts. Only requesters can create contracts.
+- **Offers:** Drivers can make offers on contracts. Requesters can accept or reject offers. Status transitions are enforced.
+- **Ratings:** After contract completion, users can rate each other. Only participants can rate.
 
-1. Open Tab: **Run**/Edit Configurations
-2. Add a new Remote Configuration and name it properly
-3. Start the Server in Debug mode: `./gradlew bootRun --debug-jvm`
-4. Press `Shift + F9` or the use **Run**/Debug "Name of your task"
-5. Set breakpoints in the application where you need it
-6. Step through the process one step at a time
+See [API documentation](doc/api/api_documentation.md) for detailed endpoint descriptions, request/response examples, and error codes.
+
+---
 
 ## Testing
-Have a look here: https://www.baeldung.com/spring-boot-testing
 
-<br>
-<br>
-<br>
+- All major endpoints are covered by unit and integration tests using JUnit 5 and Mockito.
+- To run all tests:
+  ```bash
+  ./gradlew test
+  ```
+- Test coverage includes authentication, user management, contracts, offers, and ratings.
 
-## Docker
+---
 
-### Introduction
-This year, for the first time, Docker will be used to ease the process of deployment.\
-Docker is a tool that uses containers as isolated environments, ensuring that the application runs consistently and uniformly across different devices.\
-Everything in this repository is already set up to minimize your effort for deployment.\
-All changes to the main branch will automatically be pushed to dockerhub and optimized for production.
+## Roadmap
 
-### Setup
-1. **One** member of the team should create an account on [dockerhub](https://hub.docker.com/), _incorporating the group number into the account name_, for example, `SoPra_group_XX`.\
-2. This account then creates a repository on dockerhub with the _same name as the group's Github repository name_.\
-3. Finally, the person's account details need to be added as [secrets](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository) to the group's repository:
-    - dockerhub_username (the username of the dockerhub account from step 1, for example, `SoPra_group_XX`)
-    - dockerhub_password (a generated PAT([personal access token](https://docs.docker.com/docker-hub/access-tokens/)) of the account with read and write access)
-    - dockerhub_repo_name (the name of the dockerhub repository from step 2)
+Here are the top features that could be added by new contributors:
 
-### Pull and run
-Once the image is created and has been successfully pushed to dockerhub, the image can be run on any machine.\
-Ensure that [Docker](https://www.docker.com/) is installed on the machine you wish to run the container.\
-First, pull (download) the image with the following command, replacing your username and repository name accordingly.
+1. **Payment Integration:** Implement wallet, payment, and refund endpoints.
+2. **Notifications:** Add real-time notifications for contract and offer updates.
+3. **Map Features:** Implement backend support for map-based contract search and visualization.
 
-```docker pull <dockerhub_username>/<dockerhub_repo_name>```
+---
 
-Then, run the image in a container with the following command, again replacing _<dockerhub_username>_ and _<dockerhub_repo_name>_ accordingly.
+## Authors & Acknowledgments
 
-```docker run -p 3000:3000 <dockerhub_username>/<dockerhub_repo_name>```
+- [Your Team Members Here]
+- Special thanks to the SoPra teaching team at the University of Zurich.
+
+---
+
+## License
+
+This project is licensed under the [Apache License 2.0](LICENSE). 
