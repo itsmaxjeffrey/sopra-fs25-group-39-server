@@ -65,6 +65,9 @@ public class UserService extends AbstractUserService {
         
         // Check for unique fields that might be violated
         validationService.validateUniqueFields(userUpdateDTO, existingUser);
+
+        // Validate birthdate is not in the future
+        validationService.validateBirthDate(userUpdateDTO.getBirthDate());
         
         // Apply updates based on user type
         User updatedUser = updateUserByType(existingUser, userUpdateDTO);

@@ -85,4 +85,13 @@ public class UserValidationService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only edit your own profile");
         }
     }
+
+    /**
+     * Validates that the birthdate is not in the future
+     */
+    public void validateBirthDate(java.time.LocalDate birthDate) {
+        if (birthDate != null && birthDate.isAfter(java.time.LocalDate.now())) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "Birthdate cannot be in the future");
+        }
+    }
 }

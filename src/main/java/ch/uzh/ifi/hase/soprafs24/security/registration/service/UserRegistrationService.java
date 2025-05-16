@@ -67,6 +67,10 @@ public class UserRegistrationService {
                 "User account type is required (DRIVER or REQUESTER)");
         }
 
+        if (baseUserRegisterDTO.getBirthDate() != null && baseUserRegisterDTO.getBirthDate().isAfter(java.time.LocalDate.now())) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "Birthdate cannot be in the future");
+        }
+
         checkUserCredentialUniqueness(baseUserRegisterDTO);
 
         User newUser;
