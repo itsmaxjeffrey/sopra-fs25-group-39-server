@@ -206,4 +206,25 @@ class UserServiceTest {
         assertThrows(ResponseStatusException.class, () -> 
             userService.deleteUser(1L, "valid-token"));
     }
+
+    @Test
+    void editUser_birthDateInFuture_throwsBadRequest() {
+        // given
+        testUpdateDTO.setUserId(1L);
+        java.time.LocalDate futureDate = java.time.LocalDate.now().plusDays(1);
+        testUpdateDTO.setBirthDate(futureDate);
+        when(authorizationService.authenticateUser(1L, "valid-token")).thenReturn(testUser);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+        doNothing().when(validationService).validateEditPermission(1L, testUpdateDTO);
+        doNothing().when(validationService).validateUserAccountType(testUser, testUpdateDTO);
+        doNothing().when(validationService).validateUniqueFields(testUpdateDTO, testUser);
+        // Use the real method for birthdate validation
+        doCallRealMethod().when(validationService).validateBirthDate(futureDate);
+
+        // when/then
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+            () -> userService.editUser(1L, "valid-token", testUpdateDTO));
+        assertEquals(org.springframework.http.HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertTrue(exception.getReason().contains("Birthdate cannot be in the future"));
+    }
 }

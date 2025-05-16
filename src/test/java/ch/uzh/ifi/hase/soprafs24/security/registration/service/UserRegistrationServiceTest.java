@@ -173,4 +173,20 @@ class UserRegistrationServiceTest {
             () -> userRegistrationService.registerUser(driverRegisterDTO, null, null));
         assertEquals(HttpStatus.CONFLICT, exception.getStatus());
     }
+
+    @Test
+    void registerUser_birthDateInFuture_throwsBadRequest() {
+        // given
+        java.time.LocalDate futureDate = java.time.LocalDate.now().plusDays(1);
+        driverRegisterDTO.setBirthDate(futureDate);
+        when(userRepository.existsByUsername(any())).thenReturn(false);
+        when(userRepository.existsByEmail(any())).thenReturn(false);
+        when(userRepository.existsByPhoneNumber(any())).thenReturn(false);
+
+        // when/then
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+            () -> userRegistrationService.registerUser(driverRegisterDTO, carDTO, locationDTO));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertTrue(exception.getReason().contains("Birthdate cannot be in the future"));
+    }
 } 
