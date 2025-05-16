@@ -12,12 +12,10 @@ public class CarUpdater {
     
     private final CarRepository carRepository;
     private final CarValidator carValidator;
-    private final CarDTOMapper carDTOMapper;
     
     public CarUpdater(CarRepository carRepository, CarValidator carValidator, CarDTOMapper carDTOMapper) {
         this.carRepository = carRepository;
         this.carValidator = carValidator;
-        this.carDTOMapper = carDTOMapper;
     }
     
     /**

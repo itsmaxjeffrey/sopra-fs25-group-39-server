@@ -102,10 +102,12 @@ public class RatingService {
 
         // Get and validate contract
         Contract contract = contractService.getContractById(ratingPostDTO.getContractId());
-        try {
-            log.debug("Found contract: {}", objectMapper.writeValueAsString(contract));
-        } catch (JsonProcessingException e) {
-            log.warn("Could not serialize Contract for logging");
+        if (log.isDebugEnabled()) {
+            try {
+                log.debug("Found contract: {}", objectMapper.writeValueAsString(contract));
+            } catch (JsonProcessingException e) {
+                log.warn("Could not serialize Contract for logging");
+            }
         }
 
         // Add explicit check for COMPLETED status

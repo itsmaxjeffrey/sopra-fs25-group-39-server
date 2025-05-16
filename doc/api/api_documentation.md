@@ -71,30 +71,30 @@ Common authentication error codes:
 
 | FE | BE | Mapping | Method | Parameter | Parameter Type | Status Code | Response | Description | User Story |
 |---------|--------|-----------|----------------|-------------|----------|-------------|-----------|-----------|-----------|
-| No ❌ | No ❌ | `/api/v1/users/{id}` | GET | `id <string>` | Path | 200, 404 | User object with profile details | Get user details | S3, S10 | 
-| No ❌ | No ❌ | `/api/v1/users/{id}` | PUT | `id <string>`, profile fields | Path, Body | 200, 400, 403 | Updated user object | Update user profile | S3, S10 | 
-| No ❌ | No ❌ | `/api/v1/users/{id}` | DELETE | `id <string>` | Path | 204, 403 | None | Delete user account | S3, S10 | 
-| No ❌ | No ❌ | `/api/v1/users/requesters/{id}` | GET | `id <string>` | Path | 200, 404 | Requester profile details | Get requester-specific profile | S3 | 
-| No ❌ | No ❌ | `/api/v1/users/requesters/{id}` | PUT | `id <string>`, requester-specific fields | Path, Body | 200, 400, 403 | Updated requester profile | Update requester profile | S3 | 
-| No ❌ | No ❌ | `/api/v1/users/drivers/{id}` | GET | `id <string>` | Path | 200, 404 | Driver profile with vehicle details | Get driver-specific profile | S10 | 
-| No ❌ | No ❌ | `/api/v1/users/drivers/{id}` | PUT | `id <string>`, driver-specific fields | Path, Body | 200, 400, 403 | Updated driver profile | Update driver profile | S10 |
-| No ❌ | No ❌ | `/api/v1/users/drivers/{id}/vehicle` | PUT | `id <string>`, `model <string>`, `volume <number>`, `isElectric <boolean>`, `image <file>` | Path, Body | 200, 400, 403 | Updated vehicle details | Update vehicle information | S10, S16 | 
-| No ❌ | No ❌ | `/api/v1/users/drivers/{id}/insurance` | POST | `id <string>`, `insuranceDocument <file>`, `expiryDate <date>` | Path, Body | 201, 400 | Insurance upload confirmation | Upload insurance policy | S15 | 
+| No ❌ | Yes ✅ | `/api/v1/users/{id}` | GET | `id <string>` | Path, Header (`UserId`, `Authorization`) | 200, 404 | User object with profile details | Get user details | S3, S10 | 
+| No ❌ | Yes ✅ | `/api/v1/users/{id}` | PUT | `id <string>`, profile fields | Path, Header (`Authorization`), Body | 200, 400, 403 | Updated user object | Update user profile | S3, S10 | 
+| No ❌ | Yes ✅ | `/api/v1/auth/users/{userId}` | POST | `userId <string>`, `email <string>` (in body) | Path, Header (`UserId`, `Authorization`), Body | 204, 400, 401, 403 | None | Delete user account (with email verification) | S3, S10 | 
+| No ❌ | No ❌ | `/api/v1/users/requesters/{id}` | GET | `id <string>` | Path | — | — | Get requester-specific profile (**Not implemented**) | S3 | 
+| No ❌ | No ❌ | `/api/v1/users/requesters/{id}` | PUT | `id <string>`, requester-specific fields | Path, Body | — | — | Update requester profile (**Not implemented**) | S3 | 
+| No ❌ | No ❌ | `/api/v1/users/drivers/{id}` | GET | `id <string>` | Path | — | — | Get driver-specific profile (**Not implemented**) | S10 | 
+| No ❌ | No ❌ | `/api/v1/users/drivers/{id}` | PUT | `id <string>`, driver-specific fields | Path, Body | — | — | Update driver profile (**Not implemented**) | S10 |
+| No ❌ | No ❌ | `/api/v1/users/drivers/{id}/vehicle` | PUT | `id <string>`, `model <string>`, `volume <number>`, `isElectric <boolean>`, `image <file>` | Path, Body | — | — | Update vehicle information (**Not implemented**) | S10, S16 | 
+| No ❌ | No ❌ | `/api/v1/users/drivers/{id}/insurance` | POST | `id <string>`, `insuranceDocument <file>`, `expiryDate <date>` | Path, Body | — | — | Upload insurance policy (**Not implemented**) | S15 | 
 
 ## Contract Management
 
 | FE | BE | Mapping | Method | Parameter | Parameter Type | Status Code | Response | Description | User Story |
 |---------|--------|-----------|----------------|-------------|----------|-------------|-----------|-----------|-----------|
-| No ❌ | Yes ✅ | `/api/v1/contracts` | POST | `newContract <Contract>` { title, weight, volume, fragile, coolingRequired, rideAlong, manPower, contractDescription, price, collateral, requesterId, fromLocation, toLocation, moveDateTime, contractPhotos } | Body | 201, 400, 404 | Created contract object | Create a new contract | S5 | 
-| Yes ✅ | Yes ✅ | `/api/v1/contracts` | GET | `lat <number>`, `lng <number>`, `filters <object>`{ radius (number), price (number), weight (number), height (number), length (number), width (number), requiredPeople (number), fragile (boolean), coolingRequired (boolean), rideAlong (boolean), fromAddress (string), toAddress (string), moveDateTime (string) } | Query | 200 | `{ "contracts": [...], "timestamp": 1234567890 }` | Get available contracts with filtering | S11 |
-| No ❌ | Yes ✅ | `/api/v1/contracts/{id}` | GET | `id <string>` | Path | 200, 404 | Contract details object | Get contract details | S7, S12 |
-| No ❌ | Yes ✅ | `/api/v1/contracts/{id}` | PUT | `id <string>`, `contractToUpdate <Contract>` | Path, Body | 200, 400, 403 | Updated contract object | Update a contract | S6 |
-| No ❌ | Yes ✅ | `/api/v1/contracts/{id}/cancel` | PUT | `id <string>`, `reason <string>` | Path, Body | 200, 400, 403, 409 | Updated contract with cancel status | Cancel a contract (72h policy) | S8 | 
-| No ❌ | Yes ✅ | `/api/v1/contracts/{id}/fulfill` | PUT | `id <string>` | Path | 200, 400, 403 | Updated contract status | Mark contract as fulfilled | S9, S18 | 
-| No ❌ | No ❌ | `/api/v1/contracts/{id}/collateral` | POST | `id <string>`, `collateralAmount <number>` | Path, Body | 200, 400, 403, 409 | Updated contract with collateral | Provide contract collateral | S21 | 
-| No ❌ | Yes ✅ | `/api/v1/users/{userId}/contracts` | GET | `userId <string>`, `status <string>` (optional) | Path, Query | 200 | List of contracts for a specific user| Get user's contracts with optional status filtering | S12 | 
-| No ❌ | Yes ✅ | `/api/v1/contracts/{id}` | DELETE | `id <string>` | Path | 204, 403, 409 | None | Delete a contract (soft delete) | S8 | 
-| No ❌ | Yes ✅ | `/api/v1/contracts/{id}/driver` | GET | `id <string>` | Path | 200, 403, 404 | Driver details object | Get driver details for a specific contract | S12 | 
+| No ❌ | Yes ✅ | `/api/v1/contracts` | POST | `newContract <Contract>` { title, weight, volume, fragile, coolingRequired, rideAlong, manPower, contractDescription, price, collateral, requesterId, fromLocation, toLocation, moveDateTime, contractPhotos } | Body, Header (`UserId`, `Authorization`) | 201, 400, 404 | Created contract object | Create a new contract | S5 | 
+| Yes ✅ | Yes ✅ | `/api/v1/contracts` | GET | `lat <number>`, `lng <number>`, `filters <object>`{ radius (number), price (number), weight (number), height (number), length (number), width (number), requiredPeople (number), fragile (boolean), coolingRequired (boolean), rideAlong (boolean), fromAddress (string), toAddress (string), moveDateTime (string) } | Query, Header (`UserId`, `Authorization`) | 200 | `{ "contracts": [...], "timestamp": 1234567890 }` | Get available contracts with filtering | S11 |
+| No ❌ | Yes ✅ | `/api/v1/contracts/{id}` | GET | `id <string>` | Path, Header (`UserId`, `Authorization`) | 200, 404 | Contract details object | Get contract details | S7, S12 |
+| No ❌ | Yes ✅ | `/api/v1/contracts/{id}` | PUT | `id <string>`, `contractToUpdate <Contract>` | Path, Body, Header (`UserId`, `Authorization`) | 200, 400, 403 | Updated contract object | Update a contract | S6 |
+| No ❌ | Yes ✅ | `/api/v1/contracts/{id}/cancel` | PUT | `id <string>`, `reason <string>` | Path, Body, Header (`UserId`, `Authorization`) | 200, 400, 403, 409 | Updated contract with cancel status | Cancel a contract (72h policy) | S8 | 
+| No ❌ | Yes ✅ | `/api/v1/contracts/{id}/fulfill` | PUT | `id <string>` | Path, Header (`UserId`, `Authorization`) | 200, 400, 403 | Updated contract status | Mark contract as fulfilled | S9, S18 | 
+| No ❌ | No ❌ | `/api/v1/contracts/{id}/collateral` | POST | `id <string>`, `collateralAmount <number>` | Path, Body | — | — | Provide contract collateral (**Not implemented**) | S21 | 
+| No ❌ | Yes ✅ | `/api/v1/users/{userId}/contracts` | GET | `userId <string>`, `status <string>` (optional) | Path, Query, Header (`UserId`, `Authorization`) | 200 | List of contracts for a specific user| Get user's contracts with optional status filtering | S12 | 
+| No ❌ | Yes ✅ | `/api/v1/contracts/{id}` | DELETE | `id <string>` | Path, Header (`UserId`, `Authorization`) | 204, 403, 409 | None | Delete a contract (soft delete) | S8 | 
+| No ❌ | Yes ✅ | `/api/v1/contracts/{id}/driver` | GET | `id <string>` | Path, Header (`UserId`, `Authorization`) | 200, 403, 404 | Driver details object | Get driver details for a specific contract | S12 | 
 
 ### User Contracts Details
 The GET `/api/v1/users/{userId}/contracts` endpoint supports the following parameters:
@@ -197,14 +197,14 @@ DELETE /api/v1/contracts/123
 
 | FE | BE | Mapping | Method | Parameter | Parameter Type | Status Code | Response | Description | User Story |
 |---------|--------|-----------|----------------|-------------|----------|-------------|-----------|-----------|-----------|
-| No ❌ | Yes ✅ | `/api/v1/offers` | GET | `contractId` (optional), `driverId` (optional), `status` (optional) | Query | 200 | List of offers | Get all offers with optional filtering | S4, S11 |
-| No ❌ | Yes ✅ | `/api/v1/offers` | POST | `contractId <string>`, `driverId <string>` | Body | 201, 400, 404, 409 | Created offer object | Create a new offer | S12 |
-| No ❌ | Yes ✅ | `/api/v1/offers/{offerId}` | GET | `offerId <string>` | Path | 200, 404 | Detailed offer object | Get a specific offer | S4, S11 |
-| No ❌ | Yes ✅ | `/api/v1/offers/{offerId}` | DELETE | `offerId <string>` | Path | 204, 403, 404 | None | Delete an offer | S6 |
-| No ❌ | Yes ✅ | `/api/v1/contracts/{contractId}/offers` | GET | `contractId <string>` | Path | 200, 404 | List of offers | Get all offers for a specific contract | S7 |
-| No ❌ | Yes ✅ | `/api/v1/offers/{offerId}/status` | PUT | `offerId <string>`, `status <string>` | Path, Body | 200, 400, 403, 404, 409 | Updated offer with new status | Update offer status | S12 |
-| No ❌ | Yes ✅ | `/api/v1/users/{driverId}/offers` | GET | `driverId <string>`, `status` (optional) | Path, Query | 200, 404 | List of offers | Get all offers for a specific driver | S4, S11 |
-| No ❌ | Yes ✅ | `/api/v1/offers/{offerId}/driver` | GET | `offerId <string>` | Path | 200, 401, 403, 404 | Driver details object | Get driver details for a specific offer | S13 |
+| No ❌ | Yes ✅ | `/api/v1/offers` | GET | `contractId` (optional), `driverId` (optional), `status` (optional) | Query, Header (`UserId`, `Authorization`) | 200 | List of offers | Get all offers with optional filtering | S4, S11 |
+| No ❌ | Yes ✅ | `/api/v1/offers` | POST | `contractId <string>`, `driverId <string>` | Body, Header (`UserId`, `Authorization`) | 201, 400, 404, 409 | Created offer object | Create a new offer | S12 |
+| No ❌ | Yes ✅ | `/api/v1/offers/{offerId}` | GET | `offerId <string>` | Path, Header (`UserId`, `Authorization`) | 200, 404 | Detailed offer object | Get a specific offer | S4, S11 |
+| No ❌ | Yes ✅ | `/api/v1/offers/{offerId}` | DELETE | `offerId <string>` | Path, Header (`UserId`, `Authorization`) | 204, 403, 404 | None | Delete an offer | S6 |
+| No ❌ | Yes ✅ | `/api/v1/contracts/{contractId}/offers` | GET | `contractId <string>` | Path, Header (`UserId`, `Authorization`) | 200, 404 | List of offers | Get all offers for a specific contract | S7 |
+| No ❌ | Yes ✅ | `/api/v1/offers/{offerId}/status` | PUT | `offerId <string>`, `status <string>` | Path, Query (`status`), Header (`UserId`, `Authorization`) | 200, 400, 403, 404, 409 | Updated offer with new status | Update offer status | S12 |
+| No ❌ | Yes ✅ | `/api/v1/users/{driverId}/offers` | GET | `driverId <string>`, `status` (optional) | Path, Query, Header (`UserId`, `Authorization`) | 200, 404 | List of offers | Get all offers for a specific driver | S4, S11 |
+| No ❌ | Yes ✅ | `/api/v1/offers/{offerId}/driver` | GET | `offerId <string>` | Path, Header (`UserId`, `Authorization`) | 200, 401, 403, 404 | Driver details object | Get driver details for a specific offer | S13 |
 
 ### Offer Status Values
 - CREATED: Initial state when offer is created
@@ -726,19 +726,19 @@ or
 
 | FE | BE | Mapping | Method | Parameter | Parameter Type | Status Code | Response | Description | User Story |
 |---------|--------|-----------|----------------|-------------|----------|-------------|-----------|-----------|-----------|
-| No ❌ | No ❌ | `/api/v1/users/{id}/wallet` | GET | `id <string>` | Path | 200, 404 | `{ "balance": 100.00, "transactions": [...] }` | Get wallet balance and transactions | S14, S20 |
-| No ❌ | No ❌ | `/api/v1/users/{id}/wallet/deposit` | POST | `id <string>`, `amount <number>`, `paymentMethod <string>` | Path, Body | 200, 400 | Updated wallet object | Add funds to wallet | S14, S20 |
-| No ❌ | No ❌ | `/api/v1/users/{id}/wallet/withdraw` | POST | `id <string>`, `amount <number>`, `bankDetails <object>` | Path, Body | 200, 400 | Updated wallet object | Withdraw funds from wallet | S20 |
-| No ❌ | No ❌ | `/api/v1/contracts/{id}/payment` | POST | `id <string>`, `amount <number>` | Path, Body | 200, 400, 403, 409 | Payment confirmation object | Process payment for contract | S14, S20 | 
-| No ❌ | No ❌ | `/api/v1/contracts/{id}/refund` | POST | `id <string>`, `amount <number>`, `reason <string>` | Path, Body | 200, 400, 403, 409 | Refund confirmation object | Process refund for contract | S14, S20 |
+| No ❌ | No ❌ | `/api/v1/users/{id}/wallet` | GET | `id <string>` | Path | — | — | Get wallet balance and transactions (**Not implemented**) | S14, S20 |
+| No ❌ | No ❌ | `/api/v1/users/{id}/wallet/deposit` | POST | `id <string>`, `amount <number>`, `paymentMethod <string>` | Path, Body | — | — | Add funds to wallet (**Not implemented**) | S14, S20 |
+| No ❌ | No ❌ | `/api/v1/users/{id}/wallet/withdraw` | POST | `id <string>`, `amount <number>`, `bankDetails <object>` | Path, Body | — | — | Withdraw funds from wallet (**Not implemented**) | S20 |
+| No ❌ | No ❌ | `/api/v1/contracts/{id}/payment` | POST | `id <string>`, `amount <number>` | Path, Body | — | — | Process payment for contract (**Not implemented**) | S14, S20 | 
+| No ❌ | No ❌ | `/api/v1/contracts/{id}/refund` | POST | `id <string>`, `amount <number>`, `reason <string>` | Path, Body | — | — | Process refund for contract (**Not implemented**) | S14, S20 |
 
 ## Notifications and Map Features
 
 | FE | BE | Mapping | Method | Parameter | Parameter Type | Status Code | Response | Description | User Story |
 |---------|--------|-----------|----------------|-------------|----------|-------------|-----------|-----------|-----------|
-| No ❌ | No ❌ | `/api/v1/notifications` | GET | Auth token | Header | 200 | `{ "total": 10, "unread": 3, "notifications": [...] }` | Get user notifications | S17 |
-| No ❌ | No ❌ | `/api/v1/notifications/{id}` | PUT | `id <string>`, `read <boolean>` | Path, Body | 200, 404 | Updated notification object | Mark notification as read | S17 |
-| Yes ✅ | No ❌ | `/api/v1/map/contracts` | GET | `lat <number>`, `lng <number>`, `filters <object>`{ radius (number), price (number), weight (number), height (number), length (number), width (number), requiredPeople (number), fragile (boolean), coolingRequired (boolean), rideAlong (boolean), fromAdress (string of Location Obeject), toAdress (string of Location Object), moveDateTime (string of LocalDateTime Object) }| Query | 200 | GeoJSON of proposals | Get proposals for map display | S11, S17 |
+| No ❌ | No ❌ | `/api/v1/notifications` | GET | Auth token | Header | — | — | Get user notifications (**Not implemented**) | S17 |
+| No ❌ | No ❌ | `/api/v1/notifications/{id}` | PUT | `id <string>`, `read <boolean>` | Path, Body | — | — | Mark notification as read (**Not implemented**) | S17 |
+| Yes ✅ | No ❌ | `/api/v1/map/contracts` | GET | `lat <number>`, `lng <number>`, `filters <object>`{ radius (number), price (number), weight (number), height (number), length (number), width (number), requiredPeople (number), fragile (boolean), coolingRequired (boolean), rideAlong (boolean), fromAdress (string of Location Obeject), toAdress (string of Location Object), moveDateTime (string of LocalDateTime Object) }| Query | — | — | Get proposals for map display (**Not implemented**) | S11, S17 |
 
 ## Response Formats
 

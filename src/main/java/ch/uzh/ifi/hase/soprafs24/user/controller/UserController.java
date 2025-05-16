@@ -48,7 +48,7 @@ public class UserController {
     }
 
     @GetMapping("/{paramUserId}")
-    public ResponseEntity<?> getUserById(
+    public ResponseEntity<Object> getUserById(
         @RequestHeader("UserId") Long userId, 
         @RequestHeader("Authorization") String token, 
         @PathVariable("paramUserId") Long paramUserId) {
@@ -72,7 +72,7 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<?> updateUser(
+    public ResponseEntity<Object> updateUser(
         @PathVariable Long userId,
         @RequestHeader("Authorization") String token,
         @RequestBody Map<String, Object> payload) {

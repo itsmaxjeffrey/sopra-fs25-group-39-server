@@ -216,10 +216,9 @@ public class ContractController {
 
                 // Validate moveDate format if provided
                 if (filterDTO.getMoveDate() != null) {
-                    try {
-                        LocalDate.parse(filterDTO.getMoveDate().toString());
-                    } catch (Exception e) {
-                        return createResponse(null, "Invalid moveDate format. Expected format: yyyy-MM-dd", HttpStatus.BAD_REQUEST);
+                    ResponseEntity<Object> moveDateValidationResponse = validateMoveDateFormat(filterDTO.getMoveDate());
+                    if (moveDateValidationResponse != null) {
+                        return moveDateValidationResponse;
                     }
                 }
                 log.info("Filters applied: {}", filterDTO);
@@ -239,6 +238,18 @@ public class ContractController {
                 .toList();
 
         return createResponse(contractDTOs, null, HttpStatus.OK);
+    }
+
+    /**
+     * Validates the moveDate format. Returns a ResponseEntity with an error if invalid, otherwise null.
+     */
+    private ResponseEntity<Object> validateMoveDateFormat(Object moveDate) {
+        try {
+            LocalDate.parse(moveDate.toString());
+            return null;
+        } catch (Exception e) {
+            return createResponse(null, "Invalid moveDate format. Expected format: yyyy-MM-dd", HttpStatus.BAD_REQUEST);
+        }
     }
 
     /**
@@ -341,11 +352,6 @@ public class ContractController {
             if (contractPostDTO.getMoveDateTime() == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Move date time is required");
             }
-            /*
-            if (contractPostDTO.getMoveDateTime().isBefore(LocalDateTime.now())) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Move date time must be in the future");
-            }
-            */
         
             // Check if weight is positive
             if (contractPostDTO.getWeight() <= 0) {
@@ -376,11 +382,7 @@ public class ContractController {
             if (contractPostDTO.getPrice() <= 0) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price must be positive");
             }
-        
-            // Check if collateral is positive
-            // if (contractPostDTO.getCollateral() <= 0) {
-            //     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Collateral must be positive");
-            // }
+
         }
 
     /**
@@ -535,11 +537,6 @@ public class ContractController {
         if ( contractPutDTO.getPrice() <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price must be positive");
         }
-
-        // // Check if collateral is positive (now non-negative)
-        // if (contractPutDTO.getCollateral() < 0) {
-        //     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Collateral must be positive");
-        // }
 
         // Check if from location is valid when provided
         if (contractPutDTO.getFromLocation() != null && 

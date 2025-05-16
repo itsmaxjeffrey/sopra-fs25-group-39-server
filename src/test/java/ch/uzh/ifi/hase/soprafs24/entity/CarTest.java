@@ -108,7 +108,7 @@ class CarTest {
         Car car2 = new Car();
         
         // Test equals with null
-        assertNotEquals(car1, null);
+        assertNotEquals(null, car1);
         
         // Test equals with same object
         assertEquals(car1, car1);

@@ -56,7 +56,7 @@ class LocationTest {
         Location location2 = new Location();
         
         // Test equals with null
-        assertNotEquals(location1, null);
+        assertNotEquals(null, location1);
         
         // Test equals with same object
         assertEquals(location1, location1);

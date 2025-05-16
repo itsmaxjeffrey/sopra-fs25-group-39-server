@@ -34,6 +34,8 @@ public class AuthController {
 
     private final AuthService authService;
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthController.class);
+    private static final String TIMESTAMP_KEY = "timestamp";
+    private static final String MESSAGE_KEY = "message";
 
     // @Autowired
     private final UserDTOMapper userDTOMapper;
@@ -69,8 +71,8 @@ public class AuthController {
         authService.logoutUser(userId, token);
         
         Map<String, Object> response = new HashMap<>();
-        response.put("message", "Successfully logged out");
-        response.put("timestamp", System.currentTimeMillis());
+        response.put(MESSAGE_KEY, "Successfully logged out");
+        response.put(TIMESTAMP_KEY, System.currentTimeMillis());
 
 
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -88,19 +90,19 @@ public class AuthController {
         try {
             authService.changePassword(userId, token, passwordChangeDTO);
             Map<String, Object> response = new HashMap<>();
-            response.put("message", "Password changed successfully");
-            response.put("timestamp", System.currentTimeMillis());
+            response.put(MESSAGE_KEY, "Password changed successfully");
+            response.put(TIMESTAMP_KEY, System.currentTimeMillis());
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (ResponseStatusException e) {
             Map<String, Object> response = new HashMap<>();
-            response.put("message", e.getReason());
-            response.put("timestamp", System.currentTimeMillis());
+            response.put(MESSAGE_KEY, e.getReason());
+            response.put(TIMESTAMP_KEY, System.currentTimeMillis());
             return new ResponseEntity<>(response, e.getStatus());
         } catch (Exception e) {
             // Generic error handling
             Map<String, Object> response = new HashMap<>();
-            response.put("message", "An unexpected error occurred.");
-            response.put("timestamp", System.currentTimeMillis());
+            response.put(MESSAGE_KEY, "An unexpected error occurred.");
+            response.put(TIMESTAMP_KEY, System.currentTimeMillis());
             LOGGER.error("Unexpected error during password change for user {}", userId, e);
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }

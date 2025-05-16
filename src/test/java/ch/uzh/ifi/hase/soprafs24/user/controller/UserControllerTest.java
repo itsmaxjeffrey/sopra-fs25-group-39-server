@@ -2,8 +2,6 @@ package ch.uzh.ifi.hase.soprafs24.user.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -133,43 +131,4 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.userId").value(1))
                 .andExpect(jsonPath("$.username").value("testuser"));
     }
-
-    // @Test
-    // void updateUser_unauthorized() throws Exception {
-    //     // given
-    //     when(userService.editUser(eq(1L), eq("invalid-token"), any(BaseUserUpdateDTO.class)))
-    //         .thenThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized"));
-
-    //     // when/then
-    //     mockMvc.perform(put("/api/v1/users/1")
-    //             .header("Authorization", "invalid-token")
-    //             .contentType(MediaType.APPLICATION_JSON)
-    //             .content(new ObjectMapper().writeValueAsString(testUpdateDTO)))
-    //             .andExpect(status().isUnauthorized())
-    //             .andExpect(jsonPath("$.message").value("Unauthorized"));
-    // }
-
-    // @Test
-    // void deleteUser_success() throws Exception {
-    //     // given
-    //     doNothing().when(userService).deleteUser(1L, "valid-token");
-
-    //     // when/then
-    //     mockMvc.perform(delete("/api/v1/users/1")
-    //             .header("Authorization", "valid-token"))
-    //             .andExpect(status().isNoContent());
-    // }
-
-    // @Test
-    // void deleteUser_unauthorized() throws Exception {
-    //     // given
-    //     doThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized"))
-    //         .when(userService).deleteUser(1L, "invalid-token");
-
-    //     // when/then
-    //     mockMvc.perform(delete("/api/v1/users/1")
-    //             .header("Authorization", "invalid-token"))
-    //             .andExpect(status().isUnauthorized())
-    //             .andExpect(jsonPath("$.message").value("Unauthorized"));
-    // }
 } 

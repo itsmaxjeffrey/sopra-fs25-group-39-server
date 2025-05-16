@@ -176,7 +176,7 @@ class UserTest {
         User user2 = new User();
         
         // Test equals with null
-        assertNotEquals(user1, null);
+        assertNotEquals(null, user1);
         
         // Test equals with same object
         assertEquals(user1, user1);

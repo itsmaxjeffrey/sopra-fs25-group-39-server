@@ -209,15 +209,6 @@ class ContractTest {
         assertEquals(price, contract.getPrice());
     }
 
-    // @Test
-    // void testCollateral() {
-    //     assertEquals(0.0, contract.getCollateral());
-        
-    //     double collateral = 50.0;
-    //     contract.setCollateral(collateral);
-    //     assertEquals(collateral, contract.getCollateral());
-    // }
-
     @Test
     void testOffers() {
         assertNotNull(contract.getOffers());

@@ -27,6 +27,7 @@ public class RegistrationController {
     private final Logger log = LoggerFactory.getLogger(RegistrationController.class);
     private final UserDTOMapper userDTOMapper;
     private final UserRegistrationService userRegistrationService;
+    private static final String IS_TAKEN_KEY = "isTaken";
 
     public RegistrationController(UserRegistrationService userRegistrationService, UserDTOMapper userDTOMapper) {
         this.userDTOMapper = userDTOMapper;
@@ -69,7 +70,7 @@ public class RegistrationController {
     @GetMapping("/check-username/{username}")
     public ResponseEntity<Object> checkUsernameAvailability(@PathVariable String username) {
         boolean isTaken = userRegistrationService.checkUsernameAvailability(username);
-        return ResponseEntity.ok(Map.of("isTaken", isTaken));
+        return ResponseEntity.ok(Map.of(IS_TAKEN_KEY, isTaken));
     }
 
     /**
@@ -79,7 +80,7 @@ public class RegistrationController {
     @GetMapping("/check-email/{email}")
     public ResponseEntity<Object> checkEmailAvailability(@PathVariable String email) {
         boolean isTaken = userRegistrationService.checkEMailAdressAvailability(email);
-        return ResponseEntity.ok(Map.of("isTaken", isTaken));
+        return ResponseEntity.ok(Map.of(IS_TAKEN_KEY, isTaken));
     }
 
     /**
@@ -89,7 +90,7 @@ public class RegistrationController {
     @GetMapping("/check-phonenumber/{phonenumber}")
     public ResponseEntity<Object> checkPhoneNumberAvailability(@PathVariable String phonenumber) {
         boolean isTaken = userRegistrationService.checkPhoneNumberAvailability(phonenumber);
-        return ResponseEntity.ok(Map.of("isTaken", isTaken));
+        return ResponseEntity.ok(Map.of(IS_TAKEN_KEY, isTaken));
     }
 
     /**

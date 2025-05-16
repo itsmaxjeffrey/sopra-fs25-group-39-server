@@ -37,7 +37,6 @@ class ContractControllerValidationTest {
         validContractPostDTO.setLength(3.0); // Use length
         validContractPostDTO.setManPower(2);
         validContractPostDTO.setPrice(100.0);
-        // validContractPostDTO.setCollateral(50.0);
         validContractPostDTO.setMoveDateTime(LocalDateTime.now().plusDays(1));
 
         // Set valid locations
@@ -266,17 +265,5 @@ class ContractControllerValidationTest {
         assertEquals("Move date time is required", exception.getReason());
         assertEquals(400, exception.getRawStatusCode()); // Check status code
     }
-
-    // Optional: Test for MoveDateTime in the past (if uncommented in controller)
-    /*
-    @Test
-    void validateContractPostDTO_pastMoveDateTime_throwsException() {
-        validContractPostDTO.setMoveDateTime(LocalDateTime.now().minusDays(1));
-
-        ResponseStatusException exception = invokeValidateAndUnwrapException(validContractPostDTO);
-        assertEquals("Move date time must be in the future", exception.getReason());
-        assertEquals(400, exception.getRawStatusCode()); // Check status code
-    }
-    */
 
 }

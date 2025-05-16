@@ -75,7 +75,7 @@ class RatingTest {
         Rating rating2 = new Rating();
         
         // Test equals with null
-        assertNotEquals(rating1, null);
+        assertNotEquals(null, rating1);
         
         // Test equals with same object
         assertEquals(rating1, rating1);
