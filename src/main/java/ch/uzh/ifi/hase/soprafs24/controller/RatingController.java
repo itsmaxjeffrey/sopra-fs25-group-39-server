@@ -41,6 +41,7 @@ public class RatingController {
     private static final String ERROR_USER_NOT_AUTHORIZED = "User is not authorized";
     private static final String ERROR_RATING_NOT_FOUND = "Rating not found";
     private static final String MESSAGE_RATING_DELETED = "Rating deleted successfully";
+    private static final String UNEXPECTED_ERROR_MSG = "An unexpected error occurred.";
 
     public RatingController(RatingService ratingService, AuthorizationService authorizationService) {
         this.ratingService = ratingService;
@@ -169,7 +170,7 @@ public class RatingController {
             return createResponse(null, e.getReason(), e.getStatus());
         } catch (Exception e) {
             log.error("Unexpected error creating rating for contract ID: {}", ratingPostDTO.getContractId(), e);
-            return createResponse(null, "An unexpected error occurred.", HttpStatus.INTERNAL_SERVER_ERROR);
+            return createResponse(null, UNEXPECTED_ERROR_MSG, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -204,7 +205,7 @@ public class RatingController {
             return createResponse(null, e.getReason(), e.getStatus());
         } catch (Exception e) {
             log.error("Unexpected error updating rating ID: {}", id, e);
-            return createResponse(null, "An unexpected error occurred.", HttpStatus.INTERNAL_SERVER_ERROR);
+            return createResponse(null, UNEXPECTED_ERROR_MSG, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -230,7 +231,7 @@ public class RatingController {
             return createResponse(null, e.getReason(), e.getStatus());
         } catch (Exception e) {
             log.error("Unexpected error deleting rating ID: {}", id, e);
-            return createResponse(null, "An unexpected error occurred.", HttpStatus.INTERNAL_SERVER_ERROR);
+            return createResponse(null, UNEXPECTED_ERROR_MSG, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

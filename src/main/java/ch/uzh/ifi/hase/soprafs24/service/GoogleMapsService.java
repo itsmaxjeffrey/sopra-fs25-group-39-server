@@ -24,6 +24,7 @@ public class GoogleMapsService {
     private final RestTemplate restTemplate;
     private static final String DISTANCE_MATRIX_URL = "https://maps.googleapis.com/maps/api/distancematrix/json";
     private static final String GEOCODING_URL = "https://maps.googleapis.com/maps/api/geocode/json";
+    private static final String ERROR_MESSAGE_KEY = "error_message";
 
     public GoogleMapsService(@Value("${google.maps.api.key}") String apiKey, RestTemplate restTemplate) {
         this.apiKey = apiKey;
@@ -75,8 +76,8 @@ public class GoogleMapsService {
             throw new GoogleMapsException("Failed to calculate distance: null response");
         }
 
-        if (responseBody.containsKey("error_message")) {
-            String errorMessage = (String) responseBody.get("error_message");
+        if (responseBody.containsKey(ERROR_MESSAGE_KEY)) {
+            String errorMessage = (String) responseBody.get(ERROR_MESSAGE_KEY);
             log.error("Distance Matrix API error: {}", errorMessage);
             throw new GoogleMapsException("Failed to calculate distance: " + errorMessage);
         }
@@ -166,8 +167,8 @@ public class GoogleMapsService {
             throw new GoogleMapsException("Failed to geocode address: null response");
         }
 
-        if (responseBody.containsKey("error_message")) {
-            String errorMessage = (String) responseBody.get("error_message");
+        if (responseBody.containsKey(ERROR_MESSAGE_KEY)) {
+            String errorMessage = (String) responseBody.get(ERROR_MESSAGE_KEY);
             log.error("Geocoding API error: {}", errorMessage);
             throw new GoogleMapsException("Failed to geocode address: " + errorMessage);
         }

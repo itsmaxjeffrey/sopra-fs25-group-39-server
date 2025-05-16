@@ -38,6 +38,7 @@ public class ContractService {
     private final UserRepository userRepository;
     private final GoogleMapsService googleMapsService;
     private final OfferRepository offerRepository;
+    private static final String NOT_FOUND_SUFFIX = " not found";
 
     @Autowired
     public ContractService(@Qualifier("contractRepository") ContractRepository contractRepository,
@@ -61,7 +62,7 @@ public class ContractService {
         final Long requesterId = contract.getRequester().getUserId();
         Requester requester = (Requester) userRepository.findById(requesterId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Requester with ID " + requesterId + " not found"));
+                        "Requester with ID " + requesterId + NOT_FOUND_SUFFIX));
         contract.setRequester(requester);
 
         // Then validate the rest of the contract data
@@ -224,7 +225,7 @@ public class ContractService {
     public Contract getContractById(Long contractId) {
         Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Contract with ID " + contractId + " not found"));
+                        "Contract with ID " + contractId + NOT_FOUND_SUFFIX));
 
         // Log fetched addresses
         String fromAddr = contract.getFromAddress() != null ? contract.getFromAddress().getFormattedAddress()
@@ -426,7 +427,7 @@ public class ContractService {
         // Get contract with optimistic locking
         Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Contract with ID " + contractId + " not found"));
+                        "Contract with ID " + contractId + NOT_FOUND_SUFFIX));
 
         // Check if contract is in ACCEPTED state
         if (contract.getContractStatus() != ContractStatus.ACCEPTED) {

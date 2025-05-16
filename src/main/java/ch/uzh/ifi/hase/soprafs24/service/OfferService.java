@@ -42,6 +42,7 @@ public class OfferService {
     private final ContractRepository contractRepository;
     private final UserRepository userRepository;
     private final OfferDTOMapper offerDTOMapper;
+    private static final String OFFER_NOT_FOUND_MSG = "Offer not found";
 
     @Autowired
     public OfferService(
@@ -98,7 +99,7 @@ public class OfferService {
      */
     public OfferGetDTO getOffer(Long offerId) {
         Offer offer = offerRepository.findById(offerId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Offer not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, OFFER_NOT_FOUND_MSG));
         return offerDTOMapper.convertEntityToOfferGetDTO(offer);
     }
 
@@ -176,7 +177,7 @@ public class OfferService {
     public void deleteOffer(Long offerId) {
         // Check if offer exists
         Offer offer = offerRepository.findById(offerId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Offer not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, OFFER_NOT_FOUND_MSG));
 
         Contract contract = offer.getContract();
 
@@ -221,7 +222,7 @@ public class OfferService {
      */
     public OfferGetDTO updateOfferStatus(Long offerId, OfferStatus status) {
         Offer offer = offerRepository.findById(offerId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Offer not found"));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, OFFER_NOT_FOUND_MSG));
 
         // Validate that offer is in CREATED state
         if (offer.getOfferStatus() != OfferStatus.CREATED) {
@@ -277,7 +278,7 @@ public class OfferService {
      */
     public OfferGetDTO acceptOffer(Long offerId) {
         Offer offer = offerRepository.findById(offerId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Offer not found"));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, OFFER_NOT_FOUND_MSG));
         
         Contract contract = offer.getContract();
         
@@ -320,7 +321,7 @@ public class OfferService {
      */
     public OfferGetDTO rejectOffer(Long offerId) {
         Offer offer = offerRepository.findById(offerId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Offer not found"));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, OFFER_NOT_FOUND_MSG));
         
         Contract contract = offer.getContract();
         

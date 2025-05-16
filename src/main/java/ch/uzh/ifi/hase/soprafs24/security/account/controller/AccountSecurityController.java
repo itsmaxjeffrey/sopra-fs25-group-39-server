@@ -38,7 +38,7 @@ public class AccountSecurityController {
      */
     // Changed path to be relative to the new base path
     @PostMapping("/users/{userId}")
-    public ResponseEntity<?> deleteAccountVerified(
+    public ResponseEntity<Object> deleteAccountVerified(
             @RequestHeader("UserId") Long userId,
             @RequestHeader("Authorization") String token,
             @RequestBody UserDeleteRequestDTO deleteRequest) {

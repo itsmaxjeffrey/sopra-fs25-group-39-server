@@ -216,10 +216,9 @@ public class ContractController {
 
                 // Validate moveDate format if provided
                 if (filterDTO.getMoveDate() != null) {
-                    try {
-                        LocalDate.parse(filterDTO.getMoveDate().toString());
-                    } catch (Exception e) {
-                        return createResponse(null, "Invalid moveDate format. Expected format: yyyy-MM-dd", HttpStatus.BAD_REQUEST);
+                    ResponseEntity<Object> moveDateValidationResponse = validateMoveDateFormat(filterDTO.getMoveDate());
+                    if (moveDateValidationResponse != null) {
+                        return moveDateValidationResponse;
                     }
                 }
                 log.info("Filters applied: {}", filterDTO);
@@ -239,6 +238,18 @@ public class ContractController {
                 .toList();
 
         return createResponse(contractDTOs, null, HttpStatus.OK);
+    }
+
+    /**
+     * Validates the moveDate format. Returns a ResponseEntity with an error if invalid, otherwise null.
+     */
+    private ResponseEntity<Object> validateMoveDateFormat(Object moveDate) {
+        try {
+            LocalDate.parse(moveDate.toString());
+            return null;
+        } catch (Exception e) {
+            return createResponse(null, "Invalid moveDate format. Expected format: yyyy-MM-dd", HttpStatus.BAD_REQUEST);
+        }
     }
 
     /**

@@ -45,6 +45,7 @@ public class OfferController {
     private static final String NOT_AUTHORIZED_TO_VIEW_OFFERS_MSG = "You are not authorized to view offers for this contract";
     private static final String INVALID_USER_ACCOUNT_TYPE_MSG = "Invalid user account type";
     private static final String NOT_AUTHORIZED_TO_VIEW_OFFER_MSG = "You are not authorized to view this offer";
+    private static final String OFFER_KEY = "offer";
 
     private final OfferService offerService;
     private final AuthorizationService authorizationService;
@@ -69,7 +70,7 @@ public class OfferController {
             if (data instanceof List) {
                 response.put("offers", data);
             } else {
-                response.put("offer", data);
+                response.put(OFFER_KEY, data);
             }
         }
         if (message != null) {
@@ -270,7 +271,7 @@ public class OfferController {
 
         // Create response with standard format
         Map<String, Object> response = new HashMap<>();
-        response.put("offer", createdOffer);
+        response.put(OFFER_KEY, createdOffer);
         response.put(MESSAGE_KEY, "Offer created successfully");
         response.put(TIMESTAMP_KEY, System.currentTimeMillis());
         
@@ -410,7 +411,7 @@ public class OfferController {
 
         // Return success response
         Map<String, Object> response = new HashMap<>();
-        response.put("offer", updatedOffer);
+        response.put(OFFER_KEY, updatedOffer);
         response.put(MESSAGE_KEY, "Offer status updated successfully");
         response.put(TIMESTAMP_KEY, System.currentTimeMillis());
         
