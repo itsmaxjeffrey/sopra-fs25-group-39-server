@@ -369,66 +369,6 @@ class ContractControllerTest {
                 .andExpect(jsonPath("$.timestamp", notNullValue()));
     }
 
-    // @Test
-    // void updateContract_success() throws Exception {
-    //     // given
-    //     ContractPutDTO contractPutDTO = new ContractPutDTO();
-    //     contractPutDTO.setTitle("Updated Contract");
-    //     contractPutDTO.setContractDescription("Updated description");
-    //     // Ensure MoveDateTime is set, as it was identified as a potential cause before
-    //     contractPutDTO.setMoveDateTime(LocalDateTime.now().plusDays(2));
-    //     // Uncomment and set other fields if they are required or part of the update logic
-    //     // contractPutDTO.setWeight(150.0);
-    //     // contractPutDTO.setHeight(2.5);
-    //     // contractPutDTO.setWidth(1.8);
-    //     // contractPutDTO.setLength(3.5);
-
-    //     // Set up authenticated user
-    //     User authenticatedUser = new User();
-    //     authenticatedUser.setUserId(TEST_USER_ID);
-    //     authenticatedUser.setUserAccountType(UserAccountType.REQUESTER);
-
-    //     // Set up existing contract
-    //     Contract existingContract = new Contract();
-    //     existingContract.setContractId(1L);
-    //     Requester requester = new Requester();
-    //     requester.setUserId(TEST_USER_ID);
-    //     existingContract.setRequester(requester);
-    //     existingContract.setContractStatus(ContractStatus.REQUESTED); // Ensure status allows update
-
-    //     // Set up updated contract (as returned by the service)
-    //     Contract updatedContract = new Contract();
-    //     updatedContract.setContractId(1L); // Crucial: Ensure ID is set
-    //     updatedContract.setTitle(contractPutDTO.getTitle());
-    //     updatedContract.setContractDescription(contractPutDTO.getContractDescription());
-    //     // Make sure the returned object also has the date set if it's expected in the response
-    //     updatedContract.setMoveDateTime(contractPutDTO.getMoveDateTime());
-    //     updatedContract.setContractStatus(ContractStatus.REQUESTED); // Status remains same or as expected after update
-    //     updatedContract.setRequester(requester); // Ensure requester is set
-
-    //     // Mock service responses
-    //     given(authorizationService.authenticateUser(TEST_USER_ID, TEST_TOKEN)).willReturn(authenticatedUser);
-    //     // Mock getContractById to return the existing contract for authorization checks
-    //     given(contractService.getContractById(1L)).willReturn(existingContract);
-    //     // Mock the updateContract call: Use eq() for ID and any() for the contract object
-    //     given(contractService.updateContract(eq(1L), any(Contract.class))).willReturn(updatedContract);
-
-    //     // when/then
-    //     mockMvc.perform(put("/api/v1/contracts/1")
-    //             .header("UserId", TEST_USER_ID)
-    //             .header("Authorization", TEST_TOKEN)
-    //             .contentType(MediaType.APPLICATION_JSON)
-    //             .content(asJsonString(contractPutDTO))) // Use the updated helper method
-    //             .andExpect(status().isOk()) // This was failing (line 424)
-    //             // Ensure the jsonPath points correctly to the ID within the nested 'contract' object
-    //             .andExpect(jsonPath("$.contract.contractId", is(1)))
-    //             .andExpect(jsonPath("$.contract.title", is(updatedContract.getTitle())))
-    //             .andExpect(jsonPath("$.contract.contractDescription", is(updatedContract.getContractDescription())))
-    //             // Add assertion for moveDateTime if it's part of the response DTO
-    //             // .andExpect(jsonPath("$.contract.moveDateTime").value( /* Expected ISO format string */ ))
-    //             .andExpect(jsonPath("$.timestamp").exists());
-    // }
-
     @Test
     void cancelContract_success() throws Exception {
         // given
@@ -1065,7 +1005,6 @@ class ContractControllerTest {
         contractPostDTO.setWidth(-1.0); // Negative width
         contractPostDTO.setManPower(-1); // Negative man power
         contractPostDTO.setPrice(-1.0); // Negative price
-        // contractPostDTO.setCollateral(-1.0); // Negative collateral
         contractPostDTO.setMoveDateTime(LocalDateTime.now().minusDays(1)); // Past date
 
         // Mock authentication
@@ -1130,7 +1069,6 @@ class ContractControllerTest {
         dto.setWidth(1.0);
         dto.setLength(1.0);
         dto.setPrice(100.0);
-        // dto.setCollateral(50.0);
         dto.setManPower(2);
         dto.setMoveDateTime(LocalDateTime.now().plusDays(5));
         // Set other required fields like locations if necessary

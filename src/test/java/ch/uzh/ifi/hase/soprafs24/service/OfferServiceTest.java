@@ -74,7 +74,6 @@ class OfferServiceTest {
         testContract.setContractStatus(ContractStatus.REQUESTED);
         testContract.setTitle("Test Contract");
         testContract.setPrice(100.0);
-        // testContract.setCollateral(150.0);
         testContract.setWeight(50.0);
         testContract.setHeight(1.0);
         testContract.setWidth(1.0);

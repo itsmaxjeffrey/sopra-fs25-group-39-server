@@ -161,14 +161,6 @@ class ContractControllerPutValidationTest {
         assertEquals("Price must be positive", exception.getReason());
     }
 
-    // @Test
-    // void validateContractPutDTO_negativeCollateral_throwsException() {
-    //     validContractPutDTO.setCollateral(-1.0);
-        
-    //     ResponseStatusException exception = invokeValidateAndUnwrapException(validContractPutDTO);
-    //     assertEquals("Collateral must be positive", exception.getReason());
-    // }
-
     @Test
     void validateContractPutDTO_invalidFromLocation_throwsException() {
         validContractPutDTO.getFromLocation().setLatitude(null);
@@ -195,20 +187,4 @@ class ContractControllerPutValidationTest {
         assertEquals("From and to locations cannot be the same", exception.getReason());
     }
 
-    // @Test
-    // void validateContractPutDTO_partialUpdate_success() {
-    //     // Create a DTO with only some fields updated
-    //     ContractPutDTO partialUpdate = new ContractPutDTO();
-    //     partialUpdate.setTitle("Updated Title");
-    //     partialUpdate.setPrice(150.0);
-        
-    //     // Should not throw any exception
-    //     assertDoesNotThrow(() -> {
-    //         try {
-    //             validateMethod.invoke(contractController, partialUpdate);
-    //         } catch (InvocationTargetException e) {
-    //             throw e.getCause();
-    //         }
-    //     });
-    // }
 }

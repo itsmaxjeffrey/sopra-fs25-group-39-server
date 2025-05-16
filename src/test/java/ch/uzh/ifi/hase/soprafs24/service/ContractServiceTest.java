@@ -99,7 +99,6 @@ class ContractServiceTest {
         testContract.setManPower(2);
         testContract.setContractDescription("Test Description");
         testContract.setPrice(100.0);
-        // testContract.setCollateral(50.0);
         testContract.setMoveDateTime(LocalDateTime.now().plusDays(1));
         testContract.setContractStatus(ContractStatus.REQUESTED);
         testContract.setRequester(testRequester);
@@ -135,7 +134,6 @@ class ContractServiceTest {
         assertEquals(testContract.getManPower(), createdContract.getManPower());
         assertEquals(testContract.getContractDescription(), createdContract.getContractDescription());
         assertEquals(testContract.getPrice(), createdContract.getPrice());
-        // assertEquals(testContract.getCollateral(), createdContract.getCollateral());
         assertEquals(testContract.getMoveDateTime(), createdContract.getMoveDateTime());
         assertEquals(ContractStatus.REQUESTED, createdContract.getContractStatus());
         assertEquals(testRequester, createdContract.getRequester());
@@ -764,16 +762,6 @@ class ContractServiceTest {
         assertThrows(ResponseStatusException.class, () -> contractService.createContract(testContract));
     }
 
-    // @Test
-    // void createContract_negativeCollateral_throwsException() {
-    //     // given
-    //     // testContract.setCollateral(-50.0);
-    //     Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.of(testRequester));
-
-    //     // when/then -> check that an error is thrown
-    //     assertThrows(ResponseStatusException.class, () -> contractService.createContract(testContract));
-    // }
-
     @Test
     void createContract_negativeWeight_throwsException() {
         // given
@@ -1221,7 +1209,6 @@ class ContractServiceTest {
         existingContract.setManPower(2);
         existingContract.setContractDescription("Original Description");
         existingContract.setPrice(100.0);
-        // existingContract.setCollateral(50.0);
         existingContract.setMoveDateTime(LocalDateTime.now().plusDays(1));
         existingContract.setContractStatus(ContractStatus.REQUESTED);
 
@@ -1246,7 +1233,6 @@ class ContractServiceTest {
         assertEquals(2, updatedContract.getManPower()); // Should remain unchanged
         assertEquals("Original Description", updatedContract.getContractDescription()); // Should remain unchanged
         assertEquals(100.0, updatedContract.getPrice()); // Should remain unchanged
-        // assertEquals(50.0, updatedContract.getCollateral()); // Should remain unchanged
         assertEquals(ContractStatus.REQUESTED, updatedContract.getContractStatus()); // Should remain unchanged
     }
 

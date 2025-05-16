@@ -91,7 +91,7 @@ class DriverTest {
         Driver driver2 = new Driver();
         
         // Test equals with null
-        assertNotEquals(driver1, null);
+        assertNotEquals(null, driver1);
         
         // Test equals with same object
         assertEquals(driver1, driver1);

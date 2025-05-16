@@ -65,7 +65,7 @@ class RequesterTest {
         Requester requester2 = new Requester();
         
         // Test equals with null
-        assertNotEquals(requester1, null);
+        assertNotEquals(null, requester1);
         
         // Test equals with same object
         assertEquals(requester1, requester1);
