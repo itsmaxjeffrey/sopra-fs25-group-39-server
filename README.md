@@ -181,7 +181,7 @@ Here are the top features that could be added by new contributors:
 
 ## Authors & Acknowledgments
 
-- [Your Team Members Here]
+- @xdecentralix; @itsmaxjeffrey; @dariohug; @ojg; @fksm2003
 - Special thanks to the SoPra teaching team at the University of Zurich.
 
 ---
