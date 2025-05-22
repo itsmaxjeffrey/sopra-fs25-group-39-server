@@ -27,10 +27,9 @@
 
 | FE | BE | Mapping | Method | Parameter | Parameter Type | Status Code | Response | Description | User Story |
 |---------|--------|-----------|----------------|-------------|----------|-------------|-----------|-----------|-----------|
-| No ❌ | Yes ✅ | `/api/v1/auth/register` | POST | `user <BaseUserRegisterDTO>`, `car <CarDTO>` (optional), `location <LocationDTO>` (optional) | Body | 201, 400, 409 | `{ "token": "uuid-token", "userId": 1, "userAccountType": "REQUESTER", ... }` | Register a new user account | S1 | 
-
-| No ❌ | Yes ✅ | `/api/v1/auth/login` | POST | `username <string>`, `password <string>` | Body | 200, 401 | `{ "token": "uuid-token", "userId": 1, "userAccountType": "REQUESTER", ... }` | Authenticate user and create session | S2 | 
-| No ❌ | Yes ✅ | `/api/v1/auth/logout` | POST | `UserId <string>`, `Authorization <string>` | Header | 200, 401 | `{ "message": "Successfully logged out", "timestamp": 1234567890 }` | End user session | S2 |
+| Yes ✅ | Yes ✅ | `/api/v1/auth/register` | POST | `user <BaseUserRegisterDTO>`, `car <CarDTO>` (optional), `location <LocationDTO>` (optional) | Body | 201, 400, 409 | `{ "token": "uuid-token", "userId": 1, "userAccountType": "REQUESTER", ... }` | Register a new user account | S1 | 
+| Yes ✅ | Yes ✅ | `/api/v1/auth/login` | POST | `username <string>`, `password <string>` | Body | 200, 401 | `{ "token": "uuid-token", "userId": 1, "userAccountType": "REQUESTER", ... }` | Authenticate user and create session | S2 | 
+| Yes ✅ | Yes ✅ | `/api/v1/auth/logout` | POST | `UserId <string>`, `Authorization <string>` | Header | 200, 401 | `{ "message": "Successfully logged out", "timestamp": 1234567890 }` | End user session | S2 |
 
 ### Authentication Headers
 All authenticated endpoints require the following headers:
@@ -71,9 +70,9 @@ Common authentication error codes:
 
 | FE | BE | Mapping | Method | Parameter | Parameter Type | Status Code | Response | Description | User Story |
 |---------|--------|-----------|----------------|-------------|----------|-------------|-----------|-----------|-----------|
-| No ❌ | Yes ✅ | `/api/v1/users/{id}` | GET | `id <string>` | Path, Header (`UserId`, `Authorization`) | 200, 404 | User object with profile details | Get user details | S3, S10 | 
-| No ❌ | Yes ✅ | `/api/v1/users/{id}` | PUT | `id <string>`, profile fields | Path, Header (`Authorization`), Body | 200, 400, 403 | Updated user object | Update user profile | S3, S10 | 
-| No ❌ | Yes ✅ | `/api/v1/auth/users/{userId}` | POST | `userId <string>`, `email <string>` (in body) | Path, Header (`UserId`, `Authorization`), Body | 204, 400, 401, 403 | None | Delete user account (with email verification) | S3, S10 | 
+| Yes ✅ | Yes ✅ | `/api/v1/users/{id}` | GET | `id <string>` | Path, Header (`UserId`, `Authorization`) | 200, 404 | User object with profile details | Get user details | S3, S10 | 
+| Yes ✅ | Yes ✅ | `/api/v1/users/{id}` | PUT | `id <string>`, profile fields | Path, Header (`Authorization`), Body | 200, 400, 403 | Updated user object | Update user profile | S3, S10 | 
+| Yes ✅ | Yes ✅ | `/api/v1/auth/users/{userId}` | POST | `userId <string>`, `email <string>` (in body) | Path, Header (`UserId`, `Authorization`), Body | 204, 400, 401, 403 | None | Delete user account (with email verification) | S3, S10 | 
 | No ❌ | No ❌ | `/api/v1/users/requesters/{id}` | GET | `id <string>` | Path | — | — | Get requester-specific profile (**Not implemented**) | S3 | 
 | No ❌ | No ❌ | `/api/v1/users/requesters/{id}` | PUT | `id <string>`, requester-specific fields | Path, Body | — | — | Update requester profile (**Not implemented**) | S3 | 
 | No ❌ | No ❌ | `/api/v1/users/drivers/{id}` | GET | `id <string>` | Path | — | — | Get driver-specific profile (**Not implemented**) | S10 | 
@@ -85,16 +84,16 @@ Common authentication error codes:
 
 | FE | BE | Mapping | Method | Parameter | Parameter Type | Status Code | Response | Description | User Story |
 |---------|--------|-----------|----------------|-------------|----------|-------------|-----------|-----------|-----------|
-| No ❌ | Yes ✅ | `/api/v1/contracts` | POST | `newContract <Contract>` { title, weight, volume, fragile, coolingRequired, rideAlong, manPower, contractDescription, price, collateral, requesterId, fromLocation, toLocation, moveDateTime, contractPhotos } | Body, Header (`UserId`, `Authorization`) | 201, 400, 404 | Created contract object | Create a new contract | S5 | 
+| Yes ✅ | Yes ✅ | `/api/v1/contracts` | POST | `newContract <Contract>` { title, weight, volume, fragile, coolingRequired, rideAlong, manPower, contractDescription, price, collateral, requesterId, fromLocation, toLocation, moveDateTime, contractPhotos } | Body, Header (`UserId`, `Authorization`) | 201, 400, 404 | Created contract object | Create a new contract | S5 | 
 | Yes ✅ | Yes ✅ | `/api/v1/contracts` | GET | `lat <number>`, `lng <number>`, `filters <object>`{ radius (number), price (number), weight (number), height (number), length (number), width (number), requiredPeople (number), fragile (boolean), coolingRequired (boolean), rideAlong (boolean), fromAddress (string), toAddress (string), moveDateTime (string) } | Query, Header (`UserId`, `Authorization`) | 200 | `{ "contracts": [...], "timestamp": 1234567890 }` | Get available contracts with filtering | S11 |
-| No ❌ | Yes ✅ | `/api/v1/contracts/{id}` | GET | `id <string>` | Path, Header (`UserId`, `Authorization`) | 200, 404 | Contract details object | Get contract details | S7, S12 |
-| No ❌ | Yes ✅ | `/api/v1/contracts/{id}` | PUT | `id <string>`, `contractToUpdate <Contract>` | Path, Body, Header (`UserId`, `Authorization`) | 200, 400, 403 | Updated contract object | Update a contract | S6 |
-| No ❌ | Yes ✅ | `/api/v1/contracts/{id}/cancel` | PUT | `id <string>`, `reason <string>` | Path, Body, Header (`UserId`, `Authorization`) | 200, 400, 403, 409 | Updated contract with cancel status | Cancel a contract (72h policy) | S8 | 
-| No ❌ | Yes ✅ | `/api/v1/contracts/{id}/fulfill` | PUT | `id <string>` | Path, Header (`UserId`, `Authorization`) | 200, 400, 403 | Updated contract status | Mark contract as fulfilled | S9, S18 | 
+| Yes ✅ | Yes ✅ | `/api/v1/contracts/{id}` | GET | `id <string>` | Path, Header (`UserId`, `Authorization`) | 200, 404 | Contract details object | Get contract details | S7, S12 |
+| Yes ✅ | Yes ✅ | `/api/v1/contracts/{id}` | PUT | `id <string>`, `contractToUpdate <Contract>` | Path, Body, Header (`UserId`, `Authorization`) | 200, 400, 403 | Updated contract object | Update a contract | S6 |
+| Yes ✅ | Yes ✅ | `/api/v1/contracts/{id}/cancel` | PUT | `id <string>`, `reason <string>` | Path, Body, Header (`UserId`, `Authorization`) | 200, 400, 403, 409 | Updated contract with cancel status | Cancel a contract (72h policy) | S8 | 
+| Yes ✅ | Yes ✅ | `/api/v1/contracts/{id}/fulfill` | PUT | `id <string>` | Path, Header (`UserId`, `Authorization`) | 200, 400, 403 | Updated contract status | Mark contract as fulfilled | S9, S18 | 
 | No ❌ | No ❌ | `/api/v1/contracts/{id}/collateral` | POST | `id <string>`, `collateralAmount <number>` | Path, Body | — | — | Provide contract collateral (**Not implemented**) | S21 | 
-| No ❌ | Yes ✅ | `/api/v1/users/{userId}/contracts` | GET | `userId <string>`, `status <string>` (optional) | Path, Query, Header (`UserId`, `Authorization`) | 200 | List of contracts for a specific user| Get user's contracts with optional status filtering | S12 | 
-| No ❌ | Yes ✅ | `/api/v1/contracts/{id}` | DELETE | `id <string>` | Path, Header (`UserId`, `Authorization`) | 204, 403, 409 | None | Delete a contract (soft delete) | S8 | 
-| No ❌ | Yes ✅ | `/api/v1/contracts/{id}/driver` | GET | `id <string>` | Path, Header (`UserId`, `Authorization`) | 200, 403, 404 | Driver details object | Get driver details for a specific contract | S12 | 
+| Yes ✅ | Yes ✅ | `/api/v1/users/{userId}/contracts` | GET | `userId <string>`, `status <string>` (optional) | Path, Query, Header (`UserId`, `Authorization`) | 200 | List of contracts for a specific user| Get user's contracts with optional status filtering | S12 | 
+| Yes ✅ | Yes ✅ | `/api/v1/contracts/{id}` | DELETE | `id <string>` | Path, Header (`UserId`, `Authorization`) | 204, 403, 409 | None | Delete a contract (soft delete) | S8 | 
+| Yes ✅ | Yes ✅ | `/api/v1/contracts/{id}/driver` | GET | `id <string>` | Path, Header (`UserId`, `Authorization`) | 200, 403, 404 | Driver details object | Get driver details for a specific contract | S12 | 
 
 ### User Contracts Details
 The GET `/api/v1/users/{userId}/contracts` endpoint supports the following parameters:
@@ -197,14 +196,14 @@ DELETE /api/v1/contracts/123
 
 | FE | BE | Mapping | Method | Parameter | Parameter Type | Status Code | Response | Description | User Story |
 |---------|--------|-----------|----------------|-------------|----------|-------------|-----------|-----------|-----------|
-| No ❌ | Yes ✅ | `/api/v1/offers` | GET | `contractId` (optional), `driverId` (optional), `status` (optional) | Query, Header (`UserId`, `Authorization`) | 200 | List of offers | Get all offers with optional filtering | S4, S11 |
-| No ❌ | Yes ✅ | `/api/v1/offers` | POST | `contractId <string>`, `driverId <string>` | Body, Header (`UserId`, `Authorization`) | 201, 400, 404, 409 | Created offer object | Create a new offer | S12 |
-| No ❌ | Yes ✅ | `/api/v1/offers/{offerId}` | GET | `offerId <string>` | Path, Header (`UserId`, `Authorization`) | 200, 404 | Detailed offer object | Get a specific offer | S4, S11 |
-| No ❌ | Yes ✅ | `/api/v1/offers/{offerId}` | DELETE | `offerId <string>` | Path, Header (`UserId`, `Authorization`) | 204, 403, 404 | None | Delete an offer | S6 |
-| No ❌ | Yes ✅ | `/api/v1/contracts/{contractId}/offers` | GET | `contractId <string>` | Path, Header (`UserId`, `Authorization`) | 200, 404 | List of offers | Get all offers for a specific contract | S7 |
-| No ❌ | Yes ✅ | `/api/v1/offers/{offerId}/status` | PUT | `offerId <string>`, `status <string>` | Path, Query (`status`), Header (`UserId`, `Authorization`) | 200, 400, 403, 404, 409 | Updated offer with new status | Update offer status | S12 |
-| No ❌ | Yes ✅ | `/api/v1/users/{driverId}/offers` | GET | `driverId <string>`, `status` (optional) | Path, Query, Header (`UserId`, `Authorization`) | 200, 404 | List of offers | Get all offers for a specific driver | S4, S11 |
-| No ❌ | Yes ✅ | `/api/v1/offers/{offerId}/driver` | GET | `offerId <string>` | Path, Header (`UserId`, `Authorization`) | 200, 401, 403, 404 | Driver details object | Get driver details for a specific offer | S13 |
+| Yes ✅ | Yes ✅ | `/api/v1/offers` | GET | `contractId` (optional), `driverId` (optional), `status` (optional) | Query, Header (`UserId`, `Authorization`) | 200 | List of offers | Get all offers with optional filtering | S4, S11 |
+| Yes ✅ | Yes ✅ | `/api/v1/offers` | POST | `contractId <string>`, `driverId <string>` | Body, Header (`UserId`, `Authorization`) | 201, 400, 404, 409 | Created offer object | Create a new offer | S12 |
+| Yes ✅ | Yes ✅ | `/api/v1/offers/{offerId}` | GET | `offerId <string>` | Path, Header (`UserId`, `Authorization`) | 200, 404 | Detailed offer object | Get a specific offer | S4, S11 |
+| Yes ✅ | Yes ✅ | `/api/v1/offers/{offerId}` | DELETE | `offerId <string>` | Path, Header (`UserId`, `Authorization`) | 204, 403, 404 | None | Delete an offer | S6 |
+| Yes ✅ | Yes ✅ | `/api/v1/contracts/{contractId}/offers` | GET | `contractId <string>` | Path, Header (`UserId`, `Authorization`) | 200, 404 | List of offers | Get all offers for a specific contract | S7 |
+| Yes ✅ | Yes ✅ | `/api/v1/offers/{offerId}/status` | PUT | `offerId <string>`, `status <string>` | Path, Query (`status`), Header (`UserId`, `Authorization`) | 200, 400, 403, 404, 409 | Updated offer with new status | Update offer status | S12 |
+| Yes ✅ | Yes ✅ | `/api/v1/users/{driverId}/offers` | GET | `driverId <string>`, `status` (optional) | Path, Query, Header (`UserId`, `Authorization`) | 200, 404 | List of offers | Get all offers for a specific driver | S4, S11 |
+| Yes ✅ | Yes ✅ | `/api/v1/offers/{offerId}/driver` | GET | `offerId <string>` | Path, Header (`UserId`, `Authorization`) | 200, 401, 403, 404 | Driver details object | Get driver details for a specific offer | S13 |
 
 ### Offer Status Values
 - CREATED: Initial state when offer is created
@@ -627,13 +626,13 @@ or
 
 | FE | BE | Mapping | Method | Parameter | Parameter Type | Status Code | Response | Description | User Story |
 |---------|--------|-----------|----------------|-------------|----------|-------------|-----------|-----------|-----------|
-| No ❌ | Yes ✅ | `/api/v1/ratings/{id}` | GET | `id <string>`, `userId <string>`, `token <string>` | Path, Header | 200, 401, 404 | `{ "rating": {...}, "timestamp": 1234567890 }` | Get a specific rating by ID | S9, S18 |
-| No ❌ | Yes ✅ | `/api/v1/ratings` | POST | `ratingPostDTO <RatingPostDTO>`, `userId <string>`, `token <string>` | Body, Header | 201, 400, 401, 403 | `{ "rating": {...}, "timestamp": 1234567890 }` | Create a new rating | S9 |
-| No ❌ | Yes ✅ | `/api/v1/ratings/{id}` | PUT | `id <string>`, `ratingPutDTO <RatingPutDTO>`, `userId <string>`, `token <string>` | Path, Body, Header | 200, 400, 401, 403, 404 | `{ "rating": {...}, "timestamp": 1234567890 }` | Update an existing rating | S9, S18 |
-| No ❌ | Yes ✅ | `/api/v1/ratings/{id}` | DELETE | `id <string>`, `userId <string>`, `token <string>` | Path, Header | 200, 401, 403, 404 | `{ "message": "Rating deleted successfully", "timestamp": 1234567890 }` | Delete a rating | S9, S18 |
-| No ❌ | Yes ✅ | `/api/v1/ratings/users/{userId}/ratings` | GET | `userId <string>`, `requestUserId <string>`, `token <string>` | Path, Header | 200, 401 | `{ "ratings": [...], "timestamp": 1234567890 }` | Get all ratings for a specific user | S9, S18 |
-| No ❌ | Yes ✅ | `/api/v1/ratings/contracts/{contractId}/ratings` | GET | `contractId <string>`, `userId <string>`, `token <string>` | Path, Header | 200, 401 | `{ "ratings": [...], "timestamp": 1234567890 }` | Get all ratings for a specific contract | S9, S18 |
-| No ❌ | Yes ✅ | `/api/v1/ratings/users/{userId}/average-rating` | GET | `userId <string>`, `requestUserId <string>`, `token <string>` | Path, Header | 200, 401 | `{ "rating": 4.5, "timestamp": 1234567890 }` | Get average rating for a user | S9, S18 |
+| Yes ✅ | Yes ✅ | `/api/v1/ratings/{id}` | GET | `id <string>`, `userId <string>`, `token <string>` | Path, Header | 200, 401, 404 | `{ "rating": {...}, "timestamp": 1234567890 }` | Get a specific rating by ID | S9, S18 |
+| Yes ✅ | Yes ✅ | `/api/v1/ratings` | POST | `ratingPostDTO <RatingPostDTO>`, `userId <string>`, `token <string>` | Body, Header | 201, 400, 401, 403 | `{ "rating": {...}, "timestamp": 1234567890 }` | Create a new rating | S9 |
+| Yes ✅ | Yes ✅ | `/api/v1/ratings/{id}` | PUT | `id <string>`, `ratingPutDTO <RatingPutDTO>`, `userId <string>`, `token <string>` | Path, Body, Header | 200, 400, 401, 403, 404 | `{ "rating": {...}, "timestamp": 1234567890 }` | Update an existing rating | S9, S18 |
+| Yes ✅ | Yes ✅ | `/api/v1/ratings/{id}` | DELETE | `id <string>`, `userId <string>`, `token <string>` | Path, Header | 200, 401, 403, 404 | `{ "message": "Rating deleted successfully", "timestamp": 1234567890 }` | Delete a rating | S9, S18 |
+| Yes ✅ | Yes ✅ | `/api/v1/ratings/users/{userId}/ratings` | GET | `userId <string>`, `requestUserId <string>`, `token <string>` | Path, Header | 200, 401 | `{ "ratings": [...], "timestamp": 1234567890 }` | Get all ratings for a specific user | S9, S18 |
+| Yes ✅ | Yes ✅ | `/api/v1/ratings/contracts/{contractId}/ratings` | GET | `contractId <string>`, `userId <string>`, `token <string>` | Path, Header | 200, 401 | `{ "ratings": [...], "timestamp": 1234567890 }` | Get all ratings for a specific contract | S9, S18 |
+| Yes ✅ | Yes ✅ | `/api/v1/ratings/users/{userId}/average-rating` | GET | `userId <string>`, `requestUserId <string>`, `token <string>` | Path, Header | 200, 401 | `{ "rating": 4.5, "timestamp": 1234567890 }` | Get average rating for a user | S9, S18 |
 
 ### Rating DTOs
 
@@ -738,7 +737,7 @@ or
 |---------|--------|-----------|----------------|-------------|----------|-------------|-----------|-----------|-----------|
 | No ❌ | No ❌ | `/api/v1/notifications` | GET | Auth token | Header | — | — | Get user notifications (**Not implemented**) | S17 |
 | No ❌ | No ❌ | `/api/v1/notifications/{id}` | PUT | `id <string>`, `read <boolean>` | Path, Body | — | — | Mark notification as read (**Not implemented**) | S17 |
-| Yes ✅ | No ❌ | `/api/v1/map/contracts` | GET | `lat <number>`, `lng <number>`, `filters <object>`{ radius (number), price (number), weight (number), height (number), length (number), width (number), requiredPeople (number), fragile (boolean), coolingRequired (boolean), rideAlong (boolean), fromAdress (string of Location Obeject), toAdress (string of Location Object), moveDateTime (string of LocalDateTime Object) }| Query | — | — | Get proposals for map display (**Not implemented**) | S11, S17 |
+| No ❌ | No ❌ | `/api/v1/map/contracts` | GET | `lat <number>`, `lng <number>`, `filters <object>`{ radius (number), price (number), weight (number), height (number), length (number), width (number), requiredPeople (number), fragile (boolean), coolingRequired (boolean), rideAlong (boolean), fromAdress (string of Location Obeject), toAdress (string of Location Object), moveDateTime (string of LocalDateTime Object) }| Query | — | — | Get proposals for map display (**Not implemented**) | S11, S17 |
 
 ## Response Formats
 
